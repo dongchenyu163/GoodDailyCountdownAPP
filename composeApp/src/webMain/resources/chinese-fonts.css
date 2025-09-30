@@ -1,0 +1,29 @@
+/* 添加更强制的字体加载 */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+
+/* 强制所有元素使用中文字体 */
+html, body, * {
+    font-family: 'Noto Sans SC', 'Microsoft YaHei', '微软雅黑', 'SimSun', '宋体', sans-serif !important;
+    font-display: swap;
+}
+
+/* 特别针对Skiko和Canvas元素 */
+canvas,
+.skiko-canvas,
+.compose-web-canvas,
+.skiko-wasm * {
+    font-family: 'Noto Sans SC', 'Microsoft YaHei', '微软雅黑', 'SimSun', '宋体', sans-serif !important;
+    font-synthesis: weight style;
+}
+
+/* 添加字体预加载 */
+@font-face {
+    font-family: 'ChineseFallback';
+    src: local('Microsoft YaHei'), local('微软雅黑'), local('SimSun'), local('宋体'), local('Arial Unicode MS');
+    font-display: swap;
+}
+
+/* 确保字体立即可用 */
+body {
+    font-family: 'Noto Sans SC', 'ChineseFallback', system-ui, -apple-system, sans-serif !important;
+}

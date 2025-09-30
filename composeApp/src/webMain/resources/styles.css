@@ -1,0 +1,94 @@
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    /* 添加中文字体支持 - 将Google字体放在最前面 */
+    font-family:
+        'Noto Sans SC',
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        "Helvetica Neue",
+        Arial,
+        "PingFang SC",
+        "Source Han Sans SC",
+        "Noto Sans CJK SC",
+        "Microsoft YaHei",
+        "微软雅黑",
+        sans-serif;
+    /* 确保字体渲染质量 */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* 为所有文本元素设置中文字体 */
+* {
+    font-family: inherit !important;
+}
+
+/* 强制为Canvas和Compose相关元素设置字体 */
+canvas,
+.compose-web-canvas,
+[data-compose-component] {
+    font-family:
+        'Noto Sans SC',
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        "Helvetica Neue",
+        Arial,
+        "PingFang SC",
+        "Source Han Sans SC",
+        "Noto Sans CJK SC",
+        "Microsoft YaHei",
+        "微软雅黑",
+        sans-serif !important;
+}
+
+/* 添加中文字体加载提示 */
+@font-face {
+    font-family: 'Fallback CJK';
+    src: local('Noto Sans SC'),
+         local('Microsoft YaHei'),
+         local('微软雅黑'),
+         local('SimSun'),
+         local('宋体'),
+         local('Arial Unicode MS');
+    unicode-range: U+4E00-9FFF, U+3400-4DBF, U+20000-2A6DF;
+}
+
+/* 为根元素添加更强的字体设置 */
+:root {
+    --font-family-base:
+        'Noto Sans SC',
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        "Helvetica Neue",
+        Arial,
+        "PingFang SC",
+        "Source Han Sans SC",
+        "Noto Sans CJK SC",
+        "Microsoft YaHei",
+        "微软雅黑",
+        "Fallback CJK",
+        sans-serif;
+}
+
+/* 强制所有可能的文本容器使用中文字体 */
+body, body *,
+#root, #root *,
+.skiko-wasm, .skiko-wasm * {
+    font-family: var(--font-family-base) !important;
+    font-synthesis: weight style;
+}
+
+/* 特别针对Skiko渲染引擎的样式 */
+.skiko-canvas {
+    font-family: 'Noto Sans SC' !important;
+}
