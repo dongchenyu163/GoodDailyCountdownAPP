@@ -33,6 +33,8 @@ fun App() {
         var cardList by remember { mutableStateOf(listOf<CardData>()) }
         var nextId by remember { mutableStateOf(0) }
         var showAddDialog by remember { mutableStateOf(false) }
+        var showEditDialog by remember { mutableStateOf(false) }
+        var editingCard by remember { mutableStateOf<CardData?>(null) }
 
         // 添加标志来区分是否为初始化加载
         var isInitialLoad by remember { mutableStateOf(gIsInitLoad) }
@@ -146,7 +148,11 @@ fun App() {
                             cardList = cardList.filter { it.id != cardData.id }
                             // 自动保存会通过LaunchedEffect触发
                         },
-						onEdit = { println("Edit card ${cardData.id} clicked") }
+						onEdit = {
+                            // 设置要编辑的卡片并打开编辑对话框
+                            editingCard = cardData
+                            showEditDialog = true
+                        }
 					)
 				}
             }
@@ -171,37 +177,60 @@ fun App() {
                     }
                 )
             }
+            
+            // 编辑卡片的浮动窗口
+            if (showEditDialog && editingCard != null) {
+                EditCardDialog(
+                    cardData = editingCard!!,
+                    onDismiss = { 
+                        showEditDialog = false 
+                        editingCard = null
+                    },
+                    onConfirm = { updatedCard ->
+                        // 更新卡片列表中的卡片
+                        cardList = cardList.map { card ->
+                            if (card.id == updatedCard.id) updatedCard else card
+                        }
+                        showEditDialog = false
+                        editingCard = null
+                        // 自动保存会通过LaunchedEffect触发
+                    }
+                )
+            }
         }
     }
 }
 
 @Composable
-fun AddCardDialog(
+fun CardDialog(
+    cardData: CardData?,
     nextId: Int,
     onDismiss: () -> Unit,
     onConfirm: (CardData) -> Unit
 ) {
-    // 获取明天的日期作为默认值 - 使用正确的 kotlinx-datetime 0.6.0 API
+    // 获取当前日期作为默认值 - 使用正确的 kotlinx-datetime 0.6.0 API
     val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
-    val tomorrow = today.plus(1, DateTimeUnit.DAY)
+    val defaultDate = if (cardData != null) {
+        LocalDate.parse(cardData.date)
+    } else {
+        today.plus(1, DateTimeUnit.DAY)
+    }
+    val defaultTitle = cardData?.title ?: "测试Test #$nextId"
+    val defaultRemainingDays = cardData?.remainingDays?.toString() ?: "1"
 
-    var title by remember { mutableStateOf("测试Test #$nextId") }
-    var selectedDate by remember { mutableStateOf(tomorrow) }
-    var remainingDaysText by remember { mutableStateOf("1") }
+    var title by remember { mutableStateOf(defaultTitle) }
+    var selectedDate by remember { mutableStateOf(defaultDate) }
+    var remainingDaysText by remember { mutableStateOf(defaultRemainingDays) }
     var showDatePicker by remember { mutableStateOf(false) }
 
     // 添加标志来区分更新来源，避免循环引用
     var isUpdatingFromDate by remember { mutableStateOf(false) }
 
     // 计算剩余天数的函数
-    fun calculateRemainingDays_OLD(targetDate: LocalDate): Int {
+    fun calculateRemainingDays(targetDate: LocalDate): Int {
         val currentDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
-        return (targetDate - currentDate).days
+        return targetDate.toEpochDays() - currentDate.toEpochDays()
     }
-	fun calculateRemainingDays(targetDate: LocalDate): Int {
-		val currentDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
-		return targetDate.toEpochDays() - currentDate.toEpochDays()
-	}
 
     // 根据剩余天数计算目标日期的函数
     fun calculateTargetDate(remainingDays: Int): LocalDate {
@@ -229,7 +258,7 @@ fun AddCardDialog(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
-                    text = "添加新卡片",
+                    text = if (cardData != null) "编辑卡片" else "添加新卡片",
                     style = MaterialTheme.typography.headlineSmall
                 )
 
@@ -284,14 +313,24 @@ fun AddCardDialog(
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
                         onClick = {
-                            val remainingDays = remainingDaysText.toIntOrNull() ?: 1
-                            val newCard = CardData(
-                                id = nextId,
-                                title = title,
-                                date = selectedDate.toString(),
-                                remainingDays = remainingDays
-                            )
-                            onConfirm(newCard)
+                            val remainingDays = remainingDaysText.toIntOrNull() ?: 
+                                if (cardData != null) cardData.remainingDays else 1
+                            val card = if (cardData != null) {
+                                CardData(
+                                    id = cardData.id,
+                                    title = title,
+                                    date = selectedDate.toString(),
+                                    remainingDays = remainingDays
+                                )
+                            } else {
+                                CardData(
+                                    id = nextId,
+                                    title = title,
+                                    date = selectedDate.toString(),
+                                    remainingDays = remainingDays
+                                )
+                            }
+                            onConfirm(card)
                         }
                     ) {
                         Text("确认")
@@ -313,6 +352,34 @@ fun AddCardDialog(
             onDismiss = { showDatePicker = false }
         )
     }
+}
+
+@Composable
+fun EditCardDialog(
+    cardData: CardData,
+    onDismiss: () -> Unit,
+    onConfirm: (CardData) -> Unit
+) {
+    CardDialog(
+        cardData = cardData,
+        nextId = 0, // This won't be used since we're editing
+        onDismiss = onDismiss,
+        onConfirm = onConfirm
+    )
+}
+
+@Composable
+fun AddCardDialog(
+    nextId: Int,
+    onDismiss: () -> Unit,
+    onConfirm: (CardData) -> Unit
+) {
+    CardDialog(
+        cardData = null,
+        nextId = nextId,
+        onDismiss = onDismiss,
+        onConfirm = onConfirm
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
