@@ -6,6 +6,7 @@ xcuserdata
 !src/**/build/
 local.properties
 .idea
+.github
 .DS_Store
 captures
 .externalNativeBuild
@@ -17,3 +18,5 @@ captures
 !*.xcworkspace/contents.xcworkspacedata
 **/xcshareddata/WorkspaceSettings.xcsettings
 node_modules/
+.gitignore
+composeApp/countdown_cards.json
