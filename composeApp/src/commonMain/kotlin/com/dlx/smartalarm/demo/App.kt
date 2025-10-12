@@ -66,6 +66,29 @@ fun App() {
         var showEditDialog by remember { mutableStateOf(false) }
         var editingCard by remember { mutableStateOf<CardData?>(null) }
 
+        val reminderHandler = rememberReminderHandler()
+        var reminderDialogCard by remember { mutableStateOf<CardData?>(null) }
+
+        val timeZone = remember { TimeZone.currentSystemDefault() }
+        val today by produceState(initialValue = Clock.System.todayIn(timeZone)) {
+            while (true) {
+                val now = Clock.System.now()
+                val todayDate = now.toLocalDateTime(timeZone).date
+                value = todayDate
+                val nextDayInstant = todayDate.plus(1, DateTimeUnit.DAY).atStartOfDayIn(timeZone)
+                val delayDuration: Duration = nextDayInstant - now
+                if (delayDuration > ZERO) {
+                    delay(delayDuration)
+                } else {
+                    delay(1.hours)
+                }
+            }
+        }
+
+        fun updateCard(updated: CardData) {
+            cardList = cardList.map { existing -> if (existing.id == updated.id) updated else existing }
+        }
+
         // 添加标志来区分是否为初始化加载
         var isInitialLoad by remember { mutableStateOf(gIsInitLoad) }
 
@@ -224,6 +247,22 @@ fun App() {
                         showEditDialog = false
                         editingCard = null
                         // 自动保存会通过LaunchedEffect触发
+                    }
+                )
+            }
+
+            reminderDialogCard?.let { dueCard ->
+                AlertDialog(
+                    onDismissRequest = { reminderDialogCard = null },
+                    confirmButton = {
+                        TextButton(onClick = { reminderDialogCard = null }) {
+                            Text("知道了")
+                        }
+                    },
+                    title = { Text("提醒") },
+                    text = {
+                        val title = dueCard.title.ifBlank { "倒计时提醒" }
+                        Text("《$title》的倒计时已经到期啦！")
                     }
                 )
             }

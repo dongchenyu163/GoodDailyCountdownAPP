@@ -10,7 +10,8 @@ data class CardData(
     val id: Int,
     val title: String,
     val date: String,
-    val remainingDays: Int
+    val remainingDays: Int,
+    val reminderSent: Boolean = false
 )
 
 expect class CardDataManager {
