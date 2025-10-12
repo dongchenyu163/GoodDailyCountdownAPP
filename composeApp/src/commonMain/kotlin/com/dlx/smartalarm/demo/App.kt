@@ -9,24 +9,54 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import kotlinx.datetime.*
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.ZERO
+import kotlin.time.Duration.Companion.hours
 
 import demo.composeapp.generated.resources.Res
 import demo.composeapp.generated.resources.compose_multiplatform
 import com.dlx.smartalarm.demo.AnimatedCountdownCard
+import org.jetbrains.compose.resources.Font
+
+import demo.composeapp.generated.resources.NotoSansSC
 
 var gIsInitLoad = true  // 全局标志，指示是否为初始化加载
-
+//   taskkill /im node.exe /f
 @Composable
 @Preview
 fun App() {
-    AppTheme {
+
+	val base = Typography()
+	val jpFamily = FontFamily(Font(Res.font.NotoSansSC, weight = FontWeight.Normal))
+
+	val jpTypography = base.copy(
+		bodyLarge = base.bodyLarge.copy(fontFamily = jpFamily),
+		bodyMedium = base.bodyMedium.copy(fontFamily = jpFamily),
+		bodySmall = base.bodySmall.copy(fontFamily = jpFamily),
+		labelLarge = base.labelLarge.copy(fontFamily = jpFamily),
+		labelMedium = base.labelMedium.copy(fontFamily = jpFamily),
+		labelSmall = base.labelSmall.copy(fontFamily = jpFamily),
+		titleLarge = base.titleLarge.copy(fontFamily = jpFamily),
+		titleMedium = base.titleMedium.copy(fontFamily = jpFamily),
+		titleSmall = base.titleSmall.copy(fontFamily = jpFamily),
+		displayLarge = base.displayLarge.copy(fontFamily = jpFamily),
+		displayMedium = base.displayMedium.copy(fontFamily = jpFamily),
+		displaySmall = base.displaySmall.copy(fontFamily = jpFamily),
+		headlineLarge = base.headlineLarge.copy(fontFamily = jpFamily),
+		headlineMedium = base.headlineMedium.copy(fontFamily = jpFamily),
+		headlineSmall = base.headlineSmall.copy(fontFamily = jpFamily),
+	)
+	MaterialTheme (typography = jpTypography) {
 		var showContent by remember { mutableStateOf(false) }
 		var isLarge by remember { mutableStateOf(false) }
 
