@@ -191,23 +191,46 @@ fun App() {
                 }
                 // 渲染所有 AnimatedCountdownCard 控件
                 cardList.forEach { cardData ->
+                    key(cardData.id) {
+                        val dynamicRemaining = remember(today, cardData.date) {
+                            runCatching { LocalDate.parse(cardData.date) }
+                                .getOrNull()
+                                ?.let { targetDate ->
+                                    (targetDate.toEpochDays() - today.toEpochDays()).coerceAtLeast(0)
+                                } ?: cardData.remainingDays
+                        }
+
+                        LaunchedEffect(cardData.id, dynamicRemaining) {
+                            if (dynamicRemaining != cardData.remainingDays) {
+                                updateCard(cardData.copy(remainingDays = dynamicRemaining))
+                            }
+                        }
+
+                        CountdownReminderObserver(
+                            card = cardData,
+                            reminderHandler = reminderHandler,
+                            onCardUpdate = { updated -> updateCard(updated) },
+                            onDialogRequest = { reminderDialogCard = it }
+                        )
+
 					AnimatedCountdownCard(
 						title = cardData.title,
 						date = cardData.date,
-						remainingDays = cardData.remainingDays,
+						remainingDays = dynamicRemaining,
 						onClick = { println("Card ${cardData.id} clicked") },
 						onDelete = {
-                            // 基于ID删除指定卡片
-                            cardList = cardList.filter { it.id != cardData.id }
-                            // 自动保存会通过LaunchedEffect触发
-                        },
+                                // 基于ID删除指定卡片
+                                cardList = cardList.filter { it.id != cardData.id }
+                                // 自动保存会通过LaunchedEffect触发
+                            },
 						onEdit = {
-                            // 设置要编辑的卡片并打开编辑对话框
-                            editingCard = cardData
-                            showEditDialog = true
-                        }
+                                // 设置要编辑的卡片并打开编辑对话框
+                                editingCard = cardData
+                                showEditDialog = true
+                            }
 					)
-				}
+                    }
+			}
             }
             // 屏幕右下角添加按钮
             Button(
@@ -285,7 +308,13 @@ fun CardDialog(
         today.plus(1, DateTimeUnit.DAY)
     }
     val defaultTitle = cardData?.title ?: "测试Test #$nextId"
-    val defaultRemainingDays = cardData?.remainingDays?.toString() ?: "1"
+    val defaultRemainingDays = cardData?.let {
+        runCatching {
+            val targetDate = LocalDate.parse(it.date)
+            val currentDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
+            (targetDate.toEpochDays() - currentDate.toEpochDays()).coerceAtLeast(0).toString()
+        }.getOrDefault(it.remainingDays.toString())
+    } ?: "1"
 
     var title by remember { mutableStateOf(defaultTitle) }
     var selectedDate by remember { mutableStateOf(defaultDate) }
@@ -382,21 +411,28 @@ fun CardDialog(
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
                         onClick = {
-                            val remainingDays = remainingDaysText.toIntOrNull() ?: 
-                                if (cardData != null) cardData.remainingDays else 1
+                            val remainingDays = maxOf(0, remainingDaysText.toIntOrNull() ?: 
+                                (cardData?.remainingDays ?: 1))
+                            val reminderSent = if (remainingDays > 0) {
+                                false
+                            } else {
+                                cardData?.reminderSent ?: false
+                            }
                             val card = if (cardData != null) {
                                 CardData(
                                     id = cardData.id,
                                     title = title,
                                     date = selectedDate.toString(),
-                                    remainingDays = remainingDays
+                                    remainingDays = remainingDays,
+                                    reminderSent = reminderSent
                                 )
                             } else {
                                 CardData(
                                     id = nextId,
                                     title = title,
                                     date = selectedDate.toString(),
-                                    remainingDays = remainingDays
+                                    remainingDays = remainingDays,
+                                    reminderSent = reminderSent
                                 )
                             }
                             onConfirm(card)
