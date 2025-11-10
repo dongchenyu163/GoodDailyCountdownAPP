@@ -1,13 +1,16 @@
+@file:OptIn(
+    kotlinx.cinterop.BetaInteropApi::class,
+    kotlinx.cinterop.ExperimentalForeignApi::class
+)
+
 package com.dlx.smartalarm.demo
 
 import kotlinx.cinterop.*
-import platform.Foundation.*
-import platform.darwin.NSObject
-import kotlinx.cinterop.ExperimentalForeignApi
+import platform.posix.*
 
 /**
  * iOS平台的CardDataManager实现
- * 使用iOS的Documents目录进行数据存储
+ * 使用iOS的Documents目录进行数据存储（通过 POSIX 文件 API）
  */
 actual class CardDataManager {
     /**
@@ -25,86 +28,71 @@ actual class CardDataManager {
     }
 }
 
+private fun getDocumentsPath(): String? {
+    // 使用环境变量 HOME 来定位用户目录（在模拟器和设备上通常可用）
+    val homePtr = getenv("HOME") ?: return null
+    val home = homePtr.toKString()
+    return "$home/Documents"
+}
+
 /**
- * 在iOS平台读取文件
- * 使用iOS的Documents目录作为存储位置
- * @param fileName 文件名
- * @return 文件内容，如果文件不存在则创建默认内容
+ * POSIX 读取文件实现
  */
-@OptIn(ExperimentalForeignApi::class)
 actual suspend fun readFile(fileName: String): String? {
-    return try {
-        // 获取iOS Documents目录路径
-        val documentsPath = NSSearchPathForDirectoriesInDomains(
-            NSDocumentDirectory,
-            NSUserDomainMask,
-            true
-        ).firstOrNull() as? String
+    val documentsPath = getDocumentsPath() ?: return null
+    val fullPath = "$documentsPath/$fileName"
 
-        if (documentsPath != null) {
-            val filePath = "$documentsPath/$fileName"
-            val fileManager = NSFileManager.defaultManager
+    memScoped {
+        val file = fopen(fullPath, "rb") ?: return null
+        try {
+            if (fseek(file, 0, SEEK_END) != 0) return null
+            val size = ftell(file)
+            if (size <= 0) return null
+            rewind(file)
 
-            // 检查文件是否存在
-            if (fileManager.fileExistsAtPath(filePath)) {
-                // 读取文件内容
-                NSString.stringWithContentsOfFile(
-                    filePath,
-                    encoding = NSUTF8StringEncoding,
-                    error = null
-                )
-            } else {
-                // 初次打开时创建默认空数组
-                if (fileName == "cards.json") {
-                    val defaultContent = "[]"
-                    writeFile(fileName, defaultContent)
-                    defaultContent
-                } else {
-                    null
+            val bytes = ByteArray(size.toInt())
+            val buffer = allocArray<ByteVar>(size.toInt())
+            val read = fread(buffer, 1.convert(), size.convert(), file).toInt()
+            if (read > 0) {
+                for (i in 0 until read) {
+                    bytes[i] = buffer[i]
                 }
+                return bytes.decodeToString()
             }
-        } else {
-            null
+            return null
+        } finally {
+            fclose(file)
         }
-    } catch (e: Exception) {
-        println("Error reading file on iOS: ${e.message}")
-        null
     }
 }
 
-
 /**
- * 在iOS平台写入文件
- * 将内容保存到iOS的Documents目录
- * @param fileName 文件名
- * @param content 要写入的内容
+ * POSIX 写文件实现（原子性写入未严格保证，使用覆盖写）
  */
-@OptIn(ExperimentalForeignApi::class)
 actual suspend fun writeFile(fileName: String, content: String) {
-    try {
-        // 获取iOS Documents目录路径
-        val documentsPath = NSSearchPathForDirectoriesInDomains(
-            NSDocumentDirectory,
-            NSUserDomainMask,
-            true
-        ).firstOrNull() as? String
+    val documentsPath = getDocumentsPath()
+    if (documentsPath == null) {
+        println("Could not access Documents directory")
+        return
+    }
+    val fullPath = "$documentsPath/$fileName"
 
-        if (documentsPath != null) {
-            val filePath = "$documentsPath/$fileName"
-            val nsString = NSString.create(string = content)
-
-            // 原子性写入文件，确保数据完整性
-            nsString.writeToFile(
-                filePath,
-                atomically = true,
-                encoding = NSUTF8StringEncoding,
-                error = null
-            )
-            println("Cards saved to iOS Documents directory: $filePath")
-        } else {
-            println("Could not access iOS Documents directory")
+    memScoped {
+        val file = fopen(fullPath, "wb")
+        if (file == null) {
+            println("Failed to open file for writing: $fullPath")
+            return
         }
-    } catch (e: Exception) {
-        println("Error writing file on iOS: ${e.message}")
+        try {
+            val bytes = content.encodeToByteArray()
+            val buffer = allocArray<ByteVar>(bytes.size)
+            for (i in bytes.indices) buffer[i] = bytes[i]
+            val written = fwrite(buffer, 1.convert(), bytes.size.convert(), file).toLong()
+            if (written != bytes.size.toLong()) {
+                println("Warning: not all bytes were written to $fullPath")
+            }
+        } finally {
+            fclose(file)
+        }
     }
 }
