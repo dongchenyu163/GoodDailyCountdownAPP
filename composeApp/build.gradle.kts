@@ -41,21 +41,23 @@ kotlin {
 		binaries.executable()
 	}
 
-	sourceSets {
-		androidMain.dependencies {
-			implementation(compose.preview)
-			implementation(libs.androidx.activity.compose)
-			implementation(libs.androidx.core.ktx)
-		}
-		commonMain.dependencies {
-			implementation(compose.runtime)
-			implementation(compose.foundation)
-			implementation(compose.material3)
-			implementation(compose.ui)
-			implementation(compose.components.resources)
-			implementation(compose.components.uiToolingPreview)
-			implementation(libs.androidx.lifecycle.viewmodelCompose)
-			implementation(libs.androidx.lifecycle.runtimeCompose)
+		sourceSets {
+			androidMain.dependencies {
+				implementation(compose.preview)
+				implementation(libs.androidx.activity.compose)
+				implementation(libs.androidx.core.ktx)
+			}
+			commonMain.dependencies {
+				implementation(compose.runtime)
+				implementation(compose.foundation)
+				implementation(compose.material3)
+				// 为 SwipeToDismiss 等组件引入 material（非material3）
+				implementation(compose.material)
+				implementation(compose.ui)
+				implementation(compose.components.resources)
+				implementation(compose.components.uiToolingPreview)
+				implementation(libs.androidx.lifecycle.viewmodelCompose)
+				implementation(libs.androidx.lifecycle.runtimeCompose)
 			implementation(libs.kotlinx.datetime)
 			implementation(libs.kotlinx.serialization.json)
 		}
