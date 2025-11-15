@@ -89,17 +89,22 @@ fun CountdownCard(
             animationSpec = tween(400)
         )
     ) {
+        // 主题色（在可组合作用域中读取，供 drawWithCache 使用）
+        val containerA = MaterialTheme.colorScheme.primaryContainer
+        val containerB = MaterialTheme.colorScheme.secondaryContainer
+
         Box(
             modifier = Modifier
                 .scale(scale)
                 .offset(x = offsetX.dp)
                 .alpha(alpha)
-                .size(width = 240.dp, height = 140.dp)
+                // Card 视图宽度改为相对窗口的百分比（约 92%），高度保持卡片风格
+                .fillMaxWidth(0.92f)
+                .height(140.dp)
                 .drawWithCache {
                     val corner = CornerRadius(16.dp.toPx(), 16.dp.toPx())
-                    val brush = Brush.linearGradient(
-                        colors = listOf(Color(0xFF667eea), Color(0xFF764ba2))
-                    )
+                    // 使用上面读取的主题容器色做渐变，风格与整体一致
+                    val brush = Brush.linearGradient(colors = listOf(containerA, containerB))
                     onDrawBehind {
                         drawRoundRect(brush = brush, cornerRadius = corner)
                     }

@@ -20,6 +20,7 @@ import androidx.compose.material.rememberDismissState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.input.pointer.*
@@ -469,18 +470,22 @@ private fun MainScreen(
 
                     SwipeToDismiss(
                         state = dismissState,
+                        modifier = Modifier.clip(MaterialTheme.shapes.large),
                         background = {
-                            val progress = dismissState.progress.fraction.coerceIn(0f, 1f)
+                            // 仅在发生滑动时才显示背景，避免静止时误显
+                            val isActive = dismissState.dismissDirection != null ||
+                                dismissState.targetValue != DismissValue.Default ||
+                                dismissState.currentValue != DismissValue.Default
+                            val progress = if (isActive) dismissState.progress.fraction.coerceIn(0f, 1f) else 0f
                             val bg = MaterialTheme.colorScheme.errorContainer.copy(alpha = progress)
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(if (displayStyle == DisplayStyle.Card) 150.dp else 96.dp)
-                                    .padding(horizontal = 8.dp)
+                                    .height(if (displayStyle == DisplayStyle.Card) 140.dp else 96.dp)
                                     .background(bg),
                                 contentAlignment = Alignment.CenterEnd
                             ) {
-                                if (progress > 0.01f) {
+                                if (progress > 0.02f) {
                                     Row(
                                         modifier = Modifier
                                             .padding(end = 16.dp + (40f * (1f - progress)).dp)
