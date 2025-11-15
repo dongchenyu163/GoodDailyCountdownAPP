@@ -370,17 +370,23 @@ private fun MainScreen(
                         state = dismissState,
                         background = {
                             val progress = dismissState.progress.fraction.coerceIn(0f, 1f)
+                            val bg = MaterialTheme.colorScheme.errorContainer.copy(alpha = progress)
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(if (displayStyle == DisplayStyle.Card) 150.dp else 96.dp)
                                     .padding(horizontal = 8.dp)
-                                    .background(MaterialTheme.colorScheme.errorContainer),
+                                    .background(bg),
                                 contentAlignment = Alignment.CenterEnd
                             ) {
-                                Row(modifier = Modifier
-                                    .padding(end = 16.dp + (40f * (1f - progress)).dp)
-                                    .graphicsLayer(alpha = progress, scaleX = 0.8f + 0.2f * progress, scaleY = 0.8f + 0.2f * progress),
+                                Row(
+                                    modifier = Modifier
+                                        .padding(end = 16.dp + (40f * (1f - progress)).dp)
+                                        .graphicsLayer(
+                                            alpha = progress,
+                                            scaleX = 0.85f + 0.15f * progress,
+                                            scaleY = 0.85f + 0.15f * progress
+                                        ),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text("🗑", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onErrorContainer)

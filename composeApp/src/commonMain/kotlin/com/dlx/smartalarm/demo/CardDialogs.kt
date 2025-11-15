@@ -1,6 +1,8 @@
 package com.dlx.smartalarm.demo
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -10,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import kotlinx.datetime.*
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun CardDialog(
     cardData: CardData?,
@@ -34,7 +37,9 @@ fun CardDialog(
 
     var title by remember { mutableStateOf(defaultTitle) }
     var description by remember { mutableStateOf(cardData?.description ?: "") }
-    var icon by remember { mutableStateOf(cardData?.icon ?: "") }
+    // 图标选择器：预设若干 emoji 图标，默认第一个或已有值
+    val presetIcons = listOf("🎉", "✈️", "🎂", "🎓", "💼", "🖥️", "🏖️", "📅", "⭐")
+    var icon by remember { mutableStateOf(cardData?.icon?.takeIf { it.isNotBlank() } ?: presetIcons.first()) }
     var selectedDate by remember { mutableStateOf(defaultDate) }
     var remainingDaysText by remember { mutableStateOf(defaultRemainingDays) }
     var showDatePicker by remember { mutableStateOf(false) }
@@ -118,12 +123,25 @@ fun CardDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                OutlinedTextField(
-                    value = icon,
-                    onValueChange = { icon = it },
-                    label = { Text("图标") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Text("选择图标", style = MaterialTheme.typography.titleSmall)
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    presetIcons.forEach { ic ->
+                        val selected = icon == ic
+                        AssistChip(
+                            onClick = { icon = ic },
+                            label = { Text(ic) },
+                            leadingIcon = null,
+                            modifier = Modifier.padding(bottom = 8.dp),
+                            colors = AssistChipDefaults.assistChipColors(
+                                containerColor = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
+                                labelColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+                            )
+                        )
+                    }
+                }
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
