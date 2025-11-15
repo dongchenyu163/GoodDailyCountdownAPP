@@ -22,7 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.*
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -470,19 +470,21 @@ private fun MainScreen(
                                     .background(bg),
                                 contentAlignment = Alignment.CenterEnd
                             ) {
-                                Row(
-                                    modifier = Modifier
-                                        .padding(end = 16.dp + (40f * (1f - progress)).dp)
-                                        .graphicsLayer(
-                                            alpha = progress,
-                                            scaleX = 0.85f + 0.15f * progress,
-                                            scaleY = 0.85f + 0.15f * progress
-                                        ),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text("🗑", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onErrorContainer)
-                                    Spacer(Modifier.width(8.dp))
-                                    Text("删除", color = MaterialTheme.colorScheme.onErrorContainer)
+                                if (progress > 0.01f) {
+                                    Row(
+                                        modifier = Modifier
+                                            .padding(end = 16.dp + (40f * (1f - progress)).dp)
+                                            .graphicsLayer(
+                                                alpha = progress,
+                                                scaleX = 0.85f + 0.15f * progress,
+                                                scaleY = 0.85f + 0.15f * progress
+                                            ),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text("🗑", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onErrorContainer)
+                                        Spacer(Modifier.width(8.dp))
+                                        Text("删除", color = MaterialTheme.colorScheme.onErrorContainer)
+                                    }
                                 }
                             }
                         },
@@ -500,7 +502,19 @@ private fun MainScreen(
                                             .fillMaxWidth()
                                             .padding(16.dp)
                                             .graphicsLayer(alpha = alpha, translationY = ty)
-                                            .pointerInput(cardData.id) { detectTapGestures(onLongPress = { menuOpen = true }) },
+                                            .pointerInput(cardData.id) {
+                                                detectTapGestures(onLongPress = { menuOpen = true })
+                                            }
+                                            .pointerInput(cardData.id) {
+                                                awaitPointerEventScope {
+                                                    while (true) {
+                                                        val ev = awaitPointerEvent()
+                                                        if (ev.type == PointerEventType.Press && ev.buttons.isSecondaryPressed) {
+                                                            menuOpen = true
+                                                        }
+                                                    }
+                                                }
+                                            },
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Surface(shape = MaterialTheme.shapes.large, color = MaterialTheme.colorScheme.primaryContainer) {
