@@ -26,45 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 
-@Composable
-fun GradientRoundedBox() {
-	val shape = RoundedCornerShape(16.dp)
-	Box(
-		modifier = Modifier
-			.size(width = 220.dp, height = 120.dp)
-			.background(
-				brush = Brush.horizontalGradient(
-					colors = listOf(Color(0xFF6A11CB), Color(0xFF2575FC))
-				),
-				shape = shape
-			)
-			.clip(shape), // 可选: 裁剪子内容也跟随圆角
-		contentAlignment = Alignment.Center
-	) {
-		Text("Rounded + Gradient", color = Color.White)
-	}
-}
-
-@Composable
-fun GradientRoundedBoxCanvas(isLarge: Boolean) {
-    val boxSize = if (isLarge) Pair(320.dp, 180.dp) else Pair(220.dp, 120.dp)
-    Box(
-        modifier = Modifier
-            .size(boxSize.first, boxSize.second)
-            .drawWithCache {
-                val corner = CornerRadius(16.dp.toPx(), 16.dp.toPx())
-                val brush = Brush.linearGradient(
-                    colors = listOf(Color(0xFF00C6FF), Color(0xFF0072FF))
-                )
-                onDrawBehind {
-                    drawRoundRect(brush = brush, cornerRadius = corner)
-                }
-            },
-        contentAlignment = Alignment.Center
-    ) {
-        Text("Canvas Gradient", color = Color.White)
-    }
-}
+// 已移除未使用的演示组件：GradientRoundedBox 与 GradientRoundedBoxCanvas
 
 @Composable
 fun CountdownCard(
