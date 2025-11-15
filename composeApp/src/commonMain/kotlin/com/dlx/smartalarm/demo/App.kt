@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -326,7 +327,16 @@ private fun MainScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 8.dp),
-                        placeholder = { Text("Search countdowns...") }
+                        placeholder = { Text("Search countdowns...") },
+                        singleLine = true,
+                        shape = MaterialTheme.shapes.extraLarge,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            focusedBorderColor = MaterialTheme.colorScheme.surfaceVariant,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.surfaceVariant,
+                            cursorColor = MaterialTheme.colorScheme.primary
+                        )
                     )
                 }
             }
@@ -339,7 +349,16 @@ private fun MainScreen(
     ) { padding ->
         // 三种显示样式
         if (displayStyle == DisplayStyle.Grid) {
-            LazyVerticalGrid(
+            if (filtered.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("No Resultes", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            } else LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 state = gridState,
                 modifier = Modifier
@@ -360,14 +379,19 @@ private fun MainScreen(
 
                     var menuOpen by remember { mutableStateOf(false) }
 
-                    // 网格项（卡片风格）
+                    // 网格项（卡片风格）+ 轻微出现动效
                     Surface(tonalElevation = 2.dp, shape = MaterialTheme.shapes.large) {
+                        var appeared by remember { mutableStateOf(false) }
+                        val alpha by animateFloatAsState(if (appeared) 1f else 0f, label = "gAlpha")
+                        val ty by animateFloatAsState(if (appeared) 0f else 12f, label = "gTy")
+                        LaunchedEffect(Unit) { appeared = true }
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(180.dp)
                                 .padding(12.dp)
                                 .pointerInput(cardData.id) { detectTapGestures(onLongPress = { menuOpen = true }) }
+                                .graphicsLayer(alpha = alpha, translationY = ty)
                         ) {
                             Column(
                                 modifier = Modifier.fillMaxSize(),
@@ -467,13 +491,16 @@ private fun MainScreen(
                                 // 紧凑行样式
                                 Surface(shape = MaterialTheme.shapes.large, tonalElevation = 1.dp) {
                                     var menuOpen by remember { mutableStateOf(false) }
+                                    var appeared by remember { mutableStateOf(false) }
+                                    val alpha by animateFloatAsState(if (appeared) 1f else 0f, label = "lAlpha")
+                                    val ty by animateFloatAsState(if (appeared) 0f else 8f, label = "lTy")
+                                    LaunchedEffect(Unit) { appeared = true }
                                     Row(
                                         Modifier
                                             .fillMaxWidth()
                                             .padding(16.dp)
-                                            .pointerInput(cardData.id) {
-                                                detectTapGestures(onLongPress = { menuOpen = true })
-                                            },
+                                            .graphicsLayer(alpha = alpha, translationY = ty)
+                                            .pointerInput(cardData.id) { detectTapGestures(onLongPress = { menuOpen = true }) },
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Surface(shape = MaterialTheme.shapes.large, color = MaterialTheme.colorScheme.primaryContainer) {
