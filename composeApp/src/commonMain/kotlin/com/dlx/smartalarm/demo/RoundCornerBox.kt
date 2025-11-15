@@ -21,6 +21,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.*
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -31,6 +32,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun CountdownCard(
     title: String,
+    annotatedTitle: AnnotatedString? = null,
     date: String,
     remainingDays: Int,
     onClick: () -> Unit = {},
@@ -48,10 +50,10 @@ fun CountdownCard(
 
     // 入场缩放动画
     val scale by animateFloatAsState(
-        targetValue = if (isVisible && !isDeleting) 1f else 0f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
+        targetValue = if (isVisible && !isDeleting) 1f else 0.97f,
+        animationSpec = tween(
+            durationMillis = 220,
+            easing = FastOutSlowInEasing
         ),
         label = "scale"
     )
@@ -138,7 +140,7 @@ fun CountdownCard(
             ) {
                 // 标题
                 Text(
-                    text = title,
+                    text = annotatedTitle ?: AnnotatedString(title),
                     color = Color.White,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
@@ -187,6 +189,13 @@ fun CountdownCard(
                     }
                 )
             }
+
+            // 顶部右侧三个点按钮，作为菜单触发入口
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopEnd) {
+                IconButton(onClick = { showMenu = true }) {
+                    Text("⋮", color = Color.White)
+                }
+            }
         }
     }
 }
@@ -194,6 +203,7 @@ fun CountdownCard(
 @Composable
 fun AnimatedCountdownCard(
     title: String,
+    annotatedTitle: AnnotatedString? = null,
     date: String,
     remainingDays: Int,
     onClick: () -> Unit = {},
@@ -212,6 +222,7 @@ fun AnimatedCountdownCard(
 
     CountdownCard(
         title = title,
+        annotatedTitle = annotatedTitle,
         date = date,
         remainingDays = remainingDays,
         onClick = onClick,

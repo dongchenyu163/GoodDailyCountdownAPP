@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.material.DismissDirection
@@ -20,6 +21,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -67,7 +70,7 @@ fun App() {
 		headlineMedium = base.headlineMedium.copy(fontFamily = jpFamily),
 		headlineSmall = base.headlineSmall.copy(fontFamily = jpFamily),
 	)
- MaterialTheme (typography = jpTypography) {
+ AppTheme(typography = jpTypography) {
 
         // 简单导航与设置状态
         var currentScreen by remember { mutableStateOf(Screen.Main) }
@@ -260,11 +263,52 @@ private fun MainScreen(
     onReminderDialog: (CardData) -> Unit,
 ) {
     val listState = rememberLazyListState()
-    val revealSearch by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 20 } }
+    val gridState = rememberLazyGridState()
+    // 显示搜索栏的条件：靠近顶部（下滑）显示
+    val revealSearch by remember(displayStyle) {
+        derivedStateOf {
+            when (displayStyle) {
+                DisplayStyle.Grid -> gridState.firstVisibleItemIndex == 0 && gridState.firstVisibleItemScrollOffset < 10
+                else -> listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset < 10
+            }
+        }
+    }
 
-    val filtered = remember(cardList, searchQuery) {
-        if (searchQuery.isBlank()) cardList
-        else cardList.filter { it.title.contains(searchQuery, ignoreCase = true) || it.description.contains(searchQuery, ignoreCase = true) }
+    // 空格分词（或关系）
+    val tokens = remember(searchQuery) {
+        searchQuery.trim().split(Regex("\\s+")).filter { it.isNotBlank() }
+    }
+    val filtered = remember(cardList, tokens) {
+        if (tokens.isEmpty()) cardList
+        else cardList.filter { c ->
+            tokens.any { t ->
+                c.title.contains(t, ignoreCase = true) || c.description.contains(t, ignoreCase = true)
+            }
+        }
+    }
+
+    @Composable
+    fun highlight(text: String): androidx.compose.ui.text.AnnotatedString {
+        if (tokens.isEmpty()) return androidx.compose.ui.text.AnnotatedString(text)
+        val lower = text.lowercase()
+        return androidx.compose.ui.text.buildAnnotatedString {
+            append(text)
+            // 简单高亮：对每个token迭代查找，叠加着色
+            tokens.forEach { raw ->
+                val key = raw.lowercase()
+                var start = 0
+                while (true) {
+                    val idx = lower.indexOf(key, startIndex = start)
+                    if (idx < 0) break
+                    addStyle(
+                        androidx.compose.ui.text.SpanStyle(color = MaterialTheme.colorScheme.primary),
+                        idx,
+                        idx + key.length
+                    )
+                    start = idx + key.length
+                }
+            }
+        }
     }
 
     Scaffold(
@@ -282,17 +326,22 @@ private fun MainScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 8.dp),
-                        placeholder = { Text("搜索...") }
+                        placeholder = { Text("Search countdowns...") }
                     )
                 }
             }
         },
-        floatingActionButton = { ExtendedFloatingActionButton(onClick = onAddClick) { Text("新增") } }
+        floatingActionButton = {
+            FloatingActionButton(onClick = onAddClick, containerColor = MaterialTheme.colorScheme.primary) {
+                Text("+", color = MaterialTheme.colorScheme.onPrimary)
+            }
+        }
     ) { padding ->
         // 三种显示样式
         if (displayStyle == DisplayStyle.Grid) {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
+                state = gridState,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
@@ -309,19 +358,37 @@ private fun MainScreen(
                             } ?: cardData.remainingDays
                     }
 
-                    // 网格项（简化视觉占位）
+                    var menuOpen by remember { mutableStateOf(false) }
+
+                    // 网格项（卡片风格）
                     Surface(tonalElevation = 2.dp, shape = MaterialTheme.shapes.large) {
-                        Column(modifier = Modifier
-                            .fillMaxWidth()
-                            .height(180.dp)
-                            .padding(12.dp), verticalArrangement = Arrangement.SpaceBetween) {
-                            Box(Modifier.fillMaxWidth()) {
-                                Text(text = cardData.icon.ifBlank { "🎯" }, style = MaterialTheme.typography.headlineSmall)
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(180.dp)
+                                .padding(12.dp)
+                                .pointerInput(cardData.id) { detectTapGestures(onLongPress = { menuOpen = true }) }
+                        ) {
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Box(Modifier.fillMaxWidth()) {
+                                    Text(text = cardData.icon.ifBlank { "🎯" }, style = MaterialTheme.typography.headlineSmall)
+                                }
+                                Column {
+                                    Text(highlight(cardData.title), style = MaterialTheme.typography.titleMedium)
+                                    Spacer(Modifier.height(2.dp))
+                                    Text("剩余 ${dynamicRemaining} 天", style = MaterialTheme.typography.bodyMedium)
+                                }
                             }
-                            Column { 
-                                Text(cardData.title, style = MaterialTheme.typography.titleMedium)
-                                Spacer(Modifier.height(2.dp))
-                                Text("剩余 ${dynamicRemaining} 天", style = MaterialTheme.typography.bodyMedium)
+                            // 右上角更多按钮
+                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopEnd) {
+                                IconButton(onClick = { menuOpen = true }) { Text("⋮") }
+                                DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                                    DropdownMenuItem(text = { Text("编辑") }, onClick = { menuOpen = false; onEdit(cardData) })
+                                    DropdownMenuItem(text = { Text("删除") }, onClick = { menuOpen = false; onDelete(cardData.id) })
+                                }
                             }
                         }
                     }
@@ -399,7 +466,16 @@ private fun MainScreen(
                             if (displayStyle == DisplayStyle.List) {
                                 // 紧凑行样式
                                 Surface(shape = MaterialTheme.shapes.large, tonalElevation = 1.dp) {
-                                    Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                                    var menuOpen by remember { mutableStateOf(false) }
+                                    Row(
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .padding(16.dp)
+                                            .pointerInput(cardData.id) {
+                                                detectTapGestures(onLongPress = { menuOpen = true })
+                                            },
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
                                         Surface(shape = MaterialTheme.shapes.large, color = MaterialTheme.colorScheme.primaryContainer) {
                                             Box(Modifier.size(48.dp), contentAlignment = Alignment.Center) {
                                                 Text(cardData.icon.ifBlank { "🎯" })
@@ -407,13 +483,18 @@ private fun MainScreen(
                                         }
                                         Spacer(Modifier.width(16.dp))
                                         Column(Modifier.weight(1f)) {
-                                            Text(cardData.title, style = MaterialTheme.typography.titleMedium)
+                                            Text(highlight(cardData.title), style = MaterialTheme.typography.titleMedium)
                                             val endText = runCatching { LocalDate.parse(cardData.date) }.getOrNull()?.let { d ->
                                                 "ends on ${d.monthNumber}/${d.dayOfMonth}/${d.year}"
                                             } ?: cardData.date
                                             Text(endText, style = MaterialTheme.typography.bodyMedium)
                                         }
                                         Text("${dynamicRemaining}d", style = MaterialTheme.typography.titleMedium)
+                                        IconButton(onClick = { menuOpen = true }) { Text("⋮") }
+                                        DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                                            DropdownMenuItem(text = { Text("编辑") }, onClick = { menuOpen = false; onEdit(cardData) })
+                                            DropdownMenuItem(text = { Text("删除") }, onClick = { menuOpen = false; onDelete(cardData.id) })
+                                        }
                                     }
                                 }
                             } else {
@@ -421,6 +502,7 @@ private fun MainScreen(
                                 Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                                     AnimatedCountdownCard(
                                         title = cardData.title,
+                                        annotatedTitle = highlight(cardData.title),
                                         date = cardData.date,
                                         remainingDays = dynamicRemaining,
                                         onClick = { /* 预留 */ },
@@ -432,6 +514,18 @@ private fun MainScreen(
                         },
                         directions = setOf(DismissDirection.EndToStart)
                     )
+                }
+                if (filtered.isEmpty()) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(24.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("No Resultes", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
                 }
             }
         }
