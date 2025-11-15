@@ -391,6 +391,16 @@ private fun MainScreen(
                                 .height(180.dp)
                                 .padding(12.dp)
                                 .pointerInput(cardData.id) { detectTapGestures(onLongPress = { menuOpen = true }) }
+                                .pointerInput(cardData.id) {
+                                    awaitPointerEventScope {
+                                        while (true) {
+                                            val ev = awaitPointerEvent()
+                                            if (ev.type == PointerEventType.Press && ev.buttons.isSecondaryPressed) {
+                                                menuOpen = true
+                                            }
+                                        }
+                                    }
+                                }
                                 .graphicsLayer(alpha = alpha, translationY = ty)
                         ) {
                             Column(
