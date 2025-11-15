@@ -102,7 +102,7 @@ fun CountdownCard(
                 .fillMaxWidth(0.92f)
                 .height(140.dp)
                 .drawWithCache {
-                    val corner = CornerRadius(16.dp.toPx(), 16.dp.toPx())
+                    val corner = CornerRadius(18.dp.toPx(), 18.dp.toPx())
                     // 使用上面读取的主题容器色做渐变，风格与整体一致
                     val brush = Brush.linearGradient(colors = listOf(containerA, containerB))
                     onDrawBehind {
@@ -168,7 +168,7 @@ fun CountdownCard(
                     Text(
                         text = "${remainingDays}天",
                         color = Color.White,
-                        fontSize = 18.sp,
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
