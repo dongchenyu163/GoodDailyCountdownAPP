@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Notification Permission Screen</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#13ec80",
+            "background-light": "#f6f8f7",
+            "background-dark": "#102219",
+          },
+          fontFamily: {
+            "display": ["Inter", "sans-serif"]
+          },
+          borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+<div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root overflow-x-hidden">
+<div class="flex flex-1 flex-col justify-between p-4">
+<!-- Top Spacer -->
+<div class="flex-grow"></div>
+<!-- Main Content -->
+<div class="flex flex-col items-center justify-center gap-4">
+<!-- Icon -->
+<div class="flex h-24 w-24 items-center justify-center rounded-full bg-primary/20">
+<span class="material-symbols-outlined text-5xl text-primary" data-icon="notifications_active">notifications_active</span>
+</div>
+<!-- Headline -->
+<h1 class="text-[#0c1410] dark:text-white tracking-tight text-3xl font-bold leading-tight text-center pt-4">Stay Notified</h1>
+<!-- Body Text -->
+<p class="text-[#414543] dark:text-[#c4c7c5] text-base font-normal leading-normal text-center max-w-sm px-4">
+          To send you timely alerts when your countdowns are complete, please enable notifications.
+        </p>
+</div>
+<!-- Bottom Section -->
+<div class="flex-grow"></div>
+<div class="w-full">
+<!-- Page Indicators -->
+<div class="flex w-full flex-row items-center justify-center gap-2 py-5">
+<div class="h-2 w-2 rounded-full bg-[#e1e3e1] dark:bg-[#32674d]"></div>
+<div class="h-2 w-2 rounded-full bg-primary"></div>
+<div class="h-2 w-2 rounded-full bg-[#e1e3e1] dark:bg-[#32674d]"></div>
+<div class="h-2 w-2 rounded-full bg-[#e1e3e1] dark:bg-[#32674d]"></div>
+</div>
+<!-- Primary CTA Button -->
+<div class="flex px-4 py-2">
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 flex-1 bg-primary text-background-dark text-base font-bold leading-normal tracking-[0.015em]">
+<span class="truncate">Enable Notifications</span>
+</button>
+</div>
+<!-- Secondary Action -->
+<div class="flex px-4 py-2">
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 flex-1 bg-transparent text-[#414543] dark:text-[#c4c7c5] text-base font-bold leading-normal tracking-[0.015em]">
+<span class="truncate">Maybe Later</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</body></html>

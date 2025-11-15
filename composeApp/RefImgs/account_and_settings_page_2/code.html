@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Account &amp; Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#13ec80",
+            "background-light": "#f6f8f7",
+            "background-dark": "#102219",
+          },
+          fontFamily: {
+            "display": ["Inter", "sans-serif"]
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      --radio-dot-svg: url('data:image/svg+xml,%3csvg viewBox=%270 0 16 16%27 fill=%27rgb(19,236,128)%27 xmlns=%27http://www.w3.org/2000/svg%27%3e%3ccircle cx=%278%27 cy=%278%27 r=%273%27/%3e%3c/svg%3e');
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+<div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark">
+<!-- Top App Bar -->
+<div class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between sticky top-0 z-10">
+<div class="flex size-12 shrink-0 items-center text-zinc-900 dark:text-white">
+<span class="material-symbols-outlined text-2xl">arrow_back</span>
+</div>
+<h2 class="text-zinc-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1">Account &amp; Settings</h2>
+</div>
+<!-- Segmented Buttons -->
+<div class="flex px-4 py-3">
+<div class="flex h-10 flex-1 items-center justify-center rounded-lg bg-black/5 dark:bg-[#234836] p-1">
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-2 has-[:checked]:bg-white dark:has-[:checked]:bg-[#11221a] has-[:checked]:shadow-[0_0_4px_rgba(0,0,0,0.1)] has-[:checked]:text-zinc-900 dark:has-[:checked]:text-white text-zinc-500 dark:text-[#92c9ad] text-sm font-medium leading-normal">
+<span class="truncate">Local Account</span>
+<input checked="" class="invisible w-0" name="account_type" type="radio" value="Local Account"/>
+</label>
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-2 has-[:checked]:bg-white dark:has-[:checked]:bg-[#11221a] has-[:checked]:shadow-[0_0_4px_rgba(0,0,0,0.1)] has-[:checked]:text-zinc-900 dark:has-[:checked]:text-white text-zinc-500 dark:text-[#92c9ad] text-sm font-medium leading-normal">
+<span class="truncate">Cloud Account</span>
+<input class="invisible w-0" name="account_type" type="radio" value="Cloud Account"/>
+</label>
+</div>
+</div>
+<!-- Card -->
+<div class="p-4 @container">
+<div class="flex flex-col items-stretch justify-start rounded-xl bg-white dark:bg-[#11221a] shadow-sm overflow-hidden @xl:flex-row @xl:items-start">
+<div class="flex w-full min-w-72 grow flex-col items-stretch justify-center gap-1 p-4">
+<p class="text-zinc-500 dark:text-[#92c9ad] text-sm font-normal leading-normal">Account Status</p>
+<p class="text-zinc-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">You're using a Local Account</p>
+<div class="flex items-end gap-3 justify-between mt-2">
+<div class="flex flex-col gap-2">
+<p class="text-zinc-500 dark:text-[#92c9ad] text-base font-normal leading-normal">
+                Your countdowns are stored only on this device. Create a cloud account to sync across multiple devices and keep your data backed up.
+              </p>
+<button class="mt-2 flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-black transition-colors hover:bg-primary/90">
+<span class="material-symbols-outlined text-base">cloud_upload</span>
+                Upgrade to Cloud Account
+              </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Section Header -->
+<h3 class="text-zinc-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">Countdown Display Style</h3>
+<!-- Radio List -->
+<div class="flex flex-col gap-3 p-4">
+<label class="flex cursor-pointer items-center gap-4 rounded-xl border border-solid border-zinc-200 dark:border-[#32674d] bg-white dark:bg-[#11221a] p-[15px] flex-row-reverse has-[:checked]:border-primary dark:has-[:checked]:border-primary has-[:checked]:ring-2 has-[:checked]:ring-primary/20">
+<input checked="" class="h-5 w-5 appearance-none rounded-full border-2 border-zinc-300 dark:border-[#32674d] bg-transparent checked:border-primary dark:checked:border-primary checked:bg-[image:--radio-dot-svg] focus:outline-none focus:ring-0 focus:ring-offset-0" name="display_preference" type="radio"/>
+<div class="flex grow flex-col">
+<p class="text-zinc-900 dark:text-white text-sm font-medium leading-normal">Grid View</p>
+<p class="text-zinc-500 dark:text-[#92c9ad] text-sm font-normal leading-normal">See more countdowns at a glance.</p>
+</div>
+</label>
+<label class="flex cursor-pointer items-center gap-4 rounded-xl border border-solid border-zinc-200 dark:border-[#32674d] bg-white dark:bg-[#11221a] p-[15px] flex-row-reverse has-[:checked]:border-primary dark:has-[:checked]:border-primary has-[:checked]:ring-2 has-[:checked]:ring-primary/20">
+<input class="h-5 w-5 appearance-none rounded-full border-2 border-zinc-300 dark:border-[#32674d] bg-transparent checked:border-primary dark:checked:border-primary checked:bg-[image:--radio-dot-svg] focus:outline-none focus:ring-0 focus:ring-offset-0" name="display_preference" type="radio"/>
+<div class="flex grow flex-col">
+<p class="text-zinc-900 dark:text-white text-sm font-medium leading-normal">List View</p>
+<p class="text-zinc-500 dark:text-[#92c9ad] text-sm font-normal leading-normal">A compact view for many items.</p>
+</div>
+</label>
+<label class="flex cursor-pointer items-center gap-4 rounded-xl border border-solid border-zinc-200 dark:border-[#32674d] bg-white dark:bg-[#11221a] p-[15px] flex-row-reverse has-[:checked]:border-primary dark:has-[:checked]:border-primary has-[:checked]:ring-2 has-[:checked]:ring-primary/20">
+<input class="h-5 w-5 appearance-none rounded-full border-2 border-zinc-300 dark:border-[#32674d] bg-transparent checked:border-primary dark:checked:border-primary checked:bg-[image:--radio-dot-svg] focus:outline-none focus:ring-0 focus:ring-offset-0" name="display_preference" type="radio"/>
+<div class="flex grow flex-col">
+<p class="text-zinc-900 dark:text-white text-sm font-medium leading-normal">Card View</p>
+<p class="text-zinc-500 dark:text-[#92c9ad] text-sm font-normal leading-normal">A detailed, full-width card for each item.</p>
+</div>
+</label>
+</div>
+<!-- Section Header for FAQ -->
+<h3 class="text-zinc-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">Help</h3>
+<!-- FAQ Section -->
+<div class="px-4 pb-4">
+<details class="group rounded-xl border border-zinc-200 dark:border-[#32674d] bg-white dark:bg-[#11221a]">
+<summary class="flex cursor-pointer list-none items-center justify-between p-4 font-medium text-zinc-900 dark:text-white">
+          Why create a cloud account?
+          <div class="text-zinc-500 dark:text-zinc-400 transition-transform duration-300 group-open:rotate-180">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+</summary>
+<div class="px-4 pb-4 text-zinc-500 dark:text-[#92c9ad]">
+          Creating a cloud account offers several benefits:
+          <ul class="list-disc space-y-1 pl-5 pt-2">
+<li>
+<b>Sync across devices:</b> Access your countdowns on your phone, tablet, and computer.
+            </li>
+<li>
+<b>Secure backup:</b> Never lose your important dates. Your countdowns are safely stored in the cloud.
+            </li>
+<li>
+<b>Peace of mind:</b> If you get a new device, just log in to restore all your countdowns instantly.
+            </li>
+</ul>
+</div>
+</details>
+</div>
+</div>
+</body></html>

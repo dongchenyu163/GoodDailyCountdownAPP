@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Countdown App Screen</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24
+    }
+  </style>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#13ec80",
+            "background-light": "#f6f8f7",
+            "background-dark": "#102219",
+          },
+          fontFamily: {
+            "display": ["Inter", "sans-serif"]
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-display">
+<div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark overflow-x-hidden">
+<div class="sticky top-0 z-20 bg-background-light dark:bg-background-dark/80 backdrop-blur-sm">
+<div class="flex items-center p-4 pb-2">
+<div class="flex w-12 shrink-0 items-center">
+<button class="flex h-12 w-12 cursor-pointer items-center justify-start overflow-hidden rounded-lg bg-transparent text-zinc-900 dark:text-white">
+<span class="material-symbols-outlined" style="font-size: 24px;">search</span>
+</button>
+</div>
+<h2 class="flex-1 text-center text-lg font-bold leading-tight tracking-[-0.015em] text-zinc-900 dark:text-white">Countdowns</h2>
+<div class="flex w-12 shrink-0 items-center justify-end">
+<button class="flex h-12 w-12 cursor-pointer items-center justify-end overflow-hidden rounded-lg bg-transparent text-zinc-900 dark:text-white">
+<span class="material-symbols-outlined" style="font-size: 24px;">settings</span>
+</button>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-[repeat(auto-fit,minmax(158px,1fr))] gap-4 p-4">
+<div class="relative bg-cover bg-center flex flex-col gap-2 rounded-xl justify-between p-3 aspect-[3/4]" data-alt="Eiffel Tower against a sunset sky" style='background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuCFlNwsVpevrytP8g85FzU8WJUmGpy5p5ex9BEe4NHUO28jVzUFV6WO9pjHdKE4_wiQiT4WQTJfZBWynwWYfaR_1Gf8zkZ1bUmOZBQ_YaP0ndtuctZnIIOhk-8I2yPGKsFFYzg9cW8NFRyfEIdGDMt0FNAHueq8BdpLq_8UybeemyV3eJ2rkcUdJ1Yz0Tksi4oVKwodiJigvoWz_9-gJHLlzB2S5-7LUdaw-2aT3rcFbp79pDgKrrp3NyKCRksZC9STu6DX3XSEy58");'>
+<div class="flex justify-end">
+<div class="flex h-8 w-8 items-center justify-center rounded-full bg-black/30 backdrop-blur-sm">
+<span class="material-symbols-outlined text-white" style="font-size: 20px;">flight</span>
+</div>
+</div>
+<div>
+<p class="text-white text-base font-bold leading-tight w-full line-clamp-3">Trip to Paris</p>
+<p class="text-white/80 text-xs font-normal mt-1">in 15 days</p>
+</div>
+</div>
+<div class="relative bg-cover bg-center flex flex-col gap-2 rounded-xl justify-between p-3 aspect-[3/4]" data-alt="A person working on a laptop at a desk" style='background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuDa9eDMhxJKS_BcBM3b68F-kgKPAVHl6hYM-3Rt2Ax8nSdY1lNCeTEh3rTXXybQwG5Ukj0GIyHjHqTSJUm4vYp4p4EtwpIAewEyKKA_EEoVmOEsj1XLKv0k3Xh5WCfDNbZPEJ5mnC2gYm6r816Q5MwtYyDrFtwhm1nmPUEtNH0OeWhCli1Bn9FhKiN06ancyDpWtb155gYyZrWQLUTNGNSgr_YZm7JY39QMth0KfTHTxhI1BkDjDx5b7ri9n5cZD9EN5KOKKLIssrg");'>
+<div class="flex justify-end">
+<div class="flex h-8 w-8 items-center justify-center rounded-full bg-black/30 backdrop-blur-sm">
+<span class="material-symbols-outlined text-white" style="font-size: 20px;">work</span>
+</div>
+</div>
+<div>
+<p class="text-white text-base font-bold leading-tight w-full line-clamp-3">Project Deadline</p>
+<p class="text-white/80 text-xs font-normal mt-1">in 3 days</p>
+</div>
+</div>
+<div class="relative bg-cover bg-center flex flex-col gap-2 rounded-xl justify-between p-3 aspect-[3/4]" data-alt="Birthday cake with candles" style='background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuBXh-rSkHESlTq4Q5MaDCCmmAOgMQ8--3YLUteoChwktZHUYdvz6nch5PIavGPRd2kgvxf-qF9nH7_hAZEIvU2hyqtgpj9cJ-is7qoNSKOiSx1-Kr7q3vY6A8ZhufGlrP5RngnZU-JsJ5BvcjK8Oo7t5yM4Y6UACtwt7ffPTKNOJRLPeVZBrvuSb20kW5CjGnGGlNf8jekBkta-h2SiQDqabSWxzGTHi9N8QXy6zu0UrDJlvoRJ7TTYJa1bRPnofQUN9uglwSM7hr4");'>
+<div class="flex justify-end">
+<div class="flex h-8 w-8 items-center justify-center rounded-full bg-black/30 backdrop-blur-sm">
+<span class="material-symbols-outlined text-white" style="font-size: 20px;">cake</span>
+</div>
+</div>
+<div>
+<p class="text-white text-base font-bold leading-tight w-full line-clamp-3">Jenny's Birthday</p>
+<p class="text-white/80 text-xs font-normal mt-1">in 2 weeks</p>
+</div>
+</div>
+<div class="relative bg-cover bg-center flex flex-col gap-2 rounded-xl justify-between p-3 aspect-[3/4]" data-alt="Sandy beach with palm trees and clear blue water" style='background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuDObp0vyQnMGngRH_wp7I1hGENRDEdhc-WabEpNA6e806cS3x8BnIO8742KJ22kQqvOpulwS-1cxm4vUNCHus4BF34VjIBQtKYK_PIUTu4q0c6-7uSNUQJGy7tbr2k9yuJGA_8JDcCyQ6Uk9mF2RdoQpRmO-_Z9GDZ2X_9mRM-I4EMvdRk8FEV_wqrlxHr3p-bQ_WJE0jkySzf_wsDcLBBkw_Zs0jVlvm-JJpr5udXV7qGdr9C9RrvkoHH5EJsYmY65pEVCNUqcSA8");'>
+<div class="flex justify-end">
+<div class="flex h-8 w-8 items-center justify-center rounded-full bg-black/30 backdrop-blur-sm">
+<span class="material-symbols-outlined text-white" style="font-size: 20px;">beach_access</span>
+</div>
+</div>
+<div>
+<p class="text-white text-base font-bold leading-tight w-full line-clamp-3">Summer Vacation</p>
+<p class="text-white/80 text-xs font-normal mt-1">in 2 months</p>
+</div>
+</div>
+<div class="relative bg-cover bg-center flex flex-col gap-2 rounded-xl justify-between p-3 aspect-[3/4]" data-alt="Fireworks exploding over a city skyline at night" style='background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuBHdElgYzSIdVqeK_yM1tZtcYOSxRI6Jjm5jGixwzlQEynxEqp-k64YZ2oHqAayGbSDVNBO7pQubYTv-T53I60-w1K0ZKQkUmCGe_faHSfbvcKOtiYaMp_Y6aMIGsxv_FBR6tOp8mqLmDKc8M5AgOCqMjDn0Fd0cFpR5xQFWRg9YgK2U3hSsniCTusYhvAvc7xRhRuPBsiPSe1ah5nLt4H_yli8F5WH3VmPhSo_IQ0rMNS1k6ojxORm4o49lFNPdOriNKRoxt9jt7I");'>
+<div class="flex justify-end">
+<div class="flex h-8 w-8 items-center justify-center rounded-full bg-black/30 backdrop-blur-sm">
+<span class="material-symbols-outlined text-white" style="font-size: 20px;">celebration</span>
+</div>
+</div>
+<div>
+<p class="text-white text-base font-bold leading-tight w-full line-clamp-3">New Year's Eve</p>
+<p class="text-white/80 text-xs font-normal mt-1">Dec 31, 2024</p>
+</div>
+</div>
+<div class="relative bg-cover bg-center flex flex-col gap-2 rounded-xl justify-between p-3 aspect-[3/4]" data-alt="A computer screen showing code and website design elements" style='background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuBAefm_wk9cysQkB_cuop_9uUYnjKU3cfCObzBnKJX6zCfrtGEmG7FYxdXf7aLuqtVoGme2sCARbTQNV5zTHJxuBmKBKgEYG0uTKY8ExOAvirruJLXfFKERFT8-UPNnVenAGNRYraDALjId7lNbvy9L7lElFXJkxqZC4W_fmEBGBTKQ6ynnZNAA3SAA2rg5scmoAOnk50ZW9iRgu18njAwjlyTKUanKAa9x9h5r8xf7FIlsq4nTTKW15yphgL5X86CLaD-mk0dq3RM");'>
+<div class="flex justify-end">
+<div class="flex h-8 w-8 items-center justify-center rounded-full bg-black/30 backdrop-blur-sm">
+<span class="material-symbols-outlined text-white" style="font-size: 20px;">computer</span>
+</div>
+</div>
+<div>
+<p class="text-white text-base font-bold leading-tight w-full line-clamp-3">Website Launch</p>
+<p class="text-white/80 text-xs font-normal mt-1">in 28 days</p>
+</div>
+</div>
+</div>
+<button class="fixed bottom-6 right-6 flex h-14 w-14 items-center justify-center rounded-full bg-primary shadow-lg transition-transform active:scale-95">
+<span class="material-symbols-outlined text-background-dark" style="font-size: 28px;">add</span>
+</button>
+</div>
+
+</body></html>

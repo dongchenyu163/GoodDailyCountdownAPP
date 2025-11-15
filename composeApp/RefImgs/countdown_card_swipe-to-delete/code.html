@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>My Countdowns</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ec80",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#102219",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+<div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark">
+<div class="sticky top-0 z-10 flex flex-col bg-background-light/80 pt-4 backdrop-blur-sm dark:bg-background-dark/80">
+<div class="flex items-center justify-between px-4 pb-2">
+<div class="flex size-12 shrink-0 items-center justify-start">
+<button class="flex h-12 max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-transparent p-0 text-gray-800 dark:text-white">
+<span class="material-symbols-outlined" style="font-size: 28px;">search</span>
+</button>
+</div>
+<h2 class="flex-1 text-center text-lg font-bold leading-tight tracking-[-0.015em] text-gray-900 dark:text-white">倒计时</h2>
+<div class="flex w-12 items-center justify-end">
+<button class="flex h-12 max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-transparent p-0 text-gray-800 dark:text-white">
+<span class="material-symbols-outlined" style="font-size: 28px;">settings</span>
+</button>
+</div>
+</div>
+<div class="px-4 pb-2">
+<div class="relative">
+<span class="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">search</span>
+<input class="w-full rounded-lg border-none bg-gray-200/50 py-2.5 pl-10 pr-4 text-gray-900 placeholder-gray-500 dark:bg-black/20 dark:text-white dark:placeholder-gray-400" placeholder="搜索" type="search"/>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-4 p-4">
+<div class="flex flex-col overflow-hidden rounded-xl bg-white/5 dark:bg-black/20">
+<div class="aspect-video w-full bg-cover bg-center bg-no-repeat" data-alt="Abstract image of a colorful design conference poster" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDdXvHKGEw4jnTGt91RKOKVTDBNkBjPhwrxuhhN08kz_DVn8lCs4puSo2HICZmHcvtZrqFx-dnccXiq8MOU0Kyt-QvHEtzLoAA8OuMQS6MXhvnOzLm_r7QVgR2svWjx7uCzSC7-5lgI_30uL2Ut3hln3_hiyTmtx7O9-lo7sfYSrGLn__jpiI6OUGFZpWt8mQWG0YR5PpfG7rHC7Zk5MTkqlNOaCR450MkKGOMK8JJhA-tQnD5AxQ4cdZyvUWA34x6qZyxpT_wQcEE");'></div>
+<div class="flex flex-col gap-1 p-4">
+<p class="text-sm font-normal leading-normal text-primary">December 20, 2024</p>
+<p class="text-lg font-bold leading-tight tracking-[-0.015em] text-gray-900 dark:text-white">Design Conference</p>
+<p class="text-base font-normal leading-normal text-gray-600 dark:text-gray-400">85 Days</p>
+</div>
+</div>
+<div class="relative w-full overflow-hidden rounded-xl bg-[#FF3B30]">
+<div class="absolute inset-y-0 right-0 flex items-center justify-center px-6">
+<button class="flex flex-col items-center gap-1 text-white">
+<span class="material-symbols-outlined">delete</span>
+<span class="text-xs font-medium">Delete</span>
+</button>
+</div>
+<div class="relative w-full -translate-x-24 transform transition-transform duration-300 ease-in-out">
+<div class="flex flex-col rounded-xl bg-background-light dark:bg-background-dark">
+<div class="aspect-video w-full bg-cover bg-center bg-no-repeat" data-alt="Beautiful beach scene in Hawaii with palm trees" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBY63C_Xl_iLWotH0T-kPgypWeMK7yn9y8IdpMa3TChbLc_eNrCZDNT1Atfv3_x6AtMSi475HnRY_xhqDCVxkHCeuCjbCbEEbbZG9LMd_8KxRMGrtNGFFom24J0VkCrWqP-YZ--BCpXESI0b6HFvNRc33-xuOu1XmqxioBno9Gk_4uMlwUgvq4-f-k9OVWneApCUTBi8nUKrl1TE3WVQI1fPRqAOaluaEDphrMdfXFrIALG8P1DMmWzz6j1oW2RnZfDLFOCeHdL_VY");'></div>
+<div class="flex flex-col gap-1 p-4">
+<p class="text-sm font-normal leading-normal text-primary">December 25, 2024</p>
+<p class="text-lg font-bold leading-tight tracking-[-0.015em] text-gray-900 dark:text-white">Hawaii Trip</p>
+<p class="text-base font-normal leading-normal text-gray-600 dark:text-gray-400">90 Days</p>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col overflow-hidden rounded-xl bg-white/5 dark:bg-black/20">
+<div class="aspect-video w-full bg-cover bg-center bg-no-repeat" data-alt="Fireworks display for New Year's Day" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA7UUh5GRw_XC_CjLhPN-QtO63dsqjNhhUMKDOceJqtGrVbyaVz65jK-fkvngbWceX3qzOaCACDKWBSKCVkCNevDHgyKA2reUQE_IHUwQ2WnVFx77fChbYEIyHDcGK-AkWJyZpwP-RSRyAMOGTzw7bK88l7Ateqs_ICEVnwkpybUEkKD3h4A1E10K5oRtKV4K_LdqAKH1KOfgBd86-CTP_gkykE78Zvj9RDyiAsEN81tk8gH6tMl-QdrmoKJIuGgpOX0NAmYRKjgeI");'></div>
+<div class="flex flex-col gap-1 p-4">
+<p class="text-sm font-normal leading-normal text-primary">January 1, 2025</p>
+<p class="text-lg font-bold leading-tight tracking-[-0.015em] text-gray-900 dark:text-white">New Year's Day</p>
+<p class="text-base font-normal leading-normal text-gray-600 dark:text-gray-400">97 Days</p>
+</div>
+</div>
+<div class="flex flex-col overflow-hidden rounded-xl bg-white/5 dark:bg-black/20">
+<div class="aspect-video w-full bg-cover bg-center bg-no-repeat" data-alt="Red roses and hearts for Valentine's Day" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDzdmtWABVncuN1b9eUQl6iUx2Eb1yZTHhVQAww26QTMM1IG0qGc954Tey2_iBu9O_e97uPCFDFvBJm5XUIzd9SFotPx2n37H8Rtlj_EWd5Kezaj-rR2VO2XK20ASHRmTH5TGUJcYP7C_V9nBZq-Fx-Lt2YgAIOS0KqIytJOU-94hcARdG3mQuG6cV1MnTlx7YzyRbVQvBdSaW00Eb8_InEG5y0nqBqUIFSFBwzfvWpUL2gmBxO6Q8dyKR_82eJF5C_wcjhUSNaztE");'></div>
+<div class="flex flex-col gap-1 p-4">
+<p class="text-sm font-normal leading-normal text-primary">February 14, 2025</p>
+<p class="text-lg font-bold leading-tight tracking-[-0.015em] text-gray-900 dark:text-white">Valentine's Day</p>
+<p class="text-base font-normal leading-normal text-gray-600 dark:text-gray-400">142 Days</p>
+</div>
+</div>
+</div>
+<div class="pointer-events-none fixed bottom-0 right-0 z-20 p-6">
+<button class="pointer-events-auto flex size-14 items-center justify-center rounded-full bg-primary text-background-dark shadow-lg">
+<span class="material-symbols-outlined" style="font-size: 32px">add</span>
+</button>
+</div>
+</div>
+
+</body></html>
