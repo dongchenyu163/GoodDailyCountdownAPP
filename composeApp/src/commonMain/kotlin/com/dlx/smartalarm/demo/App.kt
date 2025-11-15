@@ -6,6 +6,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.material.DismissDirection
@@ -16,6 +19,7 @@ import androidx.compose.material.rememberDismissState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -68,9 +72,9 @@ fun App() {
         // 简单导航与设置状态
         var currentScreen by remember { mutableStateOf(Screen.Main) }
 
-        // 设置项（占位）
+        // 设置项
         var useCloudAccount by remember { mutableStateOf(false) }
-        var gridMode by remember { mutableStateOf(false) }
+        var displayStyle by remember { mutableStateOf(DisplayStyle.List) }
 
         // 搜索相关
         var searchQuery by remember { mutableStateOf("") }
@@ -168,10 +172,10 @@ fun App() {
         when (currentScreen) {
             Screen.Settings -> SettingsScreen(
                 useCloud = useCloudAccount,
-                grid = gridMode,
+                displayStyle = displayStyle,
                 onBack = { currentScreen = Screen.Main },
                 onToggleCloud = { useCloudAccount = it },
-                onToggleGrid = { gridMode = it }
+                onChangeDisplay = { displayStyle = it }
             )
             Screen.OnboardingWelcome -> WelcomeScreen(onNext = { currentScreen = Screen.OnboardingPermissions })
             Screen.OnboardingPermissions -> PermissionsScreen(onGrant = { currentScreen = Screen.Main })
@@ -180,7 +184,7 @@ fun App() {
                 today = today,
                 searchQuery = searchQuery,
                 showSearch = showSearch,
-                gridMode = gridMode,
+                displayStyle = displayStyle,
                 onSearchChange = { searchQuery = it },
                 onToggleSearch = { showSearch = !showSearch },
                 onOpenSettings = { currentScreen = Screen.Settings },
@@ -244,7 +248,7 @@ private fun MainScreen(
     today: LocalDate,
     searchQuery: String,
     showSearch: Boolean,
-    gridMode: Boolean,
+    displayStyle: DisplayStyle,
     onSearchChange: (String) -> Unit,
     onToggleSearch: () -> Unit,
     onOpenSettings: () -> Unit,
@@ -285,71 +289,144 @@ private fun MainScreen(
         },
         floatingActionButton = { ExtendedFloatingActionButton(onClick = onAddClick) { Text("新增") } }
     ) { padding ->
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(horizontal = 12.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(filtered, key = { it.id }) { cardData ->
-                val dynamicRemaining = remember(today, cardData.date) {
-                    runCatching { LocalDate.parse(cardData.date) }
-                        .getOrNull()
-                        ?.let { targetDate ->
-                            (targetDate.toEpochDays() - today.toEpochDays()).coerceAtLeast(0)
-                        } ?: cardData.remainingDays
-                }
+        // 三种显示样式
+        if (displayStyle == DisplayStyle.Grid) {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(filtered, key = { it.id }) { cardData ->
+                    val dynamicRemaining = remember(today, cardData.date) {
+                        runCatching { LocalDate.parse(cardData.date) }
+                            .getOrNull()
+                            ?.let { targetDate ->
+                                (targetDate.toEpochDays() - today.toEpochDays()).coerceAtLeast(0)
+                            } ?: cardData.remainingDays
+                    }
 
-                LaunchedEffect(cardData.id, dynamicRemaining) {
-                    if (dynamicRemaining != cardData.remainingDays) {
-                        onUpdateDynamic(cardData.copy(remainingDays = dynamicRemaining))
+                    // 网格项（简化视觉占位）
+                    Surface(tonalElevation = 2.dp, shape = MaterialTheme.shapes.large) {
+                        Column(modifier = Modifier
+                            .fillMaxWidth()
+                            .height(180.dp)
+                            .padding(12.dp), verticalArrangement = Arrangement.SpaceBetween) {
+                            Box(Modifier.fillMaxWidth()) {
+                                Text(text = cardData.icon.ifBlank { "🎯" }, style = MaterialTheme.typography.headlineSmall)
+                            }
+                            Column { 
+                                Text(cardData.title, style = MaterialTheme.typography.titleMedium)
+                                Spacer(Modifier.height(2.dp))
+                                Text("剩余 ${dynamicRemaining} 天", style = MaterialTheme.typography.bodyMedium)
+                            }
+                        }
                     }
                 }
+            }
+        } else {
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(filtered, key = { it.id }) { cardData ->
+                    val dynamicRemaining = remember(today, cardData.date) {
+                        runCatching { LocalDate.parse(cardData.date) }
+                            .getOrNull()
+                            ?.let { targetDate ->
+                                (targetDate.toEpochDays() - today.toEpochDays()).coerceAtLeast(0)
+                            } ?: cardData.remainingDays
+                    }
 
-                CountdownReminderObserver(
-                    card = cardData,
-                    reminderHandler = reminderHandler,
-                    onCardUpdate = { updated -> onUpdateDynamic(updated) },
-                    onDialogRequest = { onReminderDialog(it) }
-                )
-
-                // 左滑删除背景
-                val dismissState = rememberDismissState(confirmStateChange = { value: DismissValue ->
-                    if (value == DismissValue.DismissedToStart) {
-                        onDelete(cardData.id)
-                        true
-                    } else false
-                })
-
-                SwipeToDismiss(
-                    state = dismissState,
-                    background = {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(150.dp)
-                                .padding(horizontal = 8.dp)
-                                .background(MaterialTheme.colorScheme.errorContainer),
-                            contentAlignment = Alignment.CenterEnd
-                        ) { Text("删除", color = MaterialTheme.colorScheme.onErrorContainer, modifier = Modifier.padding(end = 24.dp)) }
-                    },
-                    dismissContent = {
-                        // 使用现有的卡片视觉
-                        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                            AnimatedCountdownCard(
-                                title = cardData.title,
-                                date = cardData.date,
-                                remainingDays = dynamicRemaining,
-                                onClick = { /* 预留 */ },
-                                onDelete = { onDelete(cardData.id) },
-                                onEdit = { onEdit(cardData) }
-                            )
+                    LaunchedEffect(cardData.id, dynamicRemaining) {
+                        if (dynamicRemaining != cardData.remainingDays) {
+                            onUpdateDynamic(cardData.copy(remainingDays = dynamicRemaining))
                         }
-                    },
-                    directions = setOf(DismissDirection.EndToStart)
-                )
+                    }
+
+                    CountdownReminderObserver(
+                        card = cardData,
+                        reminderHandler = reminderHandler,
+                        onCardUpdate = { updated -> onUpdateDynamic(updated) },
+                        onDialogRequest = { onReminderDialog(it) }
+                    )
+
+                    // 左滑删除背景（按进度渐显）
+                    val dismissState = rememberDismissState(confirmStateChange = { value: DismissValue ->
+                        if (value == DismissValue.DismissedToStart) {
+                            onDelete(cardData.id)
+                            true
+                        } else false
+                    })
+
+                    SwipeToDismiss(
+                        state = dismissState,
+                        background = {
+                            val progress = dismissState.progress.fraction.coerceIn(0f, 1f)
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(if (displayStyle == DisplayStyle.Card) 150.dp else 96.dp)
+                                    .padding(horizontal = 8.dp)
+                                    .background(MaterialTheme.colorScheme.errorContainer),
+                                contentAlignment = Alignment.CenterEnd
+                            ) {
+                                Row(modifier = Modifier
+                                    .padding(end = 16.dp + (40f * (1f - progress)).dp)
+                                    .graphicsLayer(alpha = progress, scaleX = 0.8f + 0.2f * progress, scaleY = 0.8f + 0.2f * progress),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text("🗑", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onErrorContainer)
+                                    Spacer(Modifier.width(8.dp))
+                                    Text("删除", color = MaterialTheme.colorScheme.onErrorContainer)
+                                }
+                            }
+                        },
+                        dismissContent = {
+                            if (displayStyle == DisplayStyle.List) {
+                                // 紧凑行样式
+                                Surface(shape = MaterialTheme.shapes.large, tonalElevation = 1.dp) {
+                                    Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                                        Surface(shape = MaterialTheme.shapes.large, color = MaterialTheme.colorScheme.primaryContainer) {
+                                            Box(Modifier.size(48.dp), contentAlignment = Alignment.Center) {
+                                                Text(cardData.icon.ifBlank { "🎯" })
+                                            }
+                                        }
+                                        Spacer(Modifier.width(16.dp))
+                                        Column(Modifier.weight(1f)) {
+                                            Text(cardData.title, style = MaterialTheme.typography.titleMedium)
+                                            val endText = runCatching { LocalDate.parse(cardData.date) }.getOrNull()?.let { d ->
+                                                "ends on ${d.monthNumber}/${d.dayOfMonth}/${d.year}"
+                                            } ?: cardData.date
+                                            Text(endText, style = MaterialTheme.typography.bodyMedium)
+                                        }
+                                        Text("${dynamicRemaining}d", style = MaterialTheme.typography.titleMedium)
+                                    }
+                                }
+                            } else {
+                                // 大卡样式
+                                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                                    AnimatedCountdownCard(
+                                        title = cardData.title,
+                                        date = cardData.date,
+                                        remainingDays = dynamicRemaining,
+                                        onClick = { /* 预留 */ },
+                                        onDelete = { onDelete(cardData.id) },
+                                        onEdit = { onEdit(cardData) }
+                                    )
+                                }
+                            }
+                        },
+                        directions = setOf(DismissDirection.EndToStart)
+                    )
+                }
             }
         }
     }

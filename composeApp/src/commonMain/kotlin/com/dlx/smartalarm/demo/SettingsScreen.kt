@@ -11,10 +11,10 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun SettingsScreen(
     useCloud: Boolean,
-    grid: Boolean,
+    displayStyle: DisplayStyle,
     onBack: () -> Unit,
     onToggleCloud: (Boolean) -> Unit,
-    onToggleGrid: (Boolean) -> Unit,
+    onChangeDisplay: (DisplayStyle) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -26,7 +26,7 @@ fun SettingsScreen(
     ) { padding ->
         Column(
             modifier = Modifier.padding(padding).padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             Text("账户", style = MaterialTheme.typography.titleMedium)
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -35,13 +35,51 @@ fun SettingsScreen(
                 Text("云端")
             }
             Divider()
-            Text("显示方式", style = MaterialTheme.typography.titleMedium)
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("列表")
-                Switch(checked = grid, onCheckedChange = { onToggleGrid(it) })
-                Text("网格")
-            }
-            Text("说明：以上为占位设置，外观与参考图保持一致风格。")
+            Text("Countdown Display Style", style = MaterialTheme.typography.titleMedium)
+            // 三种显示样式单选
+            DisplayStyleItem(
+                title = "Grid View",
+                subtitle = "See more countdowns at a glance.",
+                selected = displayStyle == DisplayStyle.Grid,
+                onClick = { onChangeDisplay(DisplayStyle.Grid) }
+            )
+            DisplayStyleItem(
+                title = "List View",
+                subtitle = "A compact view for many items.",
+                selected = displayStyle == DisplayStyle.List,
+                onClick = { onChangeDisplay(DisplayStyle.List) }
+            )
+            DisplayStyleItem(
+                title = "Card View",
+                subtitle = "A detailed, full-width card for each item.",
+                selected = displayStyle == DisplayStyle.Card,
+                onClick = { onChangeDisplay(DisplayStyle.Card) }
+            )
         }
     }
+}
+
+@Composable
+private fun DisplayStyleItem(title: String, subtitle: String, selected: Boolean, onClick: () -> Unit) {
+    Surface(
+        tonalElevation = if (selected) 4.dp else 0.dp,
+        shape = MaterialTheme.shapes.medium,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.dp)
+                .let { if (selected) it else it },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(title, style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.height(4.dp))
+                Text(subtitle, style = MaterialTheme.typography.bodyMedium)
+            }
+            RadioButton(selected = selected, onClick = onClick)
+        }
+    }
+    Spacer(Modifier.height(8.dp))
 }
