@@ -360,9 +360,7 @@ private fun MainScreen(
                         .padding(padding),
                     contentAlignment = Alignment.Center
                 ) {
-
-                    Text("No Resultes", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-
+                    Text("No Results", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             } else Box(modifier = Modifier.fillMaxSize()) {
                 LazyVerticalGrid(
@@ -628,9 +626,7 @@ private fun MainScreen(
                                     .padding(24.dp),
                                 contentAlignment = Alignment.Center
                             ) {
-
-                                Text("No Resultes", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-
+                                Text("No Results", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }
