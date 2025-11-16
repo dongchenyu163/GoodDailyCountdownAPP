@@ -403,20 +403,20 @@ private fun MainScreen(
                                         coordinates.value = layoutCoordinates
                                     }
                                     .pointerInput(cardData.id) { detectTapGestures(onLongPress = { menuOpen = true }) }
-                                    .pointerInput(cardData.id) {
-                                        awaitPointerEventScope {
-                                            while (true) {
-                                                val ev = awaitPointerEvent()
-                                                if (ev.type == PointerEventType.Press && ev.buttons.isSecondaryPressed) {
-                                                    val position = ev.changes.first().position
-                                                    coordinates.value?.let { coords ->
-                                                        val globalPosition = coords.localToWindow(position)
-                                                        menuPosition = globalPosition.x.toDp() to globalPosition.y.toDp()
-                                                    }
-                                                    menuOpen = true
-                                                }
-                                            }
-                                        }
+                                    .pointerInput(cardData.id) {
+                                        awaitPointerEventScope {
+                                            while (true) {
+                                                val event = awaitPointerEvent()
+                                                if (event.type == PointerEventType.Press && event.buttons.isSecondaryPressed) {
+                                                    val position = event.changes.first().position
+                                                    coordinates.value?.let { coords ->
+                                                        val globalPosition = coords.localToWindow(position)
+                                                        menuPosition = globalPosition.x.toDp() to globalPosition.y.toDp()
+                                                    }
+                                                    menuOpen = true
+                                                }
+                                            }
+                                        }
                                     }
                                     .graphicsLayer(alpha = alpha, translationY = ty)
                             ) {
@@ -433,20 +433,19 @@ private fun MainScreen(
                                         Text("剩余 ${dynamicRemaining} 天", style = MaterialTheme.typography.bodyMedium)
                                     }
                                 }
-                                // 右上角更多按钮
-                                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopEnd) {
-                                    IconButton(onClick = { menuOpen = true }) { Text("⋮") }
-                                    DropdownMenu(
-                                        expanded = menuOpen, 
-                                        onDismissRequest = { menuOpen = false },
-                                        modifier = Modifier
-                                            .offset(x = menuPosition.first, y = menuPosition.second)
-                                            .background(MaterialTheme.colorScheme.surfaceVariant),
-                                        offset = DpOffset(0.dp, 0.dp)
-                                    ) {
-                                        DropdownMenuItem(text = { Text("编辑") }, onClick = { menuOpen = false; onEdit(cardData) })
-                                        DropdownMenuItem(text = { Text("删除") }, onClick = { menuOpen = false; onDelete(cardData.id) })
-                                    }
+                                // 右上角更多按钮
+                                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopEnd) {
+                                    IconButton(onClick = { menuOpen = true }) { Text("⋮") }
+                                    DropdownMenu(
+                                        expanded = menuOpen, 
+                                        onDismissRequest = { menuOpen = false },
+                                        modifier = Modifier
+                                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                                        offset = DpOffset(menuPosition.first, menuPosition.second)
+                                    ) {
+                                        DropdownMenuItem(text = { Text("编辑") }, onClick = { menuOpen = false; onEdit(cardData) })
+                                        DropdownMenuItem(text = { Text("删除") }, onClick = { menuOpen = false; onDelete(cardData.id) })
+                                    }
                                 }
                             }
                         }
@@ -558,20 +557,20 @@ private fun MainScreen(
                                                 .pointerInput(cardData.id) {
                                                     detectTapGestures(onLongPress = { menuOpen = true })
                                                 }
-                                                .pointerInput(cardData.id) {
-                                                    awaitPointerEventScope {
-                                                        while (true) {
-                                                            val ev = awaitPointerEvent()
-                                                            if (ev.type == PointerEventType.Press && ev.buttons.isSecondaryPressed) {
-                                                                val position = ev.changes.first().position
-                                                                coordinates.value?.let { coords ->
-                                                                    val globalPosition = coords.localToWindow(position)
-                                                                    menuPosition = globalPosition.x.toDp() to globalPosition.y.toDp()
-                                                                }
-                                                                menuOpen = true
-                                                            }
-                                                        }
-                                                    }
+                                                .pointerInput(cardData.id) {
+                                                    awaitPointerEventScope {
+                                                        while (true) {
+                                                            val event = awaitPointerEvent()
+                                                            if (event.type == PointerEventType.Press && event.buttons.isSecondaryPressed) {
+                                                                val position = event.changes.first().position
+                                                                coordinates.value?.let { coords ->
+                                                                    val globalPosition = coords.localToWindow(position)
+                                                                    menuPosition = globalPosition.x.toDp() to globalPosition.y.toDp()
+                                                                }
+                                                                menuOpen = true
+                                                            }
+                                                        }
+                                                    }
                                                 },
                                             verticalAlignment = Alignment.CenterVertically
                                         ) {
@@ -591,16 +590,15 @@ private fun MainScreen(
                                             Text("${dynamicRemaining}d", style = MaterialTheme.typography.titleMedium)
                                             
                                             IconButton(onClick = { menuOpen = true }) { Text("⋮") }
-                                            DropdownMenu(
-                                                expanded = menuOpen, 
-                                                onDismissRequest = { menuOpen = false },
-                                                modifier = Modifier
-                                                    .offset(x = menuPosition.first, y = menuPosition.second)
-                                                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                                                offset = DpOffset(0.dp, 0.dp)
-                                            ) {
-                                                DropdownMenuItem(text = { Text("编辑") }, onClick = { menuOpen = false; onEdit(cardData) })
-                                                DropdownMenuItem(text = { Text("删除") }, onClick = { menuOpen = false; onDelete(cardData.id) })
+                                            DropdownMenu(
+                                                expanded = menuOpen, 
+                                                onDismissRequest = { menuOpen = false },
+                                                modifier = Modifier
+                                                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                                                offset = DpOffset(menuPosition.first, menuPosition.second)
+                                            ) {
+                                                DropdownMenuItem(text = { Text("编辑") }, onClick = { menuOpen = false; onEdit(cardData) })
+                                                DropdownMenuItem(text = { Text("删除") }, onClick = { menuOpen = false; onDelete(cardData.id) })
                                             }
                                         }
                                     }
