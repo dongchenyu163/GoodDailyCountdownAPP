@@ -28,8 +28,10 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.layout.onGloballyPositioned
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import kotlinx.datetime.*
 import kotlinx.coroutines.delay
@@ -560,8 +562,18 @@ private fun MainScreen(
                                                 Text(endText, style = MaterialTheme.typography.bodyMedium)
                                             }
                                             Text("${dynamicRemaining}d", style = MaterialTheme.typography.titleMedium)
+                                            var menuPosition by remember { mutableStateOf(0.dp to 0.dp) }
+                                            val coordinates = remember { mutableStateOf<androidx.compose.ui.layout.LayoutCoordinates?>(null) }
+                                            
                                             IconButton(onClick = { menuOpen = true }) { Text("⋮") }
-                                            DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                                            DropdownMenu(
+                                                expanded = menuOpen, 
+                                                onDismissRequest = { menuOpen = false },
+                                                modifier = Modifier
+                                                    .offset(x = menuPosition.first, y = menuPosition.second)
+                                                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                                                offset = DpOffset(0.dp, 0.dp)
+                                            ) {
                                                 DropdownMenuItem(text = { Text("编辑") }, onClick = { menuOpen = false; onEdit(cardData) })
                                                 DropdownMenuItem(text = { Text("删除") }, onClick = { menuOpen = false; onDelete(cardData.id) })
                                             }
