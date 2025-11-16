@@ -385,6 +385,8 @@ private fun MainScreen(
                         }
 
                         var menuOpen by remember { mutableStateOf(false) }
+                        var menuPosition by remember { mutableStateOf(0.dp to 0.dp) }
+                        val coordinates = remember { mutableStateOf<androidx.compose.ui.layout.LayoutCoordinates?>(null) }
 
                         // 网格项（卡片风格）+ 轻微出现动效
                         Surface(tonalElevation = 2.dp, shape = MaterialTheme.shapes.large) {
@@ -397,12 +399,20 @@ private fun MainScreen(
                                     .fillMaxWidth()
                                     .height(180.dp)
                                     .padding(12.dp)
+                                    .onGloballyPositioned { layoutCoordinates ->
+                                        coordinates.value = layoutCoordinates
+                                    }
                                     .pointerInput(cardData.id) { detectTapGestures(onLongPress = { menuOpen = true }) }
                                     .pointerInput(cardData.id) {
                                         awaitPointerEventScope {
                                             while (true) {
                                                 val ev = awaitPointerEvent()
                                                 if (ev.type == PointerEventType.Press && ev.buttons.isSecondaryPressed) {
+                                                    val position = ev.changes.first().position
+                                                    coordinates.value?.let { coords ->
+                                                        val globalPosition = coords.localToWindow(position)
+                                                        menuPosition = globalPosition.x.toDp() to globalPosition.y.toDp()
+                                                    }
                                                     menuOpen = true
                                                 }
                                             }
@@ -426,7 +436,14 @@ private fun MainScreen(
                                 // 右上角更多按钮
                                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopEnd) {
                                     IconButton(onClick = { menuOpen = true }) { Text("⋮") }
-                                    DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                                    DropdownMenu(
+                                        expanded = menuOpen, 
+                                        onDismissRequest = { menuOpen = false },
+                                        modifier = Modifier
+                                            .offset(x = menuPosition.first, y = menuPosition.second)
+                                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                                        offset = DpOffset(0.dp, 0.dp)
+                                    ) {
                                         DropdownMenuItem(text = { Text("编辑") }, onClick = { menuOpen = false; onEdit(cardData) })
                                         DropdownMenuItem(text = { Text("删除") }, onClick = { menuOpen = false; onDelete(cardData.id) })
                                     }
@@ -524,6 +541,8 @@ private fun MainScreen(
                                     // 紧凑行样式
                                     Surface(shape = MaterialTheme.shapes.large, tonalElevation = 1.dp) {
                                         var menuOpen by remember { mutableStateOf(false) }
+                                        var menuPosition by remember { mutableStateOf(0.dp to 0.dp) }
+                                        val coordinates = remember { mutableStateOf<androidx.compose.ui.layout.LayoutCoordinates?>(null) }
                                         var appeared by remember { mutableStateOf(false) }
                                         val alpha by animateFloatAsState(if (appeared) 1f else 0f, label = "lAlpha")
                                         val ty by animateFloatAsState(if (appeared) 0f else 8f, label = "lTy")
@@ -532,6 +551,9 @@ private fun MainScreen(
                                             Modifier
                                                 .fillMaxWidth()
                                                 .padding(16.dp)
+                                                .onGloballyPositioned { layoutCoordinates ->
+                                                    coordinates.value = layoutCoordinates
+                                                }
                                                 .graphicsLayer(alpha = alpha, translationY = ty)
                                                 .pointerInput(cardData.id) {
                                                     detectTapGestures(onLongPress = { menuOpen = true })
@@ -541,6 +563,11 @@ private fun MainScreen(
                                                         while (true) {
                                                             val ev = awaitPointerEvent()
                                                             if (ev.type == PointerEventType.Press && ev.buttons.isSecondaryPressed) {
+                                                                val position = ev.changes.first().position
+                                                                coordinates.value?.let { coords ->
+                                                                    val globalPosition = coords.localToWindow(position)
+                                                                    menuPosition = globalPosition.x.toDp() to globalPosition.y.toDp()
+                                                                }
                                                                 menuOpen = true
                                                             }
                                                         }
@@ -562,8 +589,6 @@ private fun MainScreen(
                                                 Text(endText, style = MaterialTheme.typography.bodyMedium)
                                             }
                                             Text("${dynamicRemaining}d", style = MaterialTheme.typography.titleMedium)
-                                            var menuPosition by remember { mutableStateOf(0.dp to 0.dp) }
-                                            val coordinates = remember { mutableStateOf<androidx.compose.ui.layout.LayoutCoordinates?>(null) }
                                             
                                             IconButton(onClick = { menuOpen = true }) { Text("⋮") }
                                             DropdownMenu(
