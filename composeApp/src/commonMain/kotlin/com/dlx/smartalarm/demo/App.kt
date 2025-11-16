@@ -32,6 +32,8 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.platform.LocalDensity
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import kotlinx.datetime.*
 import kotlinx.coroutines.delay
@@ -292,6 +294,17 @@ private fun MainScreen(
         }
     }
 
+    // 统一的菜单状态
+    var contextMenuCard by remember { mutableStateOf<CardData?>(null) }
+    var menuPosition by remember { mutableStateOf(DpOffset.Zero) }
+
+    val showMenu: (CardData, DpOffset) -> Unit = { card, position ->
+        contextMenuCard = card
+        menuPosition = position
+    }
+
+    val dismissMenu = { contextMenuCard = null }
+
     @Composable
     fun highlight(text: String): androidx.compose.ui.text.AnnotatedString {
         if (tokens.isEmpty()) return androidx.compose.ui.text.AnnotatedString(text)
@@ -316,327 +329,351 @@ private fun MainScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
-            Column {
-                TopAppBar(
-                    title = { Text("倒计时") },
-                    navigationIcon = { TextButton(onClick = onToggleSearch) { Text(if (showSearch) "✖" else "🔍") } },
-                    actions = { TextButton(onClick = onOpenSettings) { Text("⚙") } }
-                )
-                AnimatedVisibility(visible = showSearch || revealSearch) {
-                    OutlinedTextField(
-                        value = searchQuery,
-                        onValueChange = onSearchChange,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
-                        placeholder = { Text("Search countdowns...") },
-                        singleLine = true,
-                        shape = MaterialTheme.shapes.extraLarge,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            focusedBorderColor = MaterialTheme.colorScheme.surfaceVariant,
-                            unfocusedBorderColor = MaterialTheme.colorScheme.surfaceVariant,
-                            cursorColor = MaterialTheme.colorScheme.primary
-                        )
+    Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
+            topBar = {
+                Column {
+                    TopAppBar(
+                        title = { Text("倒计时") },
+                        navigationIcon = { TextButton(onClick = onToggleSearch) { Text(if (showSearch) "✖" else "🔍") } },
+                        actions = { TextButton(onClick = onOpenSettings) { Text("⚙") } }
                     )
-                }
-            }
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = onAddClick, containerColor = MaterialTheme.colorScheme.primary) {
-                Text("+", color = MaterialTheme.colorScheme.onPrimary)
-            }
-        }
-    ) { padding ->
-        // 三种显示样式
-        if (displayStyle == DisplayStyle.Grid) {
-            if (filtered.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("No Results", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            } else Box(modifier = Modifier.fillMaxSize()) {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    state = gridState,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding)
-                        .padding(12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(filtered, key = { it.id }) { cardData ->
-                        val dynamicRemaining = remember(today, cardData.date) {
-                            runCatching { LocalDate.parse(cardData.date) }
-                                .getOrNull()
-                                ?.let { targetDate ->
-                                    (targetDate.toEpochDays() - today.toEpochDays()).coerceAtLeast(0)
-                                } ?: cardData.remainingDays
-                        }
-
-                        var menuOpen by remember { mutableStateOf(false) }
-                        var menuPosition by remember { mutableStateOf(0.dp to 0.dp) }
-                        val coordinates = remember { mutableStateOf<androidx.compose.ui.layout.LayoutCoordinates?>(null) }
-
-                        // 网格项（卡片风格）+ 轻微出现动效
-                        Surface(tonalElevation = 2.dp, shape = MaterialTheme.shapes.large) {
-                            var appeared by remember { mutableStateOf(false) }
-                            val alpha by animateFloatAsState(if (appeared) 1f else 0f, label = "gAlpha")
-                            val ty by animateFloatAsState(if (appeared) 0f else 12f, label = "gTy")
-                            LaunchedEffect(Unit) { appeared = true }
-
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(180.dp)
-                                    .padding(12.dp)
-                                    .onGloballyPositioned { layoutCoordinates ->
-                                        coordinates.value = layoutCoordinates
-                                    }
-                                    .pointerInput(cardData.id) { detectTapGestures(onLongPress = { menuOpen = true }) }
-                                    .pointerInput(cardData.id) {
-                                        awaitPointerEventScope {
-                                            while (true) {
-                                                val event = awaitPointerEvent()
-                                                if (event.type == PointerEventType.Press && event.buttons.isSecondaryPressed) {
-                                                    val position = event.changes.first().position
-                                                    coordinates.value?.let { coords ->
-                                                        val globalPosition = coords.localToWindow(position)
-                                                        menuPosition = globalPosition.x.toDp() to globalPosition.y.toDp()
-                                                    }
-                                                    menuOpen = true
-                                                }
-                                            }
-                                        }
-                                    }
-                                    .graphicsLayer(alpha = alpha, translationY = ty)
-                            ) {
-                                Column(
-                                    modifier = Modifier.fillMaxSize(),
-                                    verticalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    Box(Modifier.fillMaxWidth()) {
-                                        Text(text = cardData.icon.ifBlank { "🎯" }, style = MaterialTheme.typography.headlineSmall)
-                                    }
-                                    Column {
-                                        Text(highlight(cardData.title), style = MaterialTheme.typography.titleMedium)
-                                        Spacer(Modifier.height(2.dp))
-                                        Text("剩余 ${dynamicRemaining} 天", style = MaterialTheme.typography.bodyMedium)
-                                    }
-                                }
-
-                                // 右上角更多按钮
-                                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopEnd) {
-                                    IconButton(onClick = { menuOpen = true }) { Text("⋮") }
-                                    DropdownMenu(
-                                        expanded = menuOpen, 
-                                        onDismissRequest = { menuOpen = false },
-                                        modifier = Modifier
-                                            .background(MaterialTheme.colorScheme.surfaceVariant),
-                                        offset = DpOffset(menuPosition.first, menuPosition.second)
-                                    ) {
-                                        DropdownMenuItem(text = { Text("编辑") }, onClick = { menuOpen = false; onEdit(cardData) })
-                                        DropdownMenuItem(text = { Text("删除") }, onClick = { menuOpen = false; onDelete(cardData.id) })
-                                    }
-                                }
-                            }
-                        }
+                    AnimatedVisibility(visible = showSearch || revealSearch) {
+                        OutlinedTextField(
+                            value = searchQuery,
+                            onValueChange = onSearchChange,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                            placeholder = { Text("Search countdowns...") },
+                            singleLine = true,
+                            shape = MaterialTheme.shapes.extraLarge,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                focusedBorderColor = MaterialTheme.colorScheme.surfaceVariant,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.surfaceVariant,
+                                cursorColor = MaterialTheme.colorScheme.primary
+                            )
+                        )
                     }
                 }
-                // 添加滚动条
-                VerticalScrollbar(
-                    gridState = gridState,
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(end = 4.dp)
-                )
+            },
+            floatingActionButton = {
+                FloatingActionButton(onClick = onAddClick, containerColor = MaterialTheme.colorScheme.primary) {
+                    Text("+", color = MaterialTheme.colorScheme.onPrimary)
+                }
             }
-        } else {
-            Box(modifier = Modifier.fillMaxSize()) {
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding)
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(filtered, key = { it.id }) { cardData ->
-                        val dynamicRemaining = remember(today, cardData.date) {
-                            runCatching { LocalDate.parse(cardData.date) }
-                                .getOrNull()
-                                ?.let { targetDate ->
-                                    (targetDate.toEpochDays() - today.toEpochDays()).coerceAtLeast(0)
-                                } ?: cardData.remainingDays
-                        }
-
-                        LaunchedEffect(cardData.id, dynamicRemaining) {
-                            if (dynamicRemaining != cardData.remainingDays) {
-                                onUpdateDynamic(cardData.copy(remainingDays = dynamicRemaining))
+        ) { padding ->
+            // 三种显示样式
+            if (displayStyle == DisplayStyle.Grid) {
+                if (filtered.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(padding),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("No Results", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                } else Box(modifier = Modifier.fillMaxSize()) {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        state = gridState,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(padding)
+                            .padding(12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(filtered, key = { it.id }) { cardData ->
+                            val dynamicRemaining = remember(today, cardData.date) {
+                                runCatching { LocalDate.parse(cardData.date) }
+                                    .getOrNull()
+                                    ?.let { targetDate ->
+                                        (targetDate.toEpochDays() - today.toEpochDays()).coerceAtLeast(0)
+                                    } ?: cardData.remainingDays
                             }
-                        }
+                            
+                            var threeDotsButtonPosition by remember { mutableStateOf<DpOffset?>(null) }
+                            val density = LocalDensity.current
 
-                        CountdownReminderObserver(
-                            card = cardData,
-                            reminderHandler = reminderHandler,
-                            onCardUpdate = { updated -> onUpdateDynamic(updated) },
-                            onDialogRequest = { onReminderDialog(it) }
-                        )
+                            // 网格项（卡片风格）+ 轻微出现动效
+                            Surface(tonalElevation = 2.dp, shape = MaterialTheme.shapes.large) {
+                                var appeared by remember { mutableStateOf(false) }
+                                val alpha by animateFloatAsState(if (appeared) 1f else 0f, label = "gAlpha")
+                                val ty by animateFloatAsState(if (appeared) 0f else 12f, label = "gTy")
+                                LaunchedEffect(Unit) { appeared = true }
 
-                        // 左滑删除背景（按进度渐显）
-                        val dismissState = rememberDismissState(confirmStateChange = { value: DismissValue ->
-                            if (value == DismissValue.DismissedToStart) {
-                                onDelete(cardData.id)
-                                true
-                            } else false
-                        })
-
-                        SwipeToDismiss(
-                            state = dismissState,
-                            modifier = Modifier.clip(MaterialTheme.shapes.large),
-                            background = {
-                                // 仅在发生滑动时才显示背景，避免静止时误显
-                                val isActive = dismissState.dismissDirection != null ||
-                                    dismissState.targetValue != DismissValue.Default ||
-                                    dismissState.currentValue != DismissValue.Default
-                                val progress = if (isActive) dismissState.progress.fraction.coerceIn(0f, 1f) else 0f
-                                val bg = MaterialTheme.colorScheme.errorContainer.copy(alpha = progress)
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .height(if (displayStyle == DisplayStyle.Card) 140.dp else 96.dp)
-                                        .background(bg),
-                                    contentAlignment = Alignment.CenterEnd
-                                ) {
-                                    if (progress > 0.02f) {
-                                        Row(
-                                            modifier = Modifier
-                                                .padding(end = 16.dp + (40f * (1f - progress)).dp)
-                                                .graphicsLayer(
-                                                    alpha = progress,
-                                                    scaleX = 0.85f + 0.15f * progress,
-                                                    scaleY = 0.85f + 0.15f * progress
-                                                ),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Text("🗑", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onErrorContainer)
-                                            Spacer(Modifier.width(8.dp))
-                                            Text("删除", color = MaterialTheme.colorScheme.onErrorContainer)
-                                        }
-                                    }
-                                }
-                            },
-                            dismissContent = {
-                                if (displayStyle == DisplayStyle.List) {
-                                    // 紧凑行样式
-                                    Surface(shape = MaterialTheme.shapes.large, tonalElevation = 1.dp) {
-                                        var menuOpen by remember { mutableStateOf(false) }
-                                        var menuPosition by remember { mutableStateOf(0.dp to 0.dp) }
-                                        val coordinates = remember { mutableStateOf<androidx.compose.ui.layout.LayoutCoordinates?>(null) }
-                                        var appeared by remember { mutableStateOf(false) }
-                                        val alpha by animateFloatAsState(if (appeared) 1f else 0f, label = "lAlpha")
-                                        val ty by animateFloatAsState(if (appeared) 0f else 8f, label = "lTy")
-                                        LaunchedEffect(Unit) { appeared = true }
-                                        Row(
-                                            Modifier
-                                                .fillMaxWidth()
-                                                .padding(16.dp)
-                                                .onGloballyPositioned { layoutCoordinates ->
-                                                    coordinates.value = layoutCoordinates
-                                                }
-                                                .graphicsLayer(alpha = alpha, translationY = ty)
-                                                .pointerInput(cardData.id) {
-                                                    detectTapGestures(onLongPress = { menuOpen = true })
-                                                }
-                                                .pointerInput(cardData.id) {
-                                                    awaitPointerEventScope {
-                                                        while (true) {
-                                                            val event = awaitPointerEvent()
-                                                            if (event.type == PointerEventType.Press && event.buttons.isSecondaryPressed) {
-                                                                val position = event.changes.first().position
-                                                                coordinates.value?.let { coords ->
-                                                                    val globalPosition = coords.localToWindow(position)
-                                                                    menuPosition = globalPosition.x.toDp() to globalPosition.y.toDp()
-                                                                }
-                                                                menuOpen = true
-                                                            }
-                                                        }
+                                        .height(180.dp)
+                                        .padding(12.dp)
+                                        .pointerInput(cardData.id) {
+                                            awaitPointerEventScope {
+                                                while (true) {
+                                                    val event = awaitPointerEvent()
+                                                    if (event.type == PointerEventType.Press && event.buttons.isSecondaryPressed) {
+                                                        val position = event.changes.first().position
+                                                        showMenu(cardData, DpOffset(position.x.toDp(), position.y.toDp()))
+                                                        event.changes.forEach { it.consume() }
                                                     }
-                                                },
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Surface(shape = MaterialTheme.shapes.large, color = MaterialTheme.colorScheme.primaryContainer) {
-                                                Box(Modifier.size(48.dp), contentAlignment = Alignment.Center) {
-                                                    Text(cardData.icon.ifBlank { "🎯" })
                                                 }
                                             }
-                                            Spacer(Modifier.width(16.dp))
-                                            Column(Modifier.weight(1f)) {
-                                                Text(highlight(cardData.title), style = MaterialTheme.typography.titleMedium)
-                                                val endText = runCatching { LocalDate.parse(cardData.date) }.getOrNull()?.let { d ->
-                                                    "ends on ${d.monthNumber}/${d.dayOfMonth}/${d.year}"
-                                                } ?: cardData.date
-                                                Text(endText, style = MaterialTheme.typography.bodyMedium)
-                                            }
-                                            Text("${dynamicRemaining}d", style = MaterialTheme.typography.titleMedium)
-                                            IconButton(onClick = { menuOpen = true }) { Text("⋮") }
-                                            DropdownMenu(
-                                                expanded = menuOpen, 
-                                                onDismissRequest = { menuOpen = false },
-                                                modifier = Modifier
-                                                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                                                offset = DpOffset(menuPosition.first, menuPosition.second)
-                                            ) {
-                                                DropdownMenuItem(text = { Text("编辑") }, onClick = { menuOpen = false; onEdit(cardData) })
-                                                DropdownMenuItem(text = { Text("删除") }, onClick = { menuOpen = false; onDelete(cardData.id) })
-                                            }
+                                        }
+                                        .pointerInput(cardData.id) {
+                                            detectTapGestures(
+                                                onLongPress = { position ->
+                                                    showMenu(cardData, DpOffset(position.x.toDp(), position.y.toDp()))
+                                                }
+                                            )
+                                        }
+                                        .graphicsLayer(alpha = alpha, translationY = ty)
+                                ) {
+                                    Column(
+                                        modifier = Modifier.fillMaxSize(),
+                                        verticalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Box(Modifier.fillMaxWidth()) {
+                                            Text(text = cardData.icon.ifBlank { "🎯" }, style = MaterialTheme.typography.headlineSmall)
+                                        }
+                                        Column {
+                                            Text(highlight(cardData.title), style = MaterialTheme.typography.titleMedium)
+                                            Spacer(Modifier.height(2.dp))
+                                            Text("剩余 ${dynamicRemaining} 天", style = MaterialTheme.typography.bodyMedium)
                                         }
                                     }
-                                } else {
-                                    // 大卡样式
-                                    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                                        AnimatedCountdownCard(
-                                            title = cardData.title,
-                                            annotatedTitle = highlight(cardData.title),
-                                            date = cardData.date,
-                                            remainingDays = dynamicRemaining,
-                                            onClick = { /* 预留 */ },
-                                            onDelete = { onDelete(cardData.id) },
-                                            onEdit = { onEdit(cardData) }
-                                        )
+
+                                    // 右上角更多按钮
+                                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopEnd) {
+                                        IconButton(
+                                            onClick = {
+                                                threeDotsButtonPosition?.let { showMenu(cardData, it) }
+                                            },
+                                            modifier = Modifier.onGloballyPositioned {
+                                                val positionInWindow = it.positionInWindow()
+                                                with(density) {
+                                                    threeDotsButtonPosition = DpOffset(positionInWindow.x.toDp(), positionInWindow.y.toDp())
+                                                }
+                                            }
+                                        ) { Text("⋮") }
                                     }
                                 }
-                            },
-                            directions = setOf(DismissDirection.EndToStart)
-                        )
-                    }
-                    if (filtered.isEmpty()) {
-                        item {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(24.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text("No Results", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }
+                    // 添加滚动条
+                    VerticalScrollbar(
+                        gridState = gridState,
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .padding(end = 4.dp)
+                    )
                 }
-                // 添加滚动条
-                VerticalScrollbar(
-                    listState = listState,
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(end = 4.dp)
+            } else {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(padding)
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(filtered, key = { it.id }) { cardData ->
+                            val dynamicRemaining = remember(today, cardData.date) {
+                                runCatching { LocalDate.parse(cardData.date) }
+                                    .getOrNull()
+                                    ?.let { targetDate ->
+                                        (targetDate.toEpochDays() - today.toEpochDays()).coerceAtLeast(0)
+                                    } ?: cardData.remainingDays
+                            }
+
+                            LaunchedEffect(cardData.id, dynamicRemaining) {
+                                if (dynamicRemaining != cardData.remainingDays) {
+                                    onUpdateDynamic(cardData.copy(remainingDays = dynamicRemaining))
+                                }
+                            }
+
+                            CountdownReminderObserver(
+                                card = cardData,
+                                reminderHandler = reminderHandler,
+                                onCardUpdate = { updated -> onUpdateDynamic(updated) },
+                                onDialogRequest = { onReminderDialog(it) }
+                            )
+
+                            // 左滑删除背景（按进度渐显）
+                            val dismissState = rememberDismissState(confirmStateChange = { value: DismissValue ->
+                                if (value == DismissValue.DismissedToStart) {
+                                    onDelete(cardData.id)
+                                    true
+                                } else false
+                            })
+
+                            SwipeToDismiss(
+                                state = dismissState,
+                                modifier = Modifier.clip(MaterialTheme.shapes.large),
+                                background = {
+                                    // 仅在发生滑动时才显示背景，避免静止时误显
+                                    val isActive = dismissState.dismissDirection != null ||
+                                        dismissState.targetValue != DismissValue.Default ||
+                                        dismissState.currentValue != DismissValue.Default
+                                    val progress = if (isActive) dismissState.progress.fraction.coerceIn(0f, 1f) else 0f
+                                    val bg = MaterialTheme.colorScheme.errorContainer.copy(alpha = progress)
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(if (displayStyle == DisplayStyle.Card) 140.dp else 96.dp)
+                                            .background(bg),
+                                        contentAlignment = Alignment.CenterEnd
+                                    ) {
+                                        if (progress > 0.02f) {
+                                            Row(
+                                                modifier = Modifier
+                                                    .padding(end = 16.dp + (40f * (1f - progress)).dp)
+                                                    .graphicsLayer(
+                                                        alpha = progress,
+                                                        scaleX = 0.85f + 0.15f * progress,
+                                                        scaleY = 0.85f + 0.15f * progress
+                                                    ),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Text("🗑", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onErrorContainer)
+                                                Spacer(Modifier.width(8.dp))
+                                                Text("删除", color = MaterialTheme.colorScheme.onErrorContainer)
+                                            }
+                                        }
+                                    }
+                                },
+                                dismissContent = {
+                                    if (displayStyle == DisplayStyle.List) {
+                                                                            // 紧凑行样式
+                                                                            Surface(shape = MaterialTheme.shapes.large, tonalElevation = 1.dp) {
+                                                                                var appeared by remember { mutableStateOf(false) }
+                                                                                val alpha by animateFloatAsState(if (appeared) 1f else 0f, label = "lAlpha")
+                                                                                val ty by animateFloatAsState(if (appeared) 0f else 8f, label = "lTy")
+                                                                                LaunchedEffect(Unit) { appeared = true }
+                                        
+                                                                                var threeDotsButtonPosition by remember { mutableStateOf<DpOffset?>(null) }
+                                                                                val density = LocalDensity.current
+                                        
+                                                                                Row(
+                                                                                    Modifier
+                                                                                        .fillMaxWidth()
+                                                                                        .padding(16.dp)
+                                                                                        .graphicsLayer(alpha = alpha, translationY = ty)
+                                                                                        .pointerInput(cardData.id) {
+                                                                                            awaitPointerEventScope {
+                                                                                                while (true) {
+                                                                                                    val event = awaitPointerEvent()
+                                                                                                    if (event.type == PointerEventType.Press && event.buttons.isSecondaryPressed) {
+                                                                                                        val position = event.changes.first().position
+                                                                                                        showMenu(cardData, DpOffset(position.x.toDp(), position.y.toDp()))
+                                                                                                        event.changes.forEach { it.consume() }
+                                                                                                    }
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                        .pointerInput(cardData.id) {
+                                                                                            detectTapGestures(
+                                                                                                onLongPress = { position ->
+                                                                                                    showMenu(cardData, DpOffset(position.x.toDp(), position.y.toDp()))
+                                                                                                }
+                                                                                            )
+                                                                                        },
+                                                                                    verticalAlignment = Alignment.CenterVertically
+                                                                                ) {
+                                                                                    Surface(shape = MaterialTheme.shapes.large, color = MaterialTheme.colorScheme.primaryContainer) {
+                                                                                        Box(Modifier.size(48.dp), contentAlignment = Alignment.Center) {
+                                                                                            Text(cardData.icon.ifBlank { "🎯" })
+                                                                                        }
+                                                                                    }
+                                                                                    Spacer(Modifier.width(16.dp))
+                                                                                    Column(Modifier.weight(1f)) {
+                                                                                        Text(highlight(cardData.title), style = MaterialTheme.typography.titleMedium)
+                                                                                        val endText = runCatching { LocalDate.parse(cardData.date) }.getOrNull()?.let { d ->
+                                                                                            "ends on ${d.monthNumber}/${d.dayOfMonth}/${d.year}"
+                                                                                        } ?: cardData.date
+                                                                                        Text(endText, style = MaterialTheme.typography.bodyMedium)
+                                                                                    }
+                                                                                    Text("${dynamicRemaining}d", style = MaterialTheme.typography.titleMedium)
+                                                                                    IconButton(
+                                                                                        onClick = {
+                                                                                            threeDotsButtonPosition?.let { showMenu(cardData, it) }
+                                                                                        },
+                                                                                        modifier = Modifier.onGloballyPositioned {
+                                                                                            val positionInWindow = it.positionInWindow()
+                                                                                            with(density) {
+                                                                                                threeDotsButtonPosition = DpOffset(positionInWindow.x.toDp(), positionInWindow.y.toDp())
+                                                                                            }
+                                                                                        }
+                                                                                    ) { Text("⋮") }
+                                                                                }
+                                                                            }                                    } else {
+                                        // 大卡样式
+                                        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                                            AnimatedCountdownCard(
+                                                title = cardData.title,
+                                                annotatedTitle = highlight(cardData.title),
+                                                date = cardData.date,
+                                                remainingDays = dynamicRemaining,
+                                                onClick = { /* 预留 */ },
+                                                onDelete = { onDelete(cardData.id) },
+                                                onEdit = { onEdit(cardData) },
+                                                onShowMenu = { position -> showMenu(cardData, position) }
+                                            )
+                                        }
+                                    }
+                                },
+                                directions = setOf(DismissDirection.EndToStart)
+                            )
+                        }
+                        if (filtered.isEmpty()) {
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(24.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text("No Results", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                            }
+                        }
+                    }
+                    // 添加滚动条
+                    VerticalScrollbar(
+                        listState = listState,
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .padding(end = 4.dp)
+                    )
+                }
+            }
+        }
+
+        // 统一的上下文菜单
+        contextMenuCard?.let { card ->
+            AppContextMenu(
+                expanded = true,
+                onDismissRequest = dismissMenu,
+                offset = menuPosition,
+            ) {
+                DropdownMenuItem(
+                    text = { Text("编辑") },
+                    onClick = {
+                        dismissMenu()
+                        onEdit(card)
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("删除") },
+                    onClick = {
+                        dismissMenu()
+                        onDelete(card.id)
+                    }
                 )
             }
         }

@@ -22,6 +22,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
@@ -40,117 +42,97 @@ fun CountdownCard(
     onClick: () -> Unit = {},
     onDelete: () -> Unit = {},
     onEdit: () -> Unit = {},
+    onShowMenu: (position: DpOffset) -> Unit,
     isDeleting: Boolean = false
 ) {
-    var showMenu by remember { mutableStateOf(false) }
-        var menuPosition by remember { mutableStateOf(0.dp to 0.dp) }
-        var isVisible by remember { mutableStateOf(false) }
+    var isVisible by remember { mutableStateOf(false) }
 
-        // 启动入场动画
-        LaunchedEffect(Unit) {
-            isVisible = true
-        }
+    // 启动入场动画
+    LaunchedEffect(Unit) {
+        isVisible = true
+    }
 
-        // 入场缩放动画
-        val scale by animateFloatAsState(
-            targetValue = if (isVisible && !isDeleting) 1f else 0.97f,
-            animationSpec = tween(
-                durationMillis = 220,
-                easing = FastOutSlowInEasing
-            ),
-            label = "scale"
+    // 入场缩放动画
+    val scale by animateFloatAsState(
+        targetValue = if (isVisible && !isDeleting) 1f else 0.97f,
+        animationSpec = tween(
+            durationMillis = 220,
+            easing = FastOutSlowInEasing
+        ),
+        label = "scale"
+    )
+
+    // 删除动画 - 水平偏移
+    val offsetX by animateFloatAsState(
+        targetValue = if (isDeleting) 300f else 0f,
+        animationSpec = tween(
+            durationMillis = 400,
+            easing = FastOutSlowInEasing
+        ),
+        label = "offsetX"
+    )
+
+    // 删除动画 - 透明度
+    val alpha by animateFloatAsState(
+        targetValue = if (isDeleting) 0f else 1f,
+        animationSpec = tween(
+            durationMillis = 400,
+            easing = LinearEasing
+        ),
+        label = "alpha"
+    )
+
+    AnimatedVisibility(
+        visible = !isDeleting,
+        exit = fadeOut(
+            animationSpec = tween(400)
+        ) + slideOutHorizontally(
+            targetOffsetX = { it },
+            animationSpec = tween(400)
+        ) + shrinkVertically(
+            animationSpec = tween(400)
         )
+    ) {
+        // 参考图片中的卡片背景色: dark:bg-zinc-800/50
+        // 在Compose中使用相似的颜色 #303030 (zinc-800) 并设置50%透明度
+        val cardBackgroundColor = Color(0xFF303030).copy(alpha = 0.5f)
+        // 图标背景色: bg-primary/20 (主色的20%透明度)
+        val iconBackgroundColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+        
+        var threeDotsButtonPosition by remember { mutableStateOf<DpOffset?>(null) }
+        val density = LocalDensity.current
 
-        // 删除动画 - 水平偏移
-        val offsetX by animateFloatAsState(
-            targetValue = if (isDeleting) 300f else 0f,
-            animationSpec = tween(
-                durationMillis = 400,
-                easing = FastOutSlowInEasing
-            ),
-            label = "offsetX"
-        )
-
-        // 删除动画 - 透明度
-        val alpha by animateFloatAsState(
-            targetValue = if (isDeleting) 0f else 1f,
-            animationSpec = tween(
-                durationMillis = 400,
-                easing = LinearEasing
-            ),
-            label = "alpha"
-        )
-
-        AnimatedVisibility(
-            visible = !isDeleting,
-            exit = fadeOut(
-                animationSpec = tween(400)
-            ) + slideOutHorizontally(
-                targetOffsetX = { it },
-                animationSpec = tween(400)
-            ) + shrinkVertically(
-                animationSpec = tween(400)
-            )
-        ) {
-            // 参考图片中的卡片背景色: dark:bg-zinc-800/50
-            // 在Compose中使用相似的颜色 #303030 (zinc-800) 并设置50%透明度
-            val cardBackgroundColor = Color(0xFF303030).copy(alpha = 0.5f)
-            // 图标背景色: bg-primary/20 (主色的20%透明度)
-            val iconBackgroundColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
-            
-            // 用于获取全局位置的LayoutCoordinates
-            val coordinates = remember { mutableStateOf<androidx.compose.ui.layout.LayoutCoordinates?>(null) }
-
-            Box(
-                modifier = Modifier
-                    .scale(scale)
-                    .offset(x = offsetX.dp)
-                    .alpha(alpha)
-                    // Card 视图宽度改为相对窗口的百分比（约 92%），高度保持卡片风格
-                    .fillMaxWidth(0.92f)
-                    .height(140.dp)
-                    .background(cardBackgroundColor, RoundedCornerShape(18.dp))
-                    .onGloballyPositioned { layoutCoordinates ->
-                        coordinates.value = layoutCoordinates
-                    }
-                    .pointerInput(Unit) {
-                        awaitPointerEventScope {
-                            while (true) {
-                                val event = awaitPointerEvent()
-                                when (event.type) {
-                                    PointerEventType.Press -> {
-                                        val isRightClick = event.buttons.isSecondaryPressed
-                                        if (isRightClick) {
-                                            // 获取点击位置
-                                            val position = event.changes.first().position
-                                            // 将局部坐标转换为全局坐标
-                                            coordinates.value?.let { coords ->
-                                                val globalPosition = coords.localToWindow(position)
-                                                menuPosition = globalPosition.x.toDp() to globalPosition.y.toDp()
-                                            }
-                                            showMenu = true
-                                        }
-                                    }
-                                    PointerEventType.Release -> {
-                                        val isLeftClick = !event.buttons.isSecondaryPressed
-                                        if (isLeftClick && !showMenu) {
-                                            onClick()
-                                        }
-                                    }
-                                }
+        Box(
+            modifier = Modifier
+                .scale(scale)
+                .offset(x = offsetX.dp)
+                .alpha(alpha)
+                // Card 视图宽度改为相对窗口的百分比（约 92%），高度保持卡片风格
+                .fillMaxWidth(0.92f)
+                .height(140.dp)
+                .background(cardBackgroundColor, RoundedCornerShape(18.dp))
+                .pointerInput(Unit) {
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            if (event.type == PointerEventType.Press && event.buttons.isSecondaryPressed) {
+                                val position = event.changes.first().position
+                                onShowMenu(DpOffset(position.x.toDp(), position.y.toDp()))
+                                event.changes.forEach { it.consume() }
                             }
                         }
                     }
-                    .pointerInput(Unit) {
-                        detectTapGestures(
-                            onLongPress = {
-                                // 长按也显示菜单，但需要获取位置
-                                showMenu = true
-                            }
-                        )
-                    }
-                    .padding(16.dp)
-            ) {
+                }
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onLongPress = { position ->
+                            onShowMenu(DpOffset(position.x.toDp(), position.y.toDp()))
+                        },
+                        onTap = { onClick() }
+                    )
+                }
+                .padding(16.dp)
+        ) {
             Row(
                 modifier = Modifier.fillMaxSize(),
                 verticalAlignment = Alignment.CenterVertically
@@ -207,34 +189,23 @@ fun CountdownCard(
                 }
             }
 
-            // 右键菜单 - 显示在点击位置
-            DropdownMenu(
-                expanded = showMenu,
-                onDismissRequest = { showMenu = false },
-                modifier = Modifier
-                    .offset(x = menuPosition.first, y = menuPosition.second)
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                offset = DpOffset(0.dp, 0.dp) // 重置默认偏移
-            ) {
-                DropdownMenuItem(
-                    text = { Text("编辑") },
-                    onClick = {
-                        showMenu = false
-                        onEdit()
-                    }
-                )
-                DropdownMenuItem(
-                    text = { Text("删除") },
-                    onClick = {
-                        showMenu = false
-                        onDelete()
-                    }
-                )
-            }
-
             // 顶部右侧三个点按钮，作为菜单触发入口
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopEnd) {
-                IconButton(onClick = { showMenu = true }) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentAlignment = Alignment.TopEnd
+            ) {
+                IconButton(
+                    onClick = {
+                        threeDotsButtonPosition?.let { onShowMenu(it) }
+                    },
+                    modifier = Modifier.onGloballyPositioned {
+                        val positionInWindow = it.positionInWindow()
+                        with(density) {
+                            threeDotsButtonPosition = DpOffset(positionInWindow.x.toDp(), positionInWindow.y.toDp())
+                        }
+                    }
+                ) {
                     Text("⋮", color = Color.White.copy(alpha = 0.6f))
                 }
             }
@@ -250,7 +221,8 @@ fun AnimatedCountdownCard(
     remainingDays: Int,
     onClick: () -> Unit = {},
     onDelete: () -> Unit = {},
-    onEdit: () -> Unit = {}
+    onEdit: () -> Unit = {},
+    onShowMenu: (position: DpOffset) -> Unit
 ) {
     var isDeleting by remember { mutableStateOf(false) }
 
@@ -270,6 +242,7 @@ fun AnimatedCountdownCard(
         onClick = onClick,
         onDelete = { isDeleting = true }, // 触发删除动画
         onEdit = onEdit,
+        onShowMenu = onShowMenu,
         isDeleting = isDeleting
     )
 }
