@@ -24,7 +24,6 @@ composeApp/images
 images
 AGENTS.md
 GEMINI.md
-/composeApp/release/composeApp-release.aab
-/composeApp/ai_chat_img/屏幕截图 2025-11-19 024753.png
-/composeApp/ai_chat_img/屏幕截图 2025-11-19 030043.png
-/composeApp/ai_chat_img/屏幕截图 2025-11-19 030409.png
+/composeApp/release/**
+/composeApp/ai_chat_img/**
+/composeApp/version.properties
