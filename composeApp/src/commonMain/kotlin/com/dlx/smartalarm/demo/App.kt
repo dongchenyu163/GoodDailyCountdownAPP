@@ -530,8 +530,6 @@ private fun MainScreen(
                                     } ?: cardData.remainingDays
                             }
 
-
-
                             CountdownReminderObserver(
                                 card = cardData,
                                 reminderHandler = reminderHandler,
