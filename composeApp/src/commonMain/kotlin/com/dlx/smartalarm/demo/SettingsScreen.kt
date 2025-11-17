@@ -75,7 +75,7 @@ private fun DisplayStyleItem(title: String, subtitle: String, selected: Boolean,
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 14.dp), // Removed redundant .let
+                .padding(horizontal = 16.dp, vertical = 10.dp), // Reduced vertical padding
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
@@ -86,5 +86,5 @@ private fun DisplayStyleItem(title: String, subtitle: String, selected: Boolean,
             RadioButton(selected = selected, onClick = null) // onClick set to null to disable its own click handling
         }
     }
-    Spacer(Modifier.height(8.dp))
+    Spacer(Modifier.height(4.dp)) // Reduced Spacer height
 }
