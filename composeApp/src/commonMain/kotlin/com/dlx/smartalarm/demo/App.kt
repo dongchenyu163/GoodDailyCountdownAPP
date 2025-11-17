@@ -397,6 +397,7 @@ private fun MainScreen(
                             }
                             
                             var threeDotsButtonPosition by remember { mutableStateOf<DpOffset?>(null) }
+                            var itemPositionInWindow by remember { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
                             val density = LocalDensity.current
 
                             // 网格项（卡片风格）+ 轻微出现动效
@@ -404,13 +405,19 @@ private fun MainScreen(
                                 tonalElevation = 2.dp,
                                 shape = MaterialTheme.shapes.large,
                                 modifier = Modifier
+                                    .onGloballyPositioned {
+                                        itemPositionInWindow = it.positionInWindow()
+                                    }
                                     .pointerInput(cardData.id) {
                                         awaitPointerEventScope {
                                             while (true) {
                                                 val event = awaitPointerEvent()
                                                 if (event.type == PointerEventType.Press && event.buttons.isSecondaryPressed) {
-                                                    val position = event.changes.first().position
-                                                    showMenu(cardData, DpOffset(position.x.toDp(), position.y.toDp()))
+                                                    val localPosition = event.changes.first().position
+                                                    val globalPosition = itemPositionInWindow + localPosition
+                                                    with(density) {
+                                                        showMenu(cardData, DpOffset(globalPosition.x.toDp(), globalPosition.y.toDp()))
+                                                    }
                                                     event.changes.forEach { it.consume() }
                                                 }
                                             }
@@ -418,8 +425,11 @@ private fun MainScreen(
                                     }
                                     .pointerInput(cardData.id) {
                                         detectTapGestures(
-                                            onLongPress = { position ->
-                                                showMenu(cardData, DpOffset(position.x.toDp(), position.y.toDp()))
+                                            onLongPress = { localPosition ->
+                                                val globalPosition = itemPositionInWindow + localPosition
+                                                with(density) {
+                                                    showMenu(cardData, DpOffset(globalPosition.x.toDp(), globalPosition.y.toDp()))
+                                                }
                                             }
                                         )
                                     }
@@ -554,17 +564,25 @@ private fun MainScreen(
                                 dismissContent = {
                                     if (displayStyle == DisplayStyle.List) {
                                         // 紧凑行样式
+                                        var itemPositionInWindow by remember { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
+                                        val density = LocalDensity.current
                                         Surface(
                                             shape = MaterialTheme.shapes.large,
                                             tonalElevation = 1.dp,
                                             modifier = Modifier
+                                                .onGloballyPositioned {
+                                                    itemPositionInWindow = it.positionInWindow()
+                                                }
                                                 .pointerInput(cardData.id) {
                                                     awaitPointerEventScope {
                                                         while (true) {
                                                             val event = awaitPointerEvent()
                                                             if (event.type == PointerEventType.Press && event.buttons.isSecondaryPressed) {
-                                                                val position = event.changes.first().position
-                                                                showMenu(cardData, DpOffset(position.x.toDp(), position.y.toDp()))
+                                                                val localPosition = event.changes.first().position
+                                                                val globalPosition = itemPositionInWindow + localPosition
+                                                                with(density) {
+                                                                    showMenu(cardData, DpOffset(globalPosition.x.toDp(), globalPosition.y.toDp()))
+                                                                }
                                                                 event.changes.forEach { it.consume() }
                                                             }
                                                         }
@@ -572,8 +590,11 @@ private fun MainScreen(
                                                 }
                                                 .pointerInput(cardData.id) {
                                                     detectTapGestures(
-                                                        onLongPress = { position ->
-                                                            showMenu(cardData, DpOffset(position.x.toDp(), position.y.toDp()))
+                                                        onLongPress = { localPosition ->
+                                                            val globalPosition = itemPositionInWindow + localPosition
+                                                            with(density) {
+                                                                showMenu(cardData, DpOffset(globalPosition.x.toDp(), globalPosition.y.toDp()))
+                                                            }
                                                         }
                                                     )
                                                 }

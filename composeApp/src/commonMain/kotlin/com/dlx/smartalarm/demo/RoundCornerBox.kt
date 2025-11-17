@@ -100,6 +100,7 @@ fun CountdownCard(
         val iconBackgroundColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
         
         var threeDotsButtonPosition by remember { mutableStateOf<DpOffset?>(null) }
+        var itemPositionInWindow by remember { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
         val density = LocalDensity.current
 
         Box(
@@ -111,13 +112,19 @@ fun CountdownCard(
                 .fillMaxWidth(0.92f)
                 .height(140.dp)
                 .background(cardBackgroundColor, RoundedCornerShape(18.dp))
+                .onGloballyPositioned {
+                    itemPositionInWindow = it.positionInWindow()
+                }
                 .pointerInput(Unit) {
                     awaitPointerEventScope {
                         while (true) {
                             val event = awaitPointerEvent()
                             if (event.type == PointerEventType.Press && event.buttons.isSecondaryPressed) {
-                                val position = event.changes.first().position
-                                onShowMenu(DpOffset(position.x.toDp(), position.y.toDp()))
+                                val localPosition = event.changes.first().position
+                                val globalPosition = itemPositionInWindow + localPosition
+                                with(density) {
+                                    onShowMenu(DpOffset(globalPosition.x.toDp(), globalPosition.y.toDp()))
+                                }
                                 event.changes.forEach { it.consume() }
                             }
                         }
@@ -125,8 +132,11 @@ fun CountdownCard(
                 }
                 .pointerInput(Unit) {
                     detectTapGestures(
-                        onLongPress = { position ->
-                            onShowMenu(DpOffset(position.x.toDp(), position.y.toDp()))
+                        onLongPress = { localPosition ->
+                            val globalPosition = itemPositionInWindow + localPosition
+                            with(density) {
+                                onShowMenu(DpOffset(globalPosition.x.toDp(), globalPosition.y.toDp()))
+                            }
                         },
                         onTap = { onClick() }
                     )
