@@ -648,6 +648,7 @@ private fun MainScreen(
                                                 annotatedTitle = highlight(cardData.title),
                                                 date = cardData.date,
                                                 remainingDays = dynamicRemaining,
+                                                icon = cardData.icon,
                                                 onClick = { /* 预留 */ },
                                                 onDelete = { onDelete(cardData.id) },
                                                 onEdit = { onEdit(cardData) },

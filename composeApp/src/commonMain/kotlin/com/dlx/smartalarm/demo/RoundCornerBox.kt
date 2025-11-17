@@ -39,6 +39,7 @@ fun CountdownCard(
     annotatedTitle: AnnotatedString? = null,
     date: String,
     remainingDays: Int,
+    icon: String,
     onClick: () -> Unit = {},
     onDelete: () -> Unit = {},
     onEdit: () -> Unit = {},
@@ -158,7 +159,7 @@ fun CountdownCard(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "🎯", // 默认图标，实际使用时应根据需要更换
+                        text = icon.ifBlank { "🎯" },
                         fontSize = 24.sp
                     )
                 }
@@ -229,6 +230,7 @@ fun AnimatedCountdownCard(
     annotatedTitle: AnnotatedString? = null,
     date: String,
     remainingDays: Int,
+    icon: String,
     onClick: () -> Unit = {},
     onDelete: () -> Unit = {},
     onEdit: () -> Unit = {},
@@ -249,6 +251,7 @@ fun AnimatedCountdownCard(
         annotatedTitle = annotatedTitle,
         date = date,
         remainingDays = remainingDays,
+        icon = icon,
         onClick = onClick,
         onDelete = { isDeleting = true }, // 触发删除动画
         onEdit = onEdit,
