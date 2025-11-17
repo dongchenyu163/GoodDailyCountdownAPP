@@ -14,6 +14,7 @@ import kotlinx.datetime.*
 import androidx.compose.foundation.rememberScrollState // New import
 import androidx.compose.foundation.verticalScroll // New import
 import androidx.compose.ui.Alignment // New import
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -48,6 +49,49 @@ fun CardDialog(
     var showDatePicker by remember { mutableStateOf(false) }
 
     var isUpdatingFromDate by remember { mutableStateOf(false) }
+
+    val coroutineScope = rememberCoroutineScope()
+    var titleImage by remember(cardData?.id, cardData?.titleImage) { mutableStateOf(cardData?.titleImage) }
+    var showImageEditor by remember { mutableStateOf(false) }
+    var imagePickerMessage by remember { mutableStateOf<String?>(null) }
+    var isPickingImage by remember { mutableStateOf(false) }
+
+    val selectTitleImage: () -> Unit = {
+        coroutineScope.launch {
+            isPickingImage = true
+            imagePickerMessage = null
+            val picked = runCatching { pickImageFromUser() }.getOrElse {
+                imagePickerMessage = it.message ?: "选择图片时发生错误"
+                isPickingImage = false
+                return@launch
+            }
+            if (picked == null) {
+                imagePickerMessage = "未选择图片或当前平台暂不支持文件选择"
+                isPickingImage = false
+                return@launch
+            }
+            val updated = replaceCardImage(titleImage, picked, TitleImageDefaultQuality)
+            if (updated == null) {
+                imagePickerMessage = "无法读取所选图片，请尝试其他文件"
+            } else {
+                titleImage = updated
+                showImageEditor = true
+            }
+            isPickingImage = false
+        }
+    }
+
+    val clearTitleImage: () -> Unit = {
+        coroutineScope.launch {
+            titleImage?.uuid?.let {
+                TitleImageStorage.delete(it)
+                TitleImageBitmapCache.remove(it)
+            }
+            titleImage = null
+            imagePickerMessage = null
+            showImageEditor = false
+        }
+    }
 
     fun calculateRemainingDays(targetDate: LocalDate): Int {
         val currentDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
@@ -152,6 +196,45 @@ fun CardDialog(
                         }
                     }
 
+                    Text("标题图片", style = MaterialTheme.typography.titleSmall)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Button(
+                            onClick = { selectTitleImage() },
+                            enabled = !isPickingImage
+                        ) {
+                            Text(if (isPickingImage) "选择中..." else "选择文件")
+                        }
+                        OutlinedButton(
+                            onClick = { showImageEditor = true },
+                            enabled = titleImage != null
+                        ) {
+                            Text("编辑图片大小")
+                        }
+                        TextButton(
+                            onClick = { clearTitleImage() },
+                            enabled = titleImage != null
+                        ) {
+                            Text("清除图片")
+                        }
+                    }
+                    imagePickerMessage?.let {
+                        Text(
+                            text = it,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    titleImage?.let {
+                        Text(
+                            text = "当前图片ID: ${it.uuid}",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.End
@@ -170,7 +253,8 @@ fun CardDialog(
                                         remainingDays = remainingDays,
                                         reminderSent = reminderSent,
                                         description = description,
-                                        icon = icon
+                                        icon = icon,
+                                        titleImage = titleImage
                                     )
                                 } else {
                                     CardData(
@@ -180,7 +264,8 @@ fun CardDialog(
                                         remainingDays = remainingDays,
                                         reminderSent = reminderSent,
                                         description = description,
-                                        icon = icon
+                                        icon = icon,
+                                        titleImage = titleImage
                                     )
                                 }
                                 onConfirm(card)
@@ -194,6 +279,17 @@ fun CardDialog(
                 )
             }
         }
+    }
+
+    if (showImageEditor && titleImage != null) {
+        ImageOffsetEditorDialog(
+            titleImageInfo = titleImage!!,
+            onDismiss = { showImageEditor = false },
+            onApply = { updated ->
+                titleImage = updated
+                showImageEditor = false
+            }
+        )
     }
 
     if (showDatePicker) {
