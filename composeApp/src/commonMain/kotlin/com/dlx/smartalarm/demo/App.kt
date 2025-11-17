@@ -400,7 +400,30 @@ private fun MainScreen(
                             val density = LocalDensity.current
 
                             // 网格项（卡片风格）+ 轻微出现动效
-                            Surface(tonalElevation = 2.dp, shape = MaterialTheme.shapes.large) {
+                            Surface(
+                                tonalElevation = 2.dp,
+                                shape = MaterialTheme.shapes.large,
+                                modifier = Modifier
+                                    .pointerInput(cardData.id) {
+                                        awaitPointerEventScope {
+                                            while (true) {
+                                                val event = awaitPointerEvent()
+                                                if (event.type == PointerEventType.Press && event.buttons.isSecondaryPressed) {
+                                                    val position = event.changes.first().position
+                                                    showMenu(cardData, DpOffset(position.x.toDp(), position.y.toDp()))
+                                                    event.changes.forEach { it.consume() }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    .pointerInput(cardData.id) {
+                                        detectTapGestures(
+                                            onLongPress = { position ->
+                                                showMenu(cardData, DpOffset(position.x.toDp(), position.y.toDp()))
+                                            }
+                                        )
+                                    }
+                            ) {
                                 var appeared by remember { mutableStateOf(false) }
                                 val alpha by animateFloatAsState(if (appeared) 1f else 0f, label = "gAlpha")
                                 val ty by animateFloatAsState(if (appeared) 0f else 12f, label = "gTy")
@@ -411,25 +434,6 @@ private fun MainScreen(
                                         .fillMaxWidth()
                                         .height(180.dp)
                                         .padding(12.dp)
-                                        .pointerInput(cardData.id) {
-                                            awaitPointerEventScope {
-                                                while (true) {
-                                                    val event = awaitPointerEvent()
-                                                    if (event.type == PointerEventType.Press && event.buttons.isSecondaryPressed) {
-                                                        val position = event.changes.first().position
-                                                        showMenu(cardData, DpOffset(position.x.toDp(), position.y.toDp()))
-                                                        event.changes.forEach { it.consume() }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        .pointerInput(cardData.id) {
-                                            detectTapGestures(
-                                                onLongPress = { position ->
-                                                    showMenu(cardData, DpOffset(position.x.toDp(), position.y.toDp()))
-                                                }
-                                            )
-                                        }
                                         .graphicsLayer(alpha = alpha, translationY = ty)
                                 ) {
                                     Column(
@@ -549,42 +553,46 @@ private fun MainScreen(
                                 },
                                 dismissContent = {
                                     if (displayStyle == DisplayStyle.List) {
-                                                                            // 紧凑行样式
-                                                                            Surface(shape = MaterialTheme.shapes.large, tonalElevation = 1.dp) {
-                                                                                var appeared by remember { mutableStateOf(false) }
-                                                                                val alpha by animateFloatAsState(if (appeared) 1f else 0f, label = "lAlpha")
-                                                                                val ty by animateFloatAsState(if (appeared) 0f else 8f, label = "lTy")
-                                                                                LaunchedEffect(Unit) { appeared = true }
-                                        
-                                                                                var threeDotsButtonPosition by remember { mutableStateOf<DpOffset?>(null) }
-                                                                                val density = LocalDensity.current
-                                        
-                                                                                Row(
-                                                                                    Modifier
-                                                                                        .fillMaxWidth()
-                                                                                        .padding(16.dp)
-                                                                                        .graphicsLayer(alpha = alpha, translationY = ty)
-                                                                                        .pointerInput(cardData.id) {
-                                                                                            awaitPointerEventScope {
-                                                                                                while (true) {
-                                                                                                    val event = awaitPointerEvent()
-                                                                                                    if (event.type == PointerEventType.Press && event.buttons.isSecondaryPressed) {
-                                                                                                        val position = event.changes.first().position
-                                                                                                        showMenu(cardData, DpOffset(position.x.toDp(), position.y.toDp()))
-                                                                                                        event.changes.forEach { it.consume() }
-                                                                                                    }
-                                                                                                }
-                                                                                            }
-                                                                                        }
-                                                                                        .pointerInput(cardData.id) {
-                                                                                            detectTapGestures(
-                                                                                                onLongPress = { position ->
-                                                                                                    showMenu(cardData, DpOffset(position.x.toDp(), position.y.toDp()))
-                                                                                                }
-                                                                                            )
-                                                                                        },
-                                                                                    verticalAlignment = Alignment.CenterVertically
-                                                                                ) {
+                                        // 紧凑行样式
+                                        Surface(
+                                            shape = MaterialTheme.shapes.large,
+                                            tonalElevation = 1.dp,
+                                            modifier = Modifier
+                                                .pointerInput(cardData.id) {
+                                                    awaitPointerEventScope {
+                                                        while (true) {
+                                                            val event = awaitPointerEvent()
+                                                            if (event.type == PointerEventType.Press && event.buttons.isSecondaryPressed) {
+                                                                val position = event.changes.first().position
+                                                                showMenu(cardData, DpOffset(position.x.toDp(), position.y.toDp()))
+                                                                event.changes.forEach { it.consume() }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                .pointerInput(cardData.id) {
+                                                    detectTapGestures(
+                                                        onLongPress = { position ->
+                                                            showMenu(cardData, DpOffset(position.x.toDp(), position.y.toDp()))
+                                                        }
+                                                    )
+                                                }
+                                        ) {
+                                            var appeared by remember { mutableStateOf(false) }
+                                            val alpha by animateFloatAsState(if (appeared) 1f else 0f, label = "lAlpha")
+                                            val ty by animateFloatAsState(if (appeared) 0f else 8f, label = "lTy")
+                                            LaunchedEffect(Unit) { appeared = true }
+
+                                            var threeDotsButtonPosition by remember { mutableStateOf<DpOffset?>(null) }
+                                            val density = LocalDensity.current
+
+                                            Row(
+                                                Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(16.dp)
+                                                    .graphicsLayer(alpha = alpha, translationY = ty),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
                                                                                     Surface(shape = MaterialTheme.shapes.large, color = MaterialTheme.colorScheme.primaryContainer) {
                                                                                         Box(Modifier.size(48.dp), contentAlignment = Alignment.Center) {
                                                                                             Text(cardData.icon.ifBlank { "🎯" })
