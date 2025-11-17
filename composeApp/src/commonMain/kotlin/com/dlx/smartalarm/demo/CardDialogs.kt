@@ -11,6 +11,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import kotlinx.datetime.*
+import androidx.compose.foundation.rememberScrollState // New import
+import androidx.compose.foundation.verticalScroll // New import
+import androidx.compose.ui.Alignment // New import
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -65,119 +68,128 @@ fun CardDialog(
     }
 
     Dialog(onDismissRequest = onDismiss) {
+        val scrollState = rememberScrollState() // New
         Card(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Text(
-                    text = if (cardData != null) "编辑卡片" else "添加新卡片",
-                    style = MaterialTheme.typography.headlineSmall
-                )
+            Box(modifier = Modifier.fillMaxSize()) { // New Box to hold scrollable content and scrollbar
+                Column(
+                    modifier = Modifier
+                        .padding(24.dp)
+                        .verticalScroll(scrollState), // Added verticalScroll
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        text = if (cardData != null) "编辑卡片" else "添加新卡片",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
 
-                OutlinedTextField(
-                    value = title,
-                    onValueChange = { title = it },
-                    label = { Text("标题") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                    OutlinedTextField(
+                        value = title,
+                        onValueChange = { title = it },
+                        label = { Text("标题") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
-                OutlinedTextField(
-                    value = description,
-                    onValueChange = { description = it },
-                    label = { Text("描述") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                    OutlinedTextField(
+                        value = description,
+                        onValueChange = { description = it },
+                        label = { Text("描述") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
-                OutlinedTextField(
-                    value = selectedDate.toString(),
-                    onValueChange = { },
-                    label = { Text("目标日期") },
-                    readOnly = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    trailingIcon = {
-                        TextButton(onClick = { showDatePicker = true }) {
-                            Text("选择日期")
+                    OutlinedTextField(
+                        value = selectedDate.toString(),
+                        onValueChange = { },
+                        label = { Text("目标日期") },
+                        readOnly = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        trailingIcon = {
+                            TextButton(onClick = { showDatePicker = true }) {
+                                Text("选择日期")
+                            }
                         }
-                    }
-                )
+                    )
 
-                OutlinedTextField(
-                    value = remainingDaysText,
-                    onValueChange = { newValue ->
-                        if (newValue.all { it.isDigit() } || newValue.isEmpty()) {
-                            remainingDaysText = newValue
-                            newValue.toIntOrNull()?.let { days ->
-                                if (days >= 0 && !isUpdatingFromDate) {
-                                    selectedDate = calculateTargetDate(days)
+                    OutlinedTextField(
+                        value = remainingDaysText,
+                        onValueChange = { newValue ->
+                            if (newValue.all { it.isDigit() } || newValue.isEmpty()) {
+                                remainingDaysText = newValue
+                                newValue.toIntOrNull()?.let { days ->
+                                    if (days >= 0 && !isUpdatingFromDate) {
+                                        selectedDate = calculateTargetDate(days)
+                                    }
                                 }
                             }
-                        }
-                    },
-                    label = { Text("剩余天数") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth()
-                )
+                        },
+                        label = { Text("剩余天数") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
-                Text("选择图标", style = MaterialTheme.typography.titleSmall)
-                FlowRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    presetIcons.forEach { ic ->
-                        val selected = icon == ic
-                        AssistChip(
-                            onClick = { icon = ic },
-                            label = { Text(ic) },
-                            leadingIcon = null,
-                            modifier = Modifier.padding(bottom = 8.dp),
-                            colors = AssistChipDefaults.assistChipColors(
-                                containerColor = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
-                                labelColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+                    Text("选择图标", style = MaterialTheme.typography.titleSmall)
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        presetIcons.forEach { ic ->
+                            val selected = icon == ic
+                            AssistChip(
+                                onClick = { icon = ic },
+                                label = { Text(ic) },
+                                leadingIcon = null,
+                                modifier = Modifier.padding(bottom = 8.dp),
+                                colors = AssistChipDefaults.assistChipColors(
+                                    containerColor = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
+                                    labelColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+                                )
                             )
-                        )
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        TextButton(onClick = onDismiss) { Text("取消") }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Button(
+                            onClick = {
+                                val remainingDays = maxOf(0, remainingDaysText.toIntOrNull() ?: (cardData?.remainingDays ?: 1))
+                                val reminderSent = if (remainingDays > 0) false else cardData?.reminderSent ?: false
+                                val card = if (cardData != null) {
+                                    CardData(
+                                        id = cardData.id,
+                                        title = title,
+                                        date = selectedDate.toString(),
+                                        remainingDays = remainingDays,
+                                        reminderSent = reminderSent,
+                                        description = description,
+                                        icon = icon
+                                    )
+                                } else {
+                                    CardData(
+                                        id = nextId,
+                                        title = title,
+                                        date = selectedDate.toString(),
+                                        remainingDays = remainingDays,
+                                        reminderSent = reminderSent,
+                                        description = description,
+                                        icon = icon
+                                    )
+                                }
+                                onConfirm(card)
+                            }
+                        ) { Text("确认") }
                     }
                 }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    TextButton(onClick = onDismiss) { Text("取消") }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Button(
-                        onClick = {
-                            val remainingDays = maxOf(0, remainingDaysText.toIntOrNull() ?: (cardData?.remainingDays ?: 1))
-                            val reminderSent = if (remainingDays > 0) false else cardData?.reminderSent ?: false
-                            val card = if (cardData != null) {
-                                CardData(
-                                    id = cardData.id,
-                                    title = title,
-                                    date = selectedDate.toString(),
-                                    remainingDays = remainingDays,
-                                    reminderSent = reminderSent,
-                                    description = description,
-                                    icon = icon
-                                )
-                            } else {
-                                CardData(
-                                    id = nextId,
-                                    title = title,
-                                    date = selectedDate.toString(),
-                                    remainingDays = remainingDays,
-                                    reminderSent = reminderSent,
-                                    description = description,
-                                    icon = icon
-                                )
-                            }
-                            onConfirm(card)
-                        }
-                    ) { Text("确认") }
-                }
+                VerticalScrollbar( // New
+                    scrollState = scrollState,
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                )
             }
         }
     }

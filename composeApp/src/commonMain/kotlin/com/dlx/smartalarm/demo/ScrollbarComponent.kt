@@ -7,6 +7,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.ScrollState // New import
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
@@ -16,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity // New import
 
 /**
  * 仅用于显示滚动位置的滚动条，无法拖动
@@ -30,6 +32,7 @@ fun VerticalScrollbar(
     
     if (!scrollbarVisible || listState.layoutInfo.totalItemsCount == 0) return
 
+    val density = LocalDensity.current // New
     // 计算滚动位置 (0.0 到 1.0)
     val firstVisibleItemIndex = listState.firstVisibleItemIndex
     val firstVisibleItemScrollOffset = listState.firstVisibleItemScrollOffset
@@ -53,7 +56,7 @@ fun VerticalScrollbar(
         label = "scrollbarHeight"
     )
     
-    var parentHeight by remember { mutableStateOf(100f) }
+    var parentHeightPx by remember { mutableStateOf(1f) } // Changed to Px
     
     AnimatedVisibility(
         visible = scrollbarVisible,
@@ -66,14 +69,18 @@ fun VerticalScrollbar(
                 .background(Color.Transparent)
                 .padding(end = 4.dp) // 稍微内缩
                 .onGloballyPositioned { coordinates ->
-                    parentHeight = coordinates.size.height.toFloat()
+                    parentHeightPx = coordinates.size.height.toFloat() // Store Px
                 }
         ) {
-            val scrollbarHeightDp = ((scrollbarHeight * parentHeight * 0.95f).dp).coerceAtLeast(5.dp)
+            val scrollbarHeightDp = with(density) { (scrollbarHeight * parentHeightPx).toDp().coerceAtLeast(5.dp) }
+            val thumbOffsetPx = if (parentHeightPx > 0 && with(density) { parentHeightPx > scrollbarHeightDp.toPx() }) {
+                scrollOffset * (parentHeightPx - with(density) { scrollbarHeightDp.toPx() })
+            } else 0f
+
             Box(
                 modifier = Modifier
                     .align(Alignment.TopStart)
-                    .offset(y = (scrollOffset * parentHeight * 0.95f).dp) // 95% 用作滚动范围
+                    .offset(y = with(density) { thumbOffsetPx.toDp() })
                     .width(6.dp)
                     .height(scrollbarHeightDp)
                     .background(
@@ -95,6 +102,7 @@ fun VerticalScrollbar(
     
     if (!scrollbarVisible || gridState.layoutInfo.totalItemsCount == 0) return
 
+    val density = LocalDensity.current // New
     // 计算滚动位置 (0.0 到 1.0)
     val firstVisibleItemIndex = gridState.firstVisibleItemIndex
     val firstVisibleItemScrollOffset = gridState.firstVisibleItemScrollOffset
@@ -118,7 +126,7 @@ fun VerticalScrollbar(
         label = "scrollbarHeight"
     )
     
-    var parentHeight by remember { mutableStateOf(100f) }
+    var parentHeightPx by remember { mutableStateOf(1f) } // Changed to Px
     
     AnimatedVisibility(
         visible = scrollbarVisible,
@@ -131,14 +139,80 @@ fun VerticalScrollbar(
                 .background(Color.Transparent)
                 .padding(end = 4.dp) // 稍微内缩
                 .onGloballyPositioned { coordinates ->
-                    parentHeight = coordinates.size.height.toFloat()
+                    parentHeightPx = coordinates.size.height.toFloat() // Store Px
                 }
         ) {
-            val scrollbarHeightDp = ((scrollbarHeight * parentHeight * 0.95f).dp).coerceAtLeast(5.dp)
+            val scrollbarHeightDp = with(density) { (scrollbarHeight * parentHeightPx).toDp().coerceAtLeast(5.dp) }
+            val thumbOffsetPx = if (parentHeightPx > 0 && with(density) { parentHeightPx > scrollbarHeightDp.toPx() }) {
+                scrollOffset * (parentHeightPx - with(density) { scrollbarHeightDp.toPx() })
+            } else 0f
+
             Box(
                 modifier = Modifier
                     .align(Alignment.TopStart)
-                    .offset(y = (scrollOffset * parentHeight * 0.95f).dp) // 95% 用作滚动范围
+                    .offset(y = with(density) { thumbOffsetPx.toDp() })
+                    .width(6.dp)
+                    .height(scrollbarHeightDp)
+                    .background(
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                        shape = RoundedCornerShape(3.dp)
+                    )
+            )
+        }
+    }
+}
+
+// New VerticalScrollbar overload for ScrollState
+@Composable
+fun VerticalScrollbar(
+    scrollState: ScrollState,
+    modifier: Modifier = Modifier,
+    visible: Boolean = true
+) {
+    val scrollbarVisible = visible && scrollState.maxValue > 0
+
+    if (!scrollbarVisible) return
+
+    val density = LocalDensity.current
+    var parentHeightPx by remember { mutableStateOf(1f) }
+
+    val scrollOffsetFraction by animateFloatAsState(
+        targetValue = if (scrollState.maxValue > 0) {
+            scrollState.value.toFloat() / scrollState.maxValue
+        } else 0f,
+        label = "scrollbarOffsetFraction"
+    )
+
+    val scrollbarHeightFraction by animateFloatAsState(
+        targetValue = if (scrollState.viewportSize > 0 && scrollState.maxValue > 0) {
+            scrollState.viewportSize.toFloat() / (scrollState.viewportSize + scrollState.maxValue)
+        } else if (scrollState.maxValue == 0) 1f
+        else 0.01f, // Minimum height for visibility
+        label = "scrollbarHeightFraction"
+    )
+
+    AnimatedVisibility(
+        visible = scrollbarVisible,
+        modifier = modifier
+    ) {
+        Box(
+            modifier = Modifier
+                .width(6.dp)
+                .fillMaxHeight()
+                .background(Color.Transparent)
+                .padding(end = 4.dp)
+                .onGloballyPositioned { coordinates -> parentHeightPx = coordinates.size.height.toFloat() }
+        ) {
+            val scrollbarHeightDp = with(density) { (scrollbarHeightFraction * parentHeightPx).toDp().coerceAtLeast(5.dp) }
+            
+            val thumbOffsetPx = if (parentHeightPx > 0 && with(density) { parentHeightPx > scrollbarHeightDp.toPx() }) {
+                scrollOffsetFraction * (parentHeightPx - with(density) { scrollbarHeightDp.toPx() })
+            } else 0f
+
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .offset(y = with(density) { thumbOffsetPx.toDp() })
                     .width(6.dp)
                     .height(scrollbarHeightDp)
                     .background(
