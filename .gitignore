@@ -20,3 +20,5 @@ captures
 node_modules/
 .gitignore
 composeApp/countdown_cards.json
+composeApp/images
+images
