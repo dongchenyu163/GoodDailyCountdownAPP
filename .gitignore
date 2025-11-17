@@ -22,3 +22,5 @@ node_modules/
 composeApp/countdown_cards.json
 composeApp/images
 images
+AGENTS.md
+GEMINI.md
