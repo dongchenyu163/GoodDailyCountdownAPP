@@ -117,7 +117,10 @@ fun App() {
         }
 
         fun updateCard(updated: CardData) {
-            cardList = cardList.map { existing -> if (existing.id == updated.id) updated else existing }
+            val currentCard = cardList.find { it.id == updated.id }
+            if (currentCard != updated) {
+                cardList = cardList.map { existing -> if (existing.id == updated.id) updated else existing }
+            }
         }
 
         // 添加标志来区分是否为初始化加载
