@@ -72,7 +72,9 @@ fun CardDialog(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(16.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), // New
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp) // New
         ) {
             Box(modifier = Modifier.fillMaxSize()) { // New Box to hold scrollable content and scrollbar
                 Column(
@@ -248,7 +250,10 @@ fun DatePickerDialog(
     )
 
     Dialog(onDismissRequest = onDismiss) {
-        Card {
+        Card(
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), // New
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp) // New
+        ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 DatePicker(
                     state = datePickerState,
