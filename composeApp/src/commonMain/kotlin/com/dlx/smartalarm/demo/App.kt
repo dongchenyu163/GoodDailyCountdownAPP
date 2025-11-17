@@ -505,11 +505,7 @@ private fun MainScreen(
                                     } ?: cardData.remainingDays
                             }
 
-                            LaunchedEffect(cardData.id, dynamicRemaining) {
-                                if (dynamicRemaining != cardData.remainingDays) {
-                                    onUpdateDynamic(cardData.copy(remainingDays = dynamicRemaining))
-                                }
-                            }
+
 
                             CountdownReminderObserver(
                                 card = cardData,
