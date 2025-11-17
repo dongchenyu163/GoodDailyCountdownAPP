@@ -7,6 +7,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.rememberScrollState // New import
+import androidx.compose.foundation.verticalScroll // New import
+
+// Import VerticalScrollbar
+import com.dlx.smartalarm.demo.VerticalScrollbar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,39 +30,49 @@ fun SettingsScreen(
             )
         }
     ) { padding ->
-        Column(
-            modifier = Modifier.padding(padding).padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
-        ) {
-            // Temporarily disabled account settings
-            /*
-            Text("账户", style = MaterialTheme.typography.titleMedium)
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("本地")
-                Switch(checked = useCloud, onCheckedChange = { onToggleCloud(it) })
-                Text("云端")
+        val scrollState = rememberScrollState() // New
+        Box(modifier = Modifier.fillMaxSize()) { // New Box to hold scrollable content and scrollbar
+            Column(
+                modifier = Modifier
+                    .padding(padding)
+                    .padding(16.dp)
+                    .verticalScroll(scrollState), // Added verticalScroll
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                // Temporarily disabled account settings
+                /*
+                Text("账户", style = MaterialTheme.typography.titleMedium)
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text("本地")
+                    Switch(checked = useCloud, onCheckedChange = { onToggleCloud(it) })
+                    Text("云端")
+                }
+                Divider()
+                */
+                Text("Countdown Display Style", style = MaterialTheme.typography.titleMedium)
+                // 三种显示样式单选
+                DisplayStyleItem(
+                    title = "Grid View",
+                    subtitle = "See more countdowns at a glance.",
+                    selected = displayStyle == DisplayStyle.Grid,
+                    onClick = { onChangeDisplay(DisplayStyle.Grid) }
+                )
+                DisplayStyleItem(
+                    title = "List View",
+                    subtitle = "A compact view for many items.",
+                    selected = displayStyle == DisplayStyle.List,
+                    onClick = { onChangeDisplay(DisplayStyle.List) }
+                )
+                DisplayStyleItem(
+                    title = "Card View",
+                    subtitle = "A detailed, full-width card for each item.",
+                    selected = displayStyle == DisplayStyle.Card,
+                    onClick = { onChangeDisplay(DisplayStyle.Card) }
+                )
             }
-            Divider()
-            */
-            Text("Countdown Display Style", style = MaterialTheme.typography.titleMedium)
-            // 三种显示样式单选
-            DisplayStyleItem(
-                title = "Grid View",
-                subtitle = "See more countdowns at a glance.",
-                selected = displayStyle == DisplayStyle.Grid,
-                onClick = { onChangeDisplay(DisplayStyle.Grid) }
-            )
-            DisplayStyleItem(
-                title = "List View",
-                subtitle = "A compact view for many items.",
-                selected = displayStyle == DisplayStyle.List,
-                onClick = { onChangeDisplay(DisplayStyle.List) }
-            )
-            DisplayStyleItem(
-                title = "Card View",
-                subtitle = "A detailed, full-width card for each item.",
-                selected = displayStyle == DisplayStyle.Card,
-                onClick = { onChangeDisplay(DisplayStyle.Card) }
+            VerticalScrollbar( // New
+                scrollState = scrollState,
+                modifier = Modifier.align(Alignment.CenterEnd)
             )
         }
     }
