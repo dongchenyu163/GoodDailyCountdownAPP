@@ -19,7 +19,7 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("账户与设置") },
+                title = { Text("设置") }, // Changed title
                 navigationIcon = { TextButton(onClick = onBack) { Text("←") } }
             )
         }
@@ -28,6 +28,8 @@ fun SettingsScreen(
             modifier = Modifier.padding(padding).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
+            // Temporarily disabled account settings
+            /*
             Text("账户", style = MaterialTheme.typography.titleMedium)
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text("本地")
@@ -35,6 +37,7 @@ fun SettingsScreen(
                 Text("云端")
             }
             Divider()
+            */
             Text("Countdown Display Style", style = MaterialTheme.typography.titleMedium)
             // 三种显示样式单选
             DisplayStyleItem(
