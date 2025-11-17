@@ -40,6 +40,7 @@ fun CountdownCard(
     date: String,
     remainingDays: Int,
     icon: String,
+    titleImage: TitleImageInfo? = null,
     onClick: () -> Unit = {},
     onDelete: () -> Unit = {},
     onEdit: () -> Unit = {},
@@ -94,11 +95,13 @@ fun CountdownCard(
             animationSpec = tween(400)
         )
     ) {
-        // 参考图片中的卡片背景色: dark:bg-zinc-800/50
-        // 在Compose中使用相似的颜色 #303030 (zinc-800) 并设置50%透明度
         val cardBackgroundColor = Color(0xFF303030).copy(alpha = 0.5f)
-        // 图标背景色: bg-primary/20 (主色的20%透明度)
         val iconBackgroundColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+        val cardParams = titleImage?.paramsFor(TitleImageViewType.Card)
+        val headerAspectRatio = cardParams?.aspectRatio?.takeIf { it > 0f }?.coerceIn(
+            CardPreviewMinAspectRatio,
+            CardPreviewMaxAspectRatio
+        ) ?: 1.8f
         
         var threeDotsButtonPosition by remember { mutableStateOf<DpOffset?>(null) }
         var itemPositionInWindow by remember { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
@@ -109,9 +112,7 @@ fun CountdownCard(
                 .scale(scale)
                 .offset(x = offsetX.dp)
                 .alpha(alpha)
-                // Card 视图宽度改为相对窗口的百分比（约 92%），高度保持卡片风格
                 .fillMaxWidth(0.92f)
-                .height(140.dp)
                 .background(cardBackgroundColor, RoundedCornerShape(18.dp))
                 .onGloballyPositioned {
                     itemPositionInWindow = it.positionInWindow()
@@ -144,59 +145,77 @@ fun CountdownCard(
                 }
                 .padding(16.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxSize(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // 图标区域 - 使用主色的20%透明度作为背景
-                Box(
-                    modifier = Modifier
-                        .size(56.dp)
-                        .background(
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-                            shape = RoundedCornerShape(50)
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = icon.ifBlank { "🎯" },
-                        fontSize = 24.sp
-                    )
+            Column(modifier = Modifier.fillMaxWidth()) {
+                if (titleImage != null) {
+                    TitleImageBackground(
+                        titleImage = titleImage,
+                        viewType = TitleImageViewType.Card,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp))
+                            .aspectRatio(headerAspectRatio),
+                        overlayColor = cardBackgroundColor
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp)
+                                .align(Alignment.BottomCenter)
+                                .background(
+                                    Brush.verticalGradient(
+                                        colors = listOf(Color.Transparent, cardBackgroundColor)
+                                    )
+                                )
+                        )
+                    }
                 }
 
-                Spacer(modifier = Modifier.width(16.dp))
-
-                // 文字内容区域
-                Column(
-                    modifier = Modifier.weight(1f)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // 标题
-                    Text(
-                        text = annotatedTitle ?: AnnotatedString(title),
-                        color = Color.White,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
+                    Box(
+                        modifier = Modifier
+                            .size(56.dp)
+                            .background(iconBackgroundColor, shape = RoundedCornerShape(50)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = icon.ifBlank { "🎯" },
+                            fontSize = 24.sp
+                        )
+                    }
 
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.width(16.dp))
 
-                    // 日期
-                    Text(
-                        text = date,
-                        color = Color.White.copy(alpha = 0.6f),
-                        fontSize = 14.sp
-                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = annotatedTitle ?: AnnotatedString(title),
+                            color = Color.White,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(4.dp))
 
-                    // 剩余天数
-                    Text(
-                        text = "${remainingDays}d",
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
-                    )
+                        Text(
+                            text = date,
+                            color = Color.White.copy(alpha = 0.6f),
+                            fontSize = 14.sp
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = "${remainingDays}d",
+                            color = Color.White,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+                        )
+                    }
                 }
             }
 
@@ -231,6 +250,7 @@ fun AnimatedCountdownCard(
     date: String,
     remainingDays: Int,
     icon: String,
+    titleImage: TitleImageInfo? = null,
     onClick: () -> Unit = {},
     onDelete: () -> Unit = {},
     onEdit: () -> Unit = {},
@@ -252,6 +272,7 @@ fun AnimatedCountdownCard(
         date = date,
         remainingDays = remainingDays,
         icon = icon,
+        titleImage = titleImage,
         onClick = onClick,
         onDelete = { isDeleting = true }, // 触发删除动画
         onEdit = onEdit,

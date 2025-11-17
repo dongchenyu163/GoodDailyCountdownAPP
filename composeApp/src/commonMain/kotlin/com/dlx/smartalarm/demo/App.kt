@@ -37,6 +37,7 @@ import androidx.compose.ui.platform.LocalDensity
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import kotlinx.datetime.*
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.ZERO
 import kotlin.time.Duration.Companion.hours
@@ -117,6 +118,7 @@ fun App() {
 
         val reminderHandler = rememberReminderHandler()
         var reminderDialogCard by remember { mutableStateOf<CardData?>(null) }
+        val coroutineScope = rememberCoroutineScope()
 
         val timeZone = remember { TimeZone.currentSystemDefault() }
         val today by produceState(initialValue = Clock.System.todayIn(timeZone)) {
@@ -226,7 +228,18 @@ fun App() {
                 onOpenSettings = { currentScreen = Screen.Settings },
                 onAddClick = { showAddDialog = true },
                 onEdit = { card -> editingCard = card; showEditDialog = true },
-                onDelete = { id -> cardList = cardList.filter { it.id != id } },
+                onDelete = { id ->
+                    val removed = cardList.firstOrNull { it.id == id }
+                    if (removed != null) {
+                        coroutineScope.launch {
+                            removed.titleImage?.uuid?.let {
+                                TitleImageStorage.delete(it)
+                                TitleImageBitmapCache.remove(it)
+                            }
+                        }
+                    }
+                    cardList = cardList.filter { it.id != id }
+                },
                 onUpdateDynamic = { updated -> updateCard(updated) },
                 reminderHandler = reminderHandler,
                 onReminderDialog = { reminderDialogCard = it }
@@ -464,12 +477,17 @@ private fun MainScreen(
                                 val ty by animateFloatAsState(if (appeared) 0f else 12f, label = "gTy")
                                 LaunchedEffect(Unit) { appeared = true }
 
-                                Box(
+                                TitleImageBackground(
+                                    titleImage = cardData.titleImage,
+                                    viewType = TitleImageViewType.Grid,
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(180.dp)
                                         .padding(12.dp)
-                                        .graphicsLayer(alpha = alpha, translationY = ty)
+                                        .graphicsLayer(alpha = alpha, translationY = ty),
+                                    gradientSpec = DefaultGridImageGradient,
+                                    gradientOrientation = GradientOrientation.Vertical,
+                                    overlayColor = MaterialTheme.colorScheme.surface
                                 ) {
                                     Column(
                                         modifier = Modifier.fillMaxSize(),
@@ -485,7 +503,6 @@ private fun MainScreen(
                                         }
                                     }
 
-                                    // 右上角更多按钮
                                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopEnd) {
                                         IconButton(
                                             onClick = {
@@ -558,7 +575,7 @@ private fun MainScreen(
                                     Box(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .height(if (displayStyle == DisplayStyle.Card) 140.dp else 96.dp)
+                                            .height(if (displayStyle == DisplayStyle.Card) 220.dp else 96.dp)
                                             .background(bg),
                                         contentAlignment = Alignment.CenterEnd
                                     ) {
@@ -626,40 +643,57 @@ private fun MainScreen(
                                             var threeDotsButtonPosition by remember { mutableStateOf<DpOffset?>(null) }
                                             val density = LocalDensity.current
 
-                                            Row(
-                                                Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(16.dp)
-                                                    .graphicsLayer(alpha = alpha, translationY = ty),
-                                                verticalAlignment = Alignment.CenterVertically
+                                            Surface(
+                                                shape = MaterialTheme.shapes.large,
+                                                tonalElevation = 1.dp,
+                                                modifier = Modifier.graphicsLayer(alpha = alpha, translationY = ty)
                                             ) {
-                                                                                    Surface(shape = MaterialTheme.shapes.large, color = MaterialTheme.colorScheme.primaryContainer) {
-                                                                                        Box(Modifier.size(48.dp), contentAlignment = Alignment.Center) {
-                                                                                            Text(cardData.icon.ifBlank { "🎯" })
-                                                                                        }
-                                                                                    }
-                                                                                    Spacer(Modifier.width(16.dp))
-                                                                                    Column(Modifier.weight(1f)) {
-                                                                                        Text(highlight(cardData.title), style = MaterialTheme.typography.titleMedium)
-                                                                                        val endText = runCatching { LocalDate.parse(cardData.date) }.getOrNull()?.let { d ->
-                                                                                            "ends on ${d.monthNumber}/${d.dayOfMonth}/${d.year}"
-                                                                                        } ?: cardData.date
-                                                                                        Text(endText, style = MaterialTheme.typography.bodyMedium)
-                                                                                    }
-                                                                                    Text("${dynamicRemaining}d", style = MaterialTheme.typography.titleMedium)
-                                                                                    IconButton(
-                                                                                        onClick = {
-                                                                                            threeDotsButtonPosition?.let { showMenu(cardData, it) }
-                                                                                        },
-                                                                                        modifier = Modifier.onGloballyPositioned {
-                                                                                            val positionInWindow = it.positionInWindow()
-                                                                                            with(density) {
-                                                                                                threeDotsButtonPosition = DpOffset(positionInWindow.x.toDp(), positionInWindow.y.toDp())
-                                                                                            }
-                                                                                        }
-                                                                                    ) { Text("⋮") }
-                                                                                }
-                                                                            }                                    } else {
+                                                TitleImageBackground(
+                                                    titleImage = cardData.titleImage,
+                                                    viewType = TitleImageViewType.List,
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    gradientSpec = DefaultListImageGradient,
+                                                    gradientOrientation = GradientOrientation.Horizontal,
+                                                    overlayColor = MaterialTheme.colorScheme.surface
+                                                ) {
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .padding(16.dp),
+                                                        verticalAlignment = Alignment.CenterVertically
+                                                    ) {
+                                                        Surface(
+                                                            shape = MaterialTheme.shapes.large,
+                                                            color = MaterialTheme.colorScheme.primaryContainer
+                                                        ) {
+                                                            Box(Modifier.size(48.dp), contentAlignment = Alignment.Center) {
+                                                                Text(cardData.icon.ifBlank { "🎯" })
+                                                            }
+                                                        }
+                                                        Spacer(Modifier.width(16.dp))
+                                                        Column(Modifier.weight(1f)) {
+                                                            Text(highlight(cardData.title), style = MaterialTheme.typography.titleMedium)
+                                                            val endText = runCatching { LocalDate.parse(cardData.date) }.getOrNull()?.let { d ->
+                                                                "ends on ${d.monthNumber}/${d.dayOfMonth}/${d.year}"
+                                                            } ?: cardData.date
+                                                            Text(endText, style = MaterialTheme.typography.bodyMedium)
+                                                        }
+                                                        Text("${dynamicRemaining}d", style = MaterialTheme.typography.titleMedium)
+                                                        IconButton(
+                                                            onClick = {
+                                                                threeDotsButtonPosition?.let { showMenu(cardData, it) }
+                                                            },
+                                                            modifier = Modifier.onGloballyPositioned {
+                                                                val positionInWindow = it.positionInWindow()
+                                                                with(density) {
+                                                                    threeDotsButtonPosition = DpOffset(positionInWindow.x.toDp(), positionInWindow.y.toDp())
+                                                                }
+                                                            }
+                                                        ) { Text("⋮") }
+                                                    }
+                                                }
+                                            }
+                                        }                                    } else {
                                         // 大卡样式
                                         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                                             AnimatedCountdownCard(
@@ -668,6 +702,7 @@ private fun MainScreen(
                                                 date = cardData.date,
                                                 remainingDays = dynamicRemaining,
                                                 icon = cardData.icon,
+                                                titleImage = cardData.titleImage,
                                                 onClick = { /* 预留 */ },
                                                 onDelete = { onDelete(cardData.id) },
                                                 onEdit = { onEdit(cardData) },
