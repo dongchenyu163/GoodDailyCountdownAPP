@@ -281,9 +281,9 @@ private fun MainScreen(
         }
     }
 
-    // 空格分词（或关系）
+    // 逗号分词（或关系）
     val tokens = remember(searchQuery) {
-        searchQuery.trim().split(Regex("\\s+")).filter { it.isNotBlank() }
+        searchQuery.trim().split(Regex("\\s*,\\s*")).filter { it.isNotBlank() }
     }
     val filtered = remember(cardList, tokens) {
         if (tokens.isEmpty()) cardList
