@@ -55,6 +55,24 @@ var gIsInitLoad = true  // 全局标志，指示是否为初始化加载
 
 //   taskkill /im node.exe /f
 
+// 验证并修复卡片数据，确保数据一致性
+fun validateAndFixCardData(card: CardData): CardData {
+    val parsedDate = runCatching { LocalDate.parse(card.date) }.getOrNull()
+    val timeZone = TimeZone.currentSystemDefault()
+    val today = Clock.System.todayIn(timeZone)
+    val newRemainingDays = if (parsedDate != null) {
+        (parsedDate.toEpochDays() - today.toEpochDays()).coerceAtLeast(0)
+    } else {
+        card.remainingDays
+    }
+    // 检查是否应该重置提醒状态：如果截止日期还没到，但提醒已发送，则重置提醒状态
+    val shouldResetReminder = parsedDate != null && parsedDate >= today && card.reminderSent
+    return card.copy(
+        remainingDays = newRemainingDays,
+        reminderSent = if (shouldResetReminder) false else card.reminderSent
+    )
+}
+
 @Composable
 @Preview
 fun App() {
@@ -132,8 +150,12 @@ fun App() {
         // 程序启动时加载卡片数据
         LaunchedEffect(Unit) {
             try {
-                val loadedCards = CardDataStorage.loadCards()
+                var loadedCards = CardDataStorage.loadCards()
                 println("Pre-change")
+                // 验证并更新加载的卡片数据
+                loadedCards = loadedCards.map { card ->
+                    validateAndFixCardData(card)
+                }
                 cardList = loadedCards
                 println("Post-change")
                 // 计算下一个ID，确保唯一性
