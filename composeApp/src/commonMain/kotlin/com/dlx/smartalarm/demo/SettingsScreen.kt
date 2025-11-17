@@ -1,5 +1,6 @@
 package com.dlx.smartalarm.demo
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -67,13 +68,14 @@ private fun DisplayStyleItem(title: String, subtitle: String, selected: Boolean,
     Surface(
         tonalElevation = if (selected) 4.dp else 0.dp,
         shape = MaterialTheme.shapes.medium,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick) // Moved onClick here
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 14.dp)
-                .let { if (selected) it else it },
+                .padding(horizontal = 16.dp, vertical = 14.dp), // Removed redundant .let
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
@@ -81,7 +83,7 @@ private fun DisplayStyleItem(title: String, subtitle: String, selected: Boolean,
                 Spacer(Modifier.height(4.dp))
                 Text(subtitle, style = MaterialTheme.typography.bodyMedium)
             }
-            RadioButton(selected = selected, onClick = onClick)
+            RadioButton(selected = selected, onClick = null) // onClick set to null to disable its own click handling
         }
     }
     Spacer(Modifier.height(8.dp))
