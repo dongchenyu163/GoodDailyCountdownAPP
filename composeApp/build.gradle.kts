@@ -86,8 +86,8 @@ android {
 		applicationId = "com.dlx.smartalarm.demo"
 		minSdk = libs.versions.android.minSdk.get().toInt()
 		targetSdk = libs.versions.android.targetSdk.get().toInt()
-		versionCode = 1
-		versionName = "1.0"
+		versionCode = (System.currentTimeMillis() / 1000).toInt()
+		versionName = "1.0.00001"
 	}
 	packaging {
 		resources {
@@ -116,7 +116,7 @@ compose.desktop {
 		nativeDistributions {
 			targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
 			packageName = "com.dlx.smartalarm.demo"
-			packageVersion = "1.0.0"
+			packageVersion = "1.0.00001"
 		}
 	}
 }
