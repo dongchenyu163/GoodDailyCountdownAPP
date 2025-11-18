@@ -78,13 +78,40 @@ fun ImageOffsetEditorDialog(
                     text = "调整视图选择",
                     style = MaterialTheme.typography.labelLarge
                 )
-                TabRow(selectedTabIndex = selectedView.ordinal) {
-                    TitleImageViewType.all.forEach { view ->
-                        Tab(
-                            selected = selectedView == view,
-                            onClick = { selectedView = view },
-                            text = { Text(view.key) }
-                        )
+                // 使“编辑视图选择”的 Tab 更易区分：提供背景与前景的对比，高亮当前选中项
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                ) {
+                    TabRow(
+                        selectedTabIndex = selectedView.ordinal,
+                        containerColor = Color.Transparent,
+                        divider = {},
+                        indicator = {}
+                    ) {
+                        TitleImageViewType.all.forEach { view ->
+                            val selected = selectedView == view
+                            Tab(
+                                selected = selected,
+                                onClick = { selectedView = view },
+                                modifier = Modifier
+                                    .padding(4.dp)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(
+                                        if (selected) MaterialTheme.colorScheme.primary
+                                        else Color.Transparent
+                                    ),
+                                selectedContentColor = MaterialTheme.colorScheme.onPrimary,
+                                unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                text = {
+                                    Text(
+                                        view.key,
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                                    )
+                                }
+                            )
+                        }
                     }
                 }
 
