@@ -41,10 +41,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import kotlin.math.PI
 import kotlin.math.abs
+
+private val ListPreviewMaxWidth = 500.dp
 
 @Composable
 fun ImageOffsetEditorDialog(
@@ -173,21 +176,11 @@ private fun OffsetPreview(
     val defaultCardRatio = remember(imageBitmap) {
         if (imageBitmap.height != 0) imageBitmap.width.toFloat() / imageBitmap.height else 1.8f
     }
-    val aspectRatio = when (selectedView) {
-        TitleImageViewType.List -> ListPreviewAspectRatio
-        TitleImageViewType.Grid -> GridPreviewAspectRatio
-        TitleImageViewType.Card -> {
-            val ratio = if (parameters.aspectRatio > 0f) parameters.aspectRatio else defaultCardRatio
-            ratio.coerceIn(CardPreviewMinAspectRatio, CardPreviewMaxAspectRatio)
-        }
-    }
 
     val currentParameters by rememberUpdatedState(parameters)
     val onParametersChanged by rememberUpdatedState(onParametersChange)
 
-    val previewModifier = Modifier
-        .fillMaxWidth()
-        .aspectRatio(aspectRatio)
+    val baseModifier = Modifier
         .clip(RoundedCornerShape(18.dp))
         .background(Color.Black.copy(alpha = 0.85f))
         .pointerInput(selectedView, previewSize) {
@@ -222,8 +215,29 @@ private fun OffsetPreview(
             }
         }
 
+    val sizedModifier = when (selectedView) {
+        TitleImageViewType.List -> {
+            baseModifier
+                .fillMaxWidth()
+                .height(96.dp)
+                .widthIn(max = ListPreviewMaxWidth)
+        }
+        TitleImageViewType.Grid -> {
+            baseModifier
+                .fillMaxWidth()
+                .aspectRatio(GridPreviewAspectRatio)
+        }
+        TitleImageViewType.Card -> {
+            val ratio = if (parameters.aspectRatio > 0f) parameters.aspectRatio else defaultCardRatio
+            val coercedRatio = ratio.coerceIn(CardPreviewMinAspectRatio, CardPreviewMaxAspectRatio)
+            baseModifier
+                .fillMaxWidth(0.7f)
+                .aspectRatio(coercedRatio)
+        }
+    }
+
     Box(
-        modifier = previewModifier.onGloballyPositioned { layoutCoordinates ->
+        modifier = sizedModifier.onGloballyPositioned { layoutCoordinates ->
             previewSize = layoutCoordinates.size
         },
         contentAlignment = Alignment.Center

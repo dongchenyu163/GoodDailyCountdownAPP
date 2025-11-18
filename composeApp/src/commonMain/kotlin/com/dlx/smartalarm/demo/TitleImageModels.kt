@@ -108,8 +108,8 @@ val DefaultGridImageGradient = TitleImageGradientSpec(
     )
 )
 
-const val ListPreviewAspectRatio = 3.2f
-const val GridPreviewAspectRatio = 1.2f
+
+const val GridPreviewAspectRatio = 1.0f
 const val CardPreviewMinAspectRatio = 1.2f
 const val CardPreviewMaxAspectRatio = 2.6f
 
