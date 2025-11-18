@@ -174,7 +174,7 @@ private fun OffsetPreview(
                     offsetX = currentParameters.offsetX + (pan.x / width),
                     offsetY = currentParameters.offsetY + (pan.y / height),
                     scale = (currentParameters.scale * zoom).coerceIn(0.2f, 6f),
-                    rotation = normalizeAngle(currentParameters.rotation + rotation.toDegrees())
+                    rotation = normalizeAngle(currentParameters.rotation + rotation)
                 )
                 onParametersChanged(next)
             }
@@ -186,7 +186,7 @@ private fun OffsetPreview(
                     if (event.type == PointerEventType.Scroll) {
                         val change = event.changes.firstOrNull() ?: continue
                         val delta = change.scrollDelta.y
-                        val updated = if (event.keyboardModifiers.isShiftPressed) {
+                        val updated = if (event.keyboardModifiers.isCtrlPressed) {
                             currentParameters.copy(rotation = normalizeAngle(currentParameters.rotation + delta * -5f))
                         } else {
                             currentParameters.copy(scale = (currentParameters.scale + delta * -0.01f).coerceIn(0.2f, 6f))
