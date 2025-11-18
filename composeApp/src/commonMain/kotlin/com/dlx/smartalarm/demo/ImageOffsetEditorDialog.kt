@@ -31,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -156,25 +157,29 @@ private fun OffsetPreview(
             ratio.coerceIn(CardPreviewMinAspectRatio, CardPreviewMaxAspectRatio)
         }
     }
+
+    val currentParameters by rememberUpdatedState(parameters)
+    val onParametersChanged by rememberUpdatedState(onParametersChange)
+
     val previewModifier = Modifier
         .fillMaxWidth()
         .aspectRatio(aspectRatio)
         .clip(RoundedCornerShape(18.dp))
         .background(Color.Black.copy(alpha = 0.85f))
-        .pointerInput(selectedView, previewSize, parameters) {
+        .pointerInput(selectedView, previewSize) {
             detectTransformGestures { _, pan, zoom, rotation ->
                 val width = previewSize.width.takeIf { it > 0 } ?: return@detectTransformGestures
                 val height = previewSize.height.takeIf { it > 0 } ?: return@detectTransformGestures
-                val next = parameters.copy(
-                    offsetX = parameters.offsetX + (pan.x / width),
-                    offsetY = parameters.offsetY + (pan.y / height),
-                    scale = (parameters.scale * zoom).coerceIn(0.2f, 6f),
-                    rotation = normalizeAngle(parameters.rotation + rotation.toDegrees())
+                val next = currentParameters.copy(
+                    offsetX = currentParameters.offsetX + (pan.x / width),
+                    offsetY = currentParameters.offsetY + (pan.y / height),
+                    scale = (currentParameters.scale * zoom).coerceIn(0.2f, 6f),
+                    rotation = normalizeAngle(currentParameters.rotation + rotation.toDegrees())
                 )
-                onParametersChange(next)
+                onParametersChanged(next)
             }
         }
-        .pointerInput(selectedView, previewSize, parameters) {
+        .pointerInput(selectedView, previewSize) {
             awaitPointerEventScope {
                 while (true) {
                     val event = awaitPointerEvent()
@@ -182,11 +187,11 @@ private fun OffsetPreview(
                         val change = event.changes.firstOrNull() ?: continue
                         val delta = change.scrollDelta.y
                         val updated = if (event.keyboardModifiers.isShiftPressed) {
-                            parameters.copy(rotation = normalizeAngle(parameters.rotation + delta * -5f))
+                            currentParameters.copy(rotation = normalizeAngle(currentParameters.rotation + delta * -5f))
                         } else {
-                            parameters.copy(scale = (parameters.scale + delta * -0.01f).coerceIn(0.2f, 6f))
+                            currentParameters.copy(scale = (currentParameters.scale + delta * -0.01f).coerceIn(0.2f, 6f))
                         }
-                        onParametersChange(updated)
+                        onParametersChanged(updated)
                         change.consume()
                     }
                 }
