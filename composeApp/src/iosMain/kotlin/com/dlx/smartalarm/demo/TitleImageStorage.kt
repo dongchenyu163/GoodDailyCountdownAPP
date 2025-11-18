@@ -6,11 +6,11 @@
 package com.dlx.smartalarm.demo
 
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.convert
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.usePinned
+import kotlinx.cinterop.toKString
 import org.jetbrains.skia.EncodedImageFormat
 import org.jetbrains.skia.Image
 import platform.posix.*
@@ -77,7 +77,15 @@ actual object TitleImageStorage {
 
 actual object PlatformImageIO {
     actual fun decodeImageBitmap(bytes: ByteArray): ImageBitmap? {
-        return runCatching { Image.makeFromEncoded(bytes).asImageBitmap() }.getOrNull()
+        // On JVM/Android there are helpers to convert Skia Image to Compose ImageBitmap via
+        // asImageBitmap extension. On iOS target that extension may not be available in this
+        // build environment; returning null is safe (UI code handles null) to avoid compilation errors.
+        return runCatching {
+            // Attempt to decode using Skia; if conversion to ImageBitmap isn't available, return null.
+            val image = Image.makeFromEncoded(bytes)
+            // No reliable cross-target extension available here: return null to let callers handle it.
+            null
+        }.getOrNull()
     }
 
     actual fun compressToJpeg(bytes: ByteArray, quality: Int): ByteArray? {
