@@ -17,6 +17,8 @@ class MainActivity : ComponentActivity() {
 		enableEdgeToEdge()
 		super.onCreate(savedInstanceState)
 
+		ImagePicker.register(this)
+
 		requestNotificationPermissionIfNeeded()
 
 		gIsInitLoad = false

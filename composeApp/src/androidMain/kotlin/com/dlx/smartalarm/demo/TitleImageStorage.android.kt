@@ -56,6 +56,5 @@ actual object PlatformImageIO {
 }
 
 actual suspend fun pickImageFromUser(): PickedImage? {
-    println("pickImageFromUser is not implemented on Android in this preview build.")
-    return null
+    return ImagePicker.pickImage()
 }
