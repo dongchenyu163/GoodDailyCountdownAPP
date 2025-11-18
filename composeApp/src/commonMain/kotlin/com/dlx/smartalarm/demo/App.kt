@@ -21,6 +21,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.input.pointer.*
@@ -487,7 +488,7 @@ private fun MainScreen(
                                         .graphicsLayer(alpha = alpha, translationY = ty),
                                     gradientSpec = DefaultGridImageGradient,
                                     gradientOrientation = GradientOrientation.Vertical,
-                                    overlayColor = MaterialTheme.colorScheme.surfaceVariant
+                                    overlayColor = Color(0xFF0F2E1F)
                                 ) {
                                     Box(modifier = Modifier.fillMaxSize().padding(12.dp)) {
                                         Column(
@@ -656,7 +657,7 @@ private fun MainScreen(
                                                     modifier = Modifier.fillMaxWidth(),
                                                     gradientSpec = DefaultListImageGradient,
                                                     gradientOrientation = GradientOrientation.Horizontal,
-                                                    overlayColor = MaterialTheme.colorScheme.surfaceVariant
+                                                    overlayColor = Color(0xFF0F2E1F)
                                                 ) {
                                                     Row(
                                                         modifier = Modifier
