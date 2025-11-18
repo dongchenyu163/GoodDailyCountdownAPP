@@ -88,8 +88,6 @@ fun ImageOffsetEditorDialog(
                     }
                 }
 
-                HorizontalDivider()
-
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
