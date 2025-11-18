@@ -95,7 +95,7 @@ fun CountdownCard(
             animationSpec = tween(400)
         )
     ) {
-        val cardBackgroundColor = Color(0xFF303030).copy(alpha = 0.5f)
+        val cardBackgroundColor = MaterialTheme.colorScheme.surfaceVariant
         val iconBackgroundColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
         val cardParams = titleImage?.paramsFor(TitleImageViewType.Card)
         val headerAspectRatio = cardParams?.aspectRatio?.takeIf { it > 0f }?.coerceIn(
@@ -154,19 +154,11 @@ fun CountdownCard(
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp))
                             .aspectRatio(headerAspectRatio),
+                        gradientSpec = DefaultGridImageGradient,
+                        gradientOrientation = GradientOrientation.Vertical,
                         overlayColor = cardBackgroundColor
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(48.dp)
-                                .align(Alignment.BottomCenter)
-                                .background(
-                                    Brush.verticalGradient(
-                                        colors = listOf(Color.Transparent, cardBackgroundColor)
-                                    )
-                                )
-                        )
+                        // Gradient is now part of the background, so this is empty
                     }
                 }
 

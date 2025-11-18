@@ -484,38 +484,39 @@ private fun MainScreen(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(180.dp)
-                                        .padding(12.dp)
                                         .graphicsLayer(alpha = alpha, translationY = ty),
                                     gradientSpec = DefaultGridImageGradient,
                                     gradientOrientation = GradientOrientation.Vertical,
-                                    overlayColor = MaterialTheme.colorScheme.surface
+                                    overlayColor = MaterialTheme.colorScheme.surfaceVariant
                                 ) {
-                                    Column(
-                                        modifier = Modifier.fillMaxSize(),
-                                        verticalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Box(Modifier.fillMaxWidth()) {
-                                            Text(text = cardData.icon.ifBlank { "🎯" }, style = MaterialTheme.typography.headlineSmall)
-                                        }
-                                        Column {
-                                            Text(highlight(cardData.title), style = MaterialTheme.typography.titleMedium)
-                                            Spacer(Modifier.height(2.dp))
-                                            Text("剩余 ${dynamicRemaining} 天", style = MaterialTheme.typography.bodyMedium)
-                                        }
-                                    }
-
-                                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopEnd) {
-                                        IconButton(
-                                            onClick = {
-                                                threeDotsButtonPosition?.let { showMenu(cardData, it) }
-                                            },
-                                            modifier = Modifier.onGloballyPositioned {
-                                                val positionInWindow = it.positionInWindow()
-                                                with(density) {
-                                                    threeDotsButtonPosition = DpOffset(positionInWindow.x.toDp(), positionInWindow.y.toDp())
-                                                }
+                                    Box(modifier = Modifier.fillMaxSize().padding(12.dp)) {
+                                        Column(
+                                            modifier = Modifier.fillMaxSize(),
+                                            verticalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            Box(Modifier.fillMaxWidth()) {
+                                                Text(text = cardData.icon.ifBlank { "🎯" }, style = MaterialTheme.typography.headlineSmall)
                                             }
-                                        ) { Text("⋮") }
+                                            Column {
+                                                Text(highlight(cardData.title), style = MaterialTheme.typography.titleMedium)
+                                                Spacer(Modifier.height(2.dp))
+                                                Text("剩余 ${dynamicRemaining} 天", style = MaterialTheme.typography.bodyMedium)
+                                            }
+                                        }
+
+                                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopEnd) {
+                                            IconButton(
+                                                onClick = {
+                                                    threeDotsButtonPosition?.let { showMenu(cardData, it) }
+                                                },
+                                                modifier = Modifier.onGloballyPositioned {
+                                                    val positionInWindow = it.positionInWindow()
+                                                    with(density) {
+                                                        threeDotsButtonPosition = DpOffset(positionInWindow.x.toDp(), positionInWindow.y.toDp())
+                                                    }
+                                                }
+                                            ) { Text("⋮") }
+                                        }
                                     }
                                 }
                             }
@@ -655,7 +656,7 @@ private fun MainScreen(
                                                     modifier = Modifier.fillMaxWidth(),
                                                     gradientSpec = DefaultListImageGradient,
                                                     gradientOrientation = GradientOrientation.Horizontal,
-                                                    overlayColor = MaterialTheme.colorScheme.surface
+                                                    overlayColor = MaterialTheme.colorScheme.surfaceVariant
                                                 ) {
                                                     Row(
                                                         modifier = Modifier

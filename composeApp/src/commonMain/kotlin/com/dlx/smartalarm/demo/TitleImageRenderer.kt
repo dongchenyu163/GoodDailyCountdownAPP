@@ -101,8 +101,8 @@ fun DrawScope.drawTitleImage(
     val resolvedScale: Float = baseScale * params.scale
 
     // User-defined offset in canvas pixels
-    val translationX = params.offsetX * canvasWidth
-    val translationY = params.offsetY * canvasHeight
+    val translationX = params.offsetX
+    val translationY = params.offsetY
 
     // The pivot point on the image, in original image pixels
     val imagePivotX = imageWidth * imageAnchor.x

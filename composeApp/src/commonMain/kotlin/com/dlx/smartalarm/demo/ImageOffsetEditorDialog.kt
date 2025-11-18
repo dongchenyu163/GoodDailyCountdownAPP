@@ -193,11 +193,9 @@ private fun OffsetPreview(
         .background(Color.Black.copy(alpha = 0.85f))
         .pointerInput(selectedView, previewSize) {
             detectTransformGestures { _, pan, zoom, rotation ->
-                val width = previewSize.width.takeIf { it > 0 } ?: return@detectTransformGestures
-                val height = previewSize.height.takeIf { it > 0 } ?: return@detectTransformGestures
                 val next = currentParameters.copy(
-                    offsetX = currentParameters.offsetX + (pan.x / width),
-                    offsetY = currentParameters.offsetY + (pan.y / height),
+                    offsetX = currentParameters.offsetX + pan.x,
+                    offsetY = currentParameters.offsetY + pan.y,
                     scale = (currentParameters.scale * zoom).coerceIn(0.2f, 6f),
                     rotation = normalizeAngle(currentParameters.rotation + rotation.toDegrees())
                 )
