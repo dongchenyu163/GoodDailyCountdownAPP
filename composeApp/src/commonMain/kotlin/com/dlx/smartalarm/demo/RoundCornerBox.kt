@@ -95,7 +95,7 @@ fun CountdownCard(
             animationSpec = tween(400)
         )
     ) {
-        val cardBackgroundColor = MaterialTheme.colorScheme.surfaceVariant
+        val cardBackgroundColor = Color(0xFF0F2E1F)
         val iconBackgroundColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
         val cardParams = titleImage?.paramsFor(TitleImageViewType.Card)
         val headerAspectRatio = cardParams?.aspectRatio?.takeIf { it > 0f }?.coerceIn(
