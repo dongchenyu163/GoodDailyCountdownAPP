@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import kotlinx.datetime.*
 import androidx.compose.foundation.rememberScrollState // New import
 import androidx.compose.foundation.verticalScroll // New import
@@ -111,7 +112,10 @@ fun CardDialog(
         }
     }
 
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
         val scrollState = rememberScrollState() // New
         Card(
             modifier = Modifier

@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import kotlin.math.PI
 import kotlin.math.abs
 
@@ -62,7 +63,10 @@ fun ImageOffsetEditorDialog(
     }
     val imageBitmap = imageState.value
 
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
         val cardModifier = when (selectedView) {
             TitleImageViewType.Card -> Modifier.fillMaxWidth(0.7f)
             else -> Modifier.widthIn(max = 600.dp)
