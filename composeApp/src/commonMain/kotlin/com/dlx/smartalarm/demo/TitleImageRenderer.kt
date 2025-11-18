@@ -105,6 +105,12 @@ fun DrawScope.drawTitleImage(
     val canvasPivotX = canvasWidth * controlAnchor.x
     val canvasPivotY = canvasHeight * controlAnchor.y
 
+    println("--- DEBUG IMAGE DRAW ---")
+    println("Canvas Size: ${canvasWidth}w x ${canvasHeight}h")
+    println("Image Anchor (px): $imagePivotX, $imagePivotY")
+    println("Control Anchor (px): $canvasPivotX, $canvasPivotY")
+    println("------------------------")
+
     withTransform({
         // 4. Move to the canvas anchor point
         translate(left = canvasPivotX, top = canvasPivotY)
