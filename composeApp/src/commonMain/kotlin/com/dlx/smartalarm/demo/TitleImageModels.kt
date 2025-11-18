@@ -7,6 +7,9 @@ import kotlinx.serialization.Serializable
 import kotlin.math.abs
 import kotlin.math.max
 
+@Serializable
+data class Anchor(val x: Float, val y: Float)
+
 enum class TitleImageViewType(val key: String) {
     List("List"),
     Grid("Grid"),
@@ -122,4 +125,13 @@ fun defaultDisplayInfo(initialAspectRatio: Float): Map<String, TitleImageDisplay
         }
         view.key to params
     }
+}
+
+object ViewAnchors {
+    val ListImageAnchor = Anchor(1.0f, 0.5f)
+    val ListControlAnchor = Anchor(1.0f, 0.5f)
+    val GridImageAnchor = Anchor(0.5f, 0.0f)
+    val GridControlAnchor = Anchor(0.5f, 0.0f)
+    val CardImageAnchor = Anchor(0.5f, 0.0f)
+    val CardControlAnchor = Anchor(0.5f, 0.0f)
 }

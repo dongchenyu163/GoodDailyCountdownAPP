@@ -31,15 +31,20 @@ fun TitleImageBackground(
     val imageState: State<ImageBitmap?> = if (bitmapOverride == null) {
         rememberTitleImageBitmap(titleImage)
     } else {
-        androidx.compose.runtime.rememberUpdatedState(bitmapOverride)
+        rememberUpdatedState(bitmapOverride)
     }
     val bitmap = imageState.value
     val params = titleImage?.paramsFor(viewType) ?: TitleImageDisplayParameters()
+    val (imageAnchor, controlAnchor) = when (viewType) {
+        TitleImageViewType.List -> ViewAnchors.ListImageAnchor to ViewAnchors.ListControlAnchor
+        TitleImageViewType.Grid -> ViewAnchors.GridImageAnchor to ViewAnchors.GridControlAnchor
+        TitleImageViewType.Card -> ViewAnchors.CardImageAnchor to ViewAnchors.CardControlAnchor
+    }
 
     Box(modifier = modifier) {
         if (bitmap != null) {
             Canvas(modifier = Modifier.fillMaxSize()) {
-                drawTitleImage(bitmap, params)
+                drawTitleImage(bitmap, params, imageAnchor, controlAnchor)
             }
             if (gradientSpec != null) {
                 Box(
@@ -74,25 +79,42 @@ fun rememberTitleImageBitmap(info: TitleImageInfo?): State<ImageBitmap?> {
 
 fun DrawScope.drawTitleImage(
     bitmap: ImageBitmap,
-    params: TitleImageDisplayParameters
+    params: TitleImageDisplayParameters,
+    imageAnchor: Anchor,
+    controlAnchor: Anchor
 ) {
     val canvasWidth = size.width
     val canvasHeight = size.height
     val imageWidth = bitmap.width.toFloat()
     val imageHeight = bitmap.height.toFloat()
+
     val baseScale = if (imageWidth > 0 && imageHeight > 0) {
         max(canvasWidth / imageWidth, canvasHeight / imageHeight)
     } else 1f
-    val translationX = params.offsetX * canvasWidth
-    val translationY = params.offsetY * canvasHeight
     val resolvedScale = baseScale * params.scale
 
+    // User-defined offset in canvas pixels
+    val translationX = params.offsetX * canvasWidth
+    val translationY = params.offsetY * canvasHeight
+
+    // The pivot point on the image, in original image pixels
+    val imagePivotX = imageWidth * imageAnchor.x
+    val imagePivotY = imageHeight * imageAnchor.y
+
+    // The target point on the canvas, in canvas pixels
+    val canvasPivotX = canvasWidth * controlAnchor.x
+    val canvasPivotY = canvasHeight * controlAnchor.y
+
     withTransform({
-        translate(left = canvasWidth / 2f, top = canvasHeight / 2f)
+        // 4. Move to the canvas anchor point
+        translate(left = canvasPivotX, top = canvasPivotY)
+        // 3. Apply user offset
         translate(left = translationX, top = translationY)
+        // 2. Rotate and scale
         rotate(params.rotation)
         scale(resolvedScale, resolvedScale)
-        translate(left = -imageWidth / 2f, top = -imageHeight / 2f)
+        // 1. Move image anchor to origin
+        translate(left = -imagePivotX, top = -imagePivotY)
     }) {
         drawImage(bitmap)
     }

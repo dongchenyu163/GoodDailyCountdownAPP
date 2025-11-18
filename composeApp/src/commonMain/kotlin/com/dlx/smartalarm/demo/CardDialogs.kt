@@ -115,8 +115,7 @@ fun CardDialog(
         val scrollState = rememberScrollState() // New
         Card(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+                .fillMaxWidth(0.9f),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), // New
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp) // New
         ) {

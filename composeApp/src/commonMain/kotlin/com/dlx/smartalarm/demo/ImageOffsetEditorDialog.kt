@@ -63,8 +63,12 @@ fun ImageOffsetEditorDialog(
     val imageBitmap = imageState.value
 
     Dialog(onDismissRequest = onDismiss) {
+        val cardModifier = when (selectedView) {
+            TitleImageViewType.Card -> Modifier.fillMaxWidth(0.7f)
+            else -> Modifier.widthIn(max = 600.dp)
+        }
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = cardModifier,
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
         ) {
@@ -231,7 +235,7 @@ private fun OffsetPreview(
             val ratio = if (parameters.aspectRatio > 0f) parameters.aspectRatio else defaultCardRatio
             val coercedRatio = ratio.coerceIn(CardPreviewMinAspectRatio, CardPreviewMaxAspectRatio)
             baseModifier
-                .fillMaxWidth(0.7f)
+                .fillMaxWidth()
                 .aspectRatio(coercedRatio)
         }
     }
@@ -243,7 +247,12 @@ private fun OffsetPreview(
         contentAlignment = Alignment.Center
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
-            drawTitleImage(imageBitmap, parameters)
+            val (imageAnchor, controlAnchor) = when (selectedView) {
+                TitleImageViewType.List -> ViewAnchors.ListImageAnchor to ViewAnchors.ListControlAnchor
+                TitleImageViewType.Grid -> ViewAnchors.GridImageAnchor to ViewAnchors.GridControlAnchor
+                TitleImageViewType.Card -> ViewAnchors.CardImageAnchor to ViewAnchors.CardControlAnchor
+            }
+            drawTitleImage(imageBitmap, parameters, imageAnchor, controlAnchor)
         }
 
         if (selectedView == TitleImageViewType.Card) {
