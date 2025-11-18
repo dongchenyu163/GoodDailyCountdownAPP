@@ -95,19 +95,19 @@ enum class GradientOrientation { Horizontal, Vertical }
 
 val DefaultListImageGradient = TitleImageGradientSpec(
     stops = linkedMapOf(
-        0f to 0f,
-        0.3f to 0f,
-        0.5f to 1f,
-        1f to 1f
+        0f to 1f,
+        0.3f to 1f,
+        0.5f to 0f,
+        1f to 0f
     )
 )
 
 val DefaultGridImageGradient = TitleImageGradientSpec(
     stops = linkedMapOf(
-        0f to 1f,
-        0.7f to 1f,
-        0.8f to 0f,
-        1f to 0f
+        0f to 0f,
+        0.7f to 0f,
+        0.8f to 1f,
+        1f to 1f
     )
 )
 

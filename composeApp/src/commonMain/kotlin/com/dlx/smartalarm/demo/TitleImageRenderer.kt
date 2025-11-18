@@ -43,13 +43,13 @@ fun TitleImageBackground(
 
     Box(modifier = modifier) {
         if (bitmap != null) {
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                drawTitleImage(bitmap, params, imageAnchor, controlAnchor)
+            Canvas(modifier = Modifier.matchParentSize()) {
+                drawTitleImage(bitmap, params, imageAnchor, controlAnchor, viewType.name)
             }
             if (gradientSpec != null) {
                 Box(
                     modifier = Modifier
-                        .fillMaxSize()
+						.matchParentSize()
                         .background(gradientSpec.asBrush(gradientOrientation, overlayColor))
                 )
             }
@@ -81,17 +81,24 @@ fun DrawScope.drawTitleImage(
     bitmap: ImageBitmap,
     params: TitleImageDisplayParameters,
     imageAnchor: Anchor,
-    controlAnchor: Anchor
+    controlAnchor: Anchor,
+	tag: String = "Unknown" // <--- 新增参数
 ) {
     val canvasWidth = size.width
     val canvasHeight = size.height
+//    println("--- TitleImageRenderer DEBUG ---")
+//	// 只有高度为0时才打印，避免日志刷屏
+//	if (canvasHeight <= 0f) {
+//		println("⚠️ [Drawing Error] Tag: $tag | Size: ${canvasWidth}w x ${canvasHeight}h")
+//	} else {
+//		// 正常情况也可以打印一下看对比
+//		 println("✅ [Drawing OK] Tag: $tag | Size: ${canvasWidth}w x ${canvasHeight}h")
+//	}
     val imageWidth = bitmap.width.toFloat()
     val imageHeight = bitmap.height.toFloat()
 
-    val baseScale = if (imageWidth > 0 && imageHeight > 0) {
-        max(canvasWidth / imageWidth, canvasHeight / imageHeight)
-    } else 1f
-    val resolvedScale = baseScale * params.scale
+	val baseScale = 1.0f
+    val resolvedScale: Float = baseScale * params.scale
 
     // User-defined offset in canvas pixels
     val translationX = params.offsetX * canvasWidth
@@ -105,11 +112,12 @@ fun DrawScope.drawTitleImage(
     val canvasPivotX = canvasWidth * controlAnchor.x
     val canvasPivotY = canvasHeight * controlAnchor.y
 
-    println("--- DEBUG IMAGE DRAW ---")
-    println("Canvas Size: ${canvasWidth}w x ${canvasHeight}h")
-    println("Image Anchor (px): $imagePivotX, $imagePivotY")
-    println("Control Anchor (px): $canvasPivotX, $canvasPivotY")
-    println("------------------------")
+//    println("Image anchor point in pixels: x=${imagePivotX}, y=${imagePivotY}")
+//    println("Display control anchor point in pixels: x=${canvasPivotX}, y=${canvasPivotY}")
+//    println("Bitmap original size: width=${imageWidth}, height=${imageHeight}")
+//    println("Scaling: baseScale=${baseScale}, resolvedScale=${resolvedScale}")
+//    println("Translation: x=${translationX}, y=${translationY}")
+//    println("--- End of DEBUG ---")
 
     withTransform({
         // 4. Move to the canvas anchor point
