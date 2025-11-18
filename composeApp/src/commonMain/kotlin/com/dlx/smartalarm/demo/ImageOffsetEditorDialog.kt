@@ -75,7 +75,7 @@ fun ImageOffsetEditorDialog(
                 )
 
                 Text(
-                    text = "调整视图选择",
+                    text = "调整要编辑的视图",
                     style = MaterialTheme.typography.labelLarge
                 )
                 TabRow(selectedTabIndex = selectedView.ordinal) {
