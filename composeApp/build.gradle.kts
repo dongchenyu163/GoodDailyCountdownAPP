@@ -1,6 +1,22 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
+
+val versionPropsFile = file("version.properties")
+val versionProps = Properties().apply {
+	if (versionPropsFile.exists()) {
+		load(versionPropsFile.inputStream())
+	} else {
+		setProperty("VERSION_CODE", "1")
+		store(versionPropsFile.outputStream(), null)
+	}
+}
+
+val currentCode = versionProps["VERSION_CODE"].toString().toInt()
+val newCode = currentCode + 1
+versionProps["VERSION_CODE"] = newCode.toString()
+versionProps.store(versionPropsFile.outputStream(), null)
 
 plugins {
 	alias(libs.plugins.kotlinMultiplatform)
@@ -86,8 +102,9 @@ android {
 		applicationId = "com.dlx.smartalarm.demo"
 		minSdk = libs.versions.android.minSdk.get().toInt()
 		targetSdk = libs.versions.android.targetSdk.get().toInt()
-		versionCode = (System.currentTimeMillis() / 1000).toInt()
-		versionName = "1.0.00001"
+		versionCode = newCode
+		val formatted = String.format("%05d", newCode)
+		versionName = "1.0.$formatted"
 	}
 	packaging {
 		resources {
@@ -116,7 +133,8 @@ compose.desktop {
 		nativeDistributions {
 			targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
 			packageName = "com.dlx.smartalarm.demo"
-			packageVersion = "1.0.00001"
+			val formatted = String.format("%05d", newCode)
+			packageVersion = "1.0.${formatted}"
 		}
 	}
 }
