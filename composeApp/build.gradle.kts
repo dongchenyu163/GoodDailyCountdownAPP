@@ -2,6 +2,10 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
+import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.TaskAction
+import org.gradle.api.file.RegularFileProperty
 
 val versionPropsFile = file("version.properties")
 val versionProps = Properties().apply {
@@ -17,6 +21,32 @@ val currentCode = versionProps["VERSION_CODE"].toString().toInt()
 val newCode = currentCode + 1
 versionProps["VERSION_CODE"] = newCode.toString()
 versionProps.store(versionPropsFile.outputStream(), null)
+
+
+abstract class GenerateGitVersionCodeTask : DefaultTask() {
+	@get:OutputFile
+	abstract val outputFile: RegularFileProperty
+
+	@TaskAction
+	fun generate() {
+		// 调用 git rev-list --count HEAD
+		val process = ProcessBuilder("git", "rev-list", "--count", "HEAD")
+			.directory(project.rootDir)
+			.redirectErrorStream(true)
+			.start()
+
+		val count = process.inputStream.bufferedReader().use { it.readText() }.trim()
+
+		if (count.isNullOrEmpty()) {
+			throw RuntimeException("Cannot get git commit count")
+		}
+
+		// 输出文件不存在会自动创建
+		val outFile = outputFile.get().asFile
+		outFile.parentFile.mkdirs()
+		outFile.writeText(count)
+	}
+}
 
 plugins {
 	alias(libs.plugins.kotlinMultiplatform)
@@ -94,6 +124,16 @@ kotlin {
 	}
 }
 
+// --------------------------------------------------------
+// 2. ★ 在 android {} 之前，注册任务 + 输出文件
+// --------------------------------------------------------
+//val gitVersionCodeFile = file("version.properties")
+val gitVersionCodeFile = layout.buildDirectory.file("git/versionCode.txt")
+
+val generateGitVersionCode = tasks.register<GenerateGitVersionCodeTask>("generateGitVersionCode") {
+	outputFile.set(gitVersionCodeFile)
+}
+
 android {
 	namespace = "com.dlx.smartalarm.demo"
 	compileSdk = libs.versions.android.compileSdk.get().toInt()
@@ -102,9 +142,27 @@ android {
 		applicationId = "com.dlx.smartalarm.demo"
 		minSdk = libs.versions.android.minSdk.get().toInt()
 		targetSdk = libs.versions.android.targetSdk.get().toInt()
-		versionCode = newCode
-		val formatted = String.format("%05d", newCode)
-		versionName = "1.0.$formatted"
+
+		val versionCodeFile = gitVersionCodeFile.get().asFile
+		val code = if (versionCodeFile.exists()) {
+			val text: String = versionCodeFile.readText()
+			if (text.isEmpty())
+			{
+				1
+			}
+			else {
+				text.toInt()
+			}
+		} else {
+			1   // 第一次构建时用 1 顶着
+		}
+
+
+		versionCode = code
+		versionName = "1.0.%05d".format(code)
+//		versionCode = newCode
+//		val formatted = String.format("%05d", newCode)
+//		versionName = "1.0.$formatted"
 	}
 	packaging {
 		resources {
@@ -137,4 +195,11 @@ compose.desktop {
 			packageVersion = "1.0.${formatted}"
 		}
 	}
+}
+
+// --------------------------------------------------------
+// 4. ★ 在文件末尾，让编译前执行任务
+// --------------------------------------------------------
+tasks.named("preBuild") {
+	dependsOn(generateGitVersionCode)
 }
