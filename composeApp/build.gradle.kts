@@ -55,6 +55,7 @@ plugins {
 	alias(libs.plugins.composeCompiler)
 	alias(libs.plugins.composeHotReload)
 	alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.moko.resources)
 }
 
 kotlin {
@@ -97,7 +98,7 @@ kotlin {
 				implementation(compose.runtime)
 				implementation(compose.foundation)
 				implementation(compose.material3)
-				// 为 SwipeToDismiss 等组件引入 material（非material3）
+				// 为 SwipeToDismiss 等组件引入 material（非material3)
 				implementation(compose.material)
 				implementation(compose.ui)
 				implementation(compose.components.resources)
@@ -106,6 +107,8 @@ kotlin {
 				implementation(libs.androidx.lifecycle.runtimeCompose)
 			implementation(libs.kotlinx.datetime)
 			implementation(libs.kotlinx.serialization.json)
+                api(libs.moko.resources)
+                api(libs.moko.resources.compose)
 		}
 		commonTest.dependencies {
 			implementation(libs.kotlin.test)
