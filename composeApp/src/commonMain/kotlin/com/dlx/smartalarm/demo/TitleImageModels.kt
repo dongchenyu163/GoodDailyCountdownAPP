@@ -21,6 +21,16 @@ enum class TitleImageViewType(val key: String) {
     }
 }
 
+/**
+ * Represents display parameters for a title image, allowing customization of its positioning,
+ * scaling, rotation, and aspect ratio.
+ *
+ * @property offsetX Horizontal offset for the image, specified as a floating-point value.
+ * @property offsetY Vertical offset for the image, specified as a floating-point value.
+ * @property scale Scaling factor for the image, where 1f represents the default size.
+ * @property rotation Rotation angle for the image, specified in degrees.
+ * @property aspectRatio Aspect ratio of the image, specified as a floating-point value.
+ */
 @Serializable
 data class TitleImageDisplayParameters(
     val offsetX: Float = 0f,

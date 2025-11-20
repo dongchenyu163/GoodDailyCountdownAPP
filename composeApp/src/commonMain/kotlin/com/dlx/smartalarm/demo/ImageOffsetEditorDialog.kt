@@ -197,7 +197,9 @@ private fun OffsetPreview(
                     offsetX = currentParameters.offsetX + pan.x,
                     offsetY = currentParameters.offsetY + pan.y,
                     scale = (currentParameters.scale * zoom).coerceIn(0.2f, 6f),
-                    rotation = normalizeAngle(currentParameters.rotation + rotation.toDegrees())
+
+					// Rotation angle is in degrees.
+                    rotation = normalizeAngle(currentParameters.rotation + rotation)
                 )
                 onParametersChanged(next)
             }
@@ -330,6 +332,12 @@ private fun RatioHandle(
 
 private fun Float.toDegrees(): Float = (this * (180f / PI.toFloat()))
 
+/**
+ * Normalizes a given angle to ensure it falls within the range [0, 360).
+ *
+ * @param value The angle in degrees that needs to be normalized.
+ * @return The normalized angle within the range [0, 360).
+ */
 private fun normalizeAngle(value: Float): Float {
     var angle = value
     while (angle < 0f) angle += 360f
