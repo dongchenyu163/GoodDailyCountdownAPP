@@ -1,5 +1,7 @@
 package com.dlx.smartalarm.demo
 
+import com.dlx.smartalarm.demo.MR
+import dev.icerock.moko.resources.compose.stringResource
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -63,7 +65,7 @@ fun SettingsScreen(
                     onClick = { onChangeDisplay(DisplayStyle.Card) }
                 )
 
-                Divider()
+                HorizontalDivider()
 
                 Text(stringResource(MR.strings.language), style = MaterialTheme.typography.titleMedium)
                 LanguageItem(

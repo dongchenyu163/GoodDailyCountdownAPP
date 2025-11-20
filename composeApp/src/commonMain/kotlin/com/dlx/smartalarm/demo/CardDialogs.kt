@@ -59,23 +59,27 @@ fun CardDialog(
     var imagePickerMessage by remember { mutableStateOf<String?>(null) }
     var isPickingImage by remember { mutableStateOf(false) }
 
+    val errorPickingImage = stringResource(MR.strings.error_picking_image)
+    val noImagePickedOrUnsupported = stringResource(MR.strings.no_image_picked_or_unsupported)
+    val cannotReadImage = stringResource(MR.strings.cannot_read_image)
+
     val selectTitleImage: () -> Unit = {
         coroutineScope.launch {
             isPickingImage = true
             imagePickerMessage = null
             val picked = runCatching { pickImageFromUser() }.getOrElse {
-                imagePickerMessage = it.message ?: stringResource(MR.strings.error_picking_image)
+                imagePickerMessage = it.message ?: errorPickingImage
                 isPickingImage = false
                 return@launch
             }
             if (picked == null) {
-                imagePickerMessage = stringResource(MR.strings.no_image_picked_or_unsupported)
+                imagePickerMessage = noImagePickedOrUnsupported
                 isPickingImage = false
                 return@launch
             }
             val updated = replaceCardImage(titleImage, picked, TitleImageDefaultQuality)
             if (updated == null) {
-                imagePickerMessage = stringResource(MR.strings.cannot_read_image)
+                imagePickerMessage = cannotReadImage
             } else {
                 titleImage = updated
                 showImageEditor = true
