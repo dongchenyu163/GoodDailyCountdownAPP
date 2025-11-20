@@ -51,6 +51,9 @@ import demo.composeapp.generated.resources.NotoSansSC
 import com.dlx.smartalarm.demo.AppSettings
 import com.dlx.smartalarm.demo.AppSettingsManager
 
+import com.dlx.smartalarm.demo.MR
+import dev.icerock.moko.resources.compose.stringResource
+
 // 滚动条组件
 import com.dlx.smartalarm.demo.VerticalScrollbar
 
@@ -287,9 +290,12 @@ fun App() {
         reminderDialogCard?.let { dueCard ->
             AlertDialog(
                 onDismissRequest = { reminderDialogCard = null },
-                confirmButton = { TextButton(onClick = { reminderDialogCard = null }) { Text("知道了") } },
-                title = { Text("提醒") },
-                text = { val t = dueCard.title.ifBlank { "倒计时提醒" }; Text("《$t》的倒计时已经到期啦！") }
+                confirmButton = { TextButton(onClick = { reminderDialogCard = null }) { Text(stringResource(MR.strings.ok)) } },
+                title = { Text(stringResource(MR.strings.reminder)) },
+                text = {
+                    val title = dueCard.title.ifBlank { stringResource(MR.strings.app_name) }
+                    Text(stringResource(MR.strings.countdown_due_message, title))
+                }
             )
         }
     }
@@ -380,7 +386,7 @@ private fun MainScreen(
             topBar = {
                 Column {
                     TopAppBar(
-                        title = { Text("倒计时") },
+                        title = { Text(stringResource(MR.strings.app_name)) },
                         navigationIcon = { TextButton(onClick = onToggleSearch) { Text(if (showSearch) "✖" else "🔍") } },
                         actions = { TextButton(onClick = onOpenSettings) { Text("⚙") } }
                     )

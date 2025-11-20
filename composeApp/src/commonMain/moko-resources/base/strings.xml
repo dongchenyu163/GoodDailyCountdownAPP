@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<resources>
+    <string name="app_name">Countdown App</string>
+    <string name="add_new_countdown">Add New Countdown</string>
+    <string name="ok">OK</string>
+    <string name="reminder">Reminder</string>
+    <string name="countdown_due_message">The countdown for '%s' is over!</string>
+</resources>

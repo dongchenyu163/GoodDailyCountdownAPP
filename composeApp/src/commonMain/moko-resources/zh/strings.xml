@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<resources>
+    <string name="app_name">倒计时应用</string>
+    <string name="add_new_countdown">添加新的倒计时</string>
+    <string name="ok">知道了</string>
+    <string name="reminder">提醒</string>
+    <string name="countdown_due_message">《%s》的倒计时已经到期啦！</string>
+</resources>
