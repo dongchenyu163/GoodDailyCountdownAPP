@@ -5,7 +5,7 @@ import android.app.Application
 class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        // 初始化全局上下文
-        appContext = applicationContext
+        // 初始化平台，这将设置 appContext
+        getPlatform(this)
     }
 }

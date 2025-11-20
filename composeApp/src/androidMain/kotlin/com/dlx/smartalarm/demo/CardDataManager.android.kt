@@ -15,8 +15,7 @@ actual class CardDataManager {
     }
 }
 
-// 全局Context变量，需要在Application中初始化
-var appContext: Context? = null
+
 
 actual suspend fun readFile(fileName: String): String? = withContext(Dispatchers.IO) {
     try {
