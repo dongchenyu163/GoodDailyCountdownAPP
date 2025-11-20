@@ -18,7 +18,7 @@
     <string name="no_results">无结果</string>
     <string name="remaining_days">剩余 %d 天</string>
     <string name="delete">删除</string>
-    <string name="ends_on_date">结束于 %d/%d/%d</string>
+    <string name="ends_on_date" formatted="false">结束于 %d/%d/%d</string>
     <string name="remaining_days_short">%d日</string>
     <string name="edit">编辑</string>
     <string name="error_picking_image">选择图片时发生错误</string>

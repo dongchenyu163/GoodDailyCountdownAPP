@@ -18,7 +18,7 @@
     <string name="no_results">No Results</string>
     <string name="remaining_days">%d days remaining</string>
     <string name="delete">Delete</string>
-    <string name="ends_on_date">ends on %d/%d/%d</string>
+    <string name="ends_on_date" formatted="false">ends on %d/%d/%d</string>
     <string name="remaining_days_short">%dd</string>
     <string name="edit">Edit</string>
     <string name="error_picking_image">Error picking image</string>

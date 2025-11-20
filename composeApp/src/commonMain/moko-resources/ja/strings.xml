@@ -18,7 +18,7 @@
     <string name="no_results">結果がありません</string>
     <string name="remaining_days">残り %d 日</string>
     <string name="delete">削除</string>
-    <string name="ends_on_date">%d/%d/%d に終了</string>
+    <string name="ends_on_date" formatted="false">%d/%d/%d に終了</string>
     <string name="remaining_days_short">%d日</string>
     <string name="edit">編集</string>
     <string name="error_picking_image">画像選択時にエラーが発生しました</string>
