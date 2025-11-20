@@ -10,14 +10,13 @@ import kotlin.math.max
 @Serializable
 data class Anchor(val x: Float, val y: Float)
 
-enum class TitleImageViewType(val key: String) {
-    List("List"),
-    Grid("Grid"),
-    Card("Card");
+enum class TitleImageViewType {
+    List,
+    Grid,
+    Card;
 
     companion object {
         val all = values().toList()
-        fun fromKey(key: String) = all.firstOrNull { it.key == key }
     }
 }
 
@@ -43,15 +42,15 @@ data class TitleImageDisplayParameters(
 @Serializable
 data class TitleImageInfo(
     val uuid: String = "",
-    val displayInfo: Map<String, TitleImageDisplayParameters> = emptyMap()
+    val displayInfo: Map<TitleImageViewType, TitleImageDisplayParameters> = emptyMap()
 ) {
     fun paramsFor(viewType: TitleImageViewType): TitleImageDisplayParameters {
-        return displayInfo[viewType.key] ?: TitleImageDisplayParameters()
+        return displayInfo[viewType] ?: TitleImageDisplayParameters()
     }
 
     fun update(viewType: TitleImageViewType, params: TitleImageDisplayParameters): TitleImageInfo {
         val next = displayInfo.toMutableMap()
-        next[viewType.key] = params
+        next[viewType] = params
         return copy(displayInfo = next.toMap())
     }
 }
@@ -126,14 +125,14 @@ const val GridPreviewAspectRatio = 1.0f
 const val CardPreviewMinAspectRatio = 1.2f
 const val CardPreviewMaxAspectRatio = 2.6f
 
-fun defaultDisplayInfo(initialAspectRatio: Float): Map<String, TitleImageDisplayParameters> {
+fun defaultDisplayInfo(initialAspectRatio: Float): Map<TitleImageViewType, TitleImageDisplayParameters> {
     return TitleImageViewType.all.associate { view ->
         val params = if (view == TitleImageViewType.Card && initialAspectRatio > 0f) {
             TitleImageDisplayParameters(aspectRatio = initialAspectRatio)
         } else {
             TitleImageDisplayParameters()
         }
-        view.key to params
+        view to params
     }
 }
 

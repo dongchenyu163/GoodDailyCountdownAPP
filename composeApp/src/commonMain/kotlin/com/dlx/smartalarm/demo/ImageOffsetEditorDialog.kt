@@ -1,5 +1,7 @@
 package com.dlx.smartalarm.demo
 
+import com.dlx.smartalarm.demo.MR
+import dev.icerock.moko.resources.compose.stringResource
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -81,12 +83,12 @@ fun ImageOffsetEditorDialog(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
-                    text = "拖拽图片以调整显示效果",
+                    text = stringResource(MR.strings.drag_image_to_adjust),
                     style = MaterialTheme.typography.titleMedium
                 )
 
                 Text(
-                    text = "调整视图选择",
+                    text = stringResource(MR.strings.adjust_view_selection),
                     style = MaterialTheme.typography.labelLarge
                 )
                 // 使“编辑视图选择”的 Tab 更易区分：提供背景与前景的对比，高亮当前选中项
@@ -116,8 +118,13 @@ fun ImageOffsetEditorDialog(
                                 selectedContentColor = MaterialTheme.colorScheme.onPrimary,
                                 unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                 text = {
+                                    val textRes = when (view) {
+                                        TitleImageViewType.List -> MR.strings.view_list
+                                        TitleImageViewType.Grid -> MR.strings.view_grid
+                                        TitleImageViewType.Card -> MR.strings.view_card
+                                    }
                                     Text(
-                                        view.key,
+                                        stringResource(textRes),
                                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                                     )
                                 }
@@ -150,7 +157,7 @@ fun ImageOffsetEditorDialog(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     TextButton(onClick = onDismiss) {
-                        Text("取消")
+                        Text(stringResource(MR.strings.cancel))
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         TextButton(onClick = {
@@ -161,10 +168,10 @@ fun ImageOffsetEditorDialog(
                             )
                             workingInfo = workingInfo.copy(displayInfo = defaults)
                         }) {
-                            Text("重置")
+                            Text(stringResource(MR.strings.reset))
                         }
                         Button(onClick = { onApply(workingInfo) }) {
-                            Text("应用")
+                            Text(stringResource(MR.strings.apply))
                         }
                     }
                 }

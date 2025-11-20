@@ -114,6 +114,11 @@ fun App() {
         var useCloudAccount by remember { mutableStateOf(false) }
         var appSettings by remember { mutableStateOf(AppSettingsManager.loadSettings()) }
 
+        // Apply language setting
+        LaunchedEffect(appSettings.language) {
+            LocaleManager.setLocale(appSettings.language)
+        }
+
         // 搜索相关
         var searchQuery by remember { mutableStateOf("") }
         var showSearch by remember { mutableStateOf(false) }
@@ -220,10 +225,15 @@ fun App() {
             Screen.Settings -> SettingsScreen(
                 useCloud = useCloudAccount,
                 displayStyle = appSettings.selectedView,
+                currentLanguage = appSettings.language,
                 onBack = { currentScreen = Screen.Main },
                 onToggleCloud = { useCloudAccount = it },
                 onChangeDisplay = { newStyle ->
                     appSettings = appSettings.copy(selectedView = newStyle)
+                    AppSettingsManager.saveSettings(appSettings)
+                },
+                onLanguageChange = { newLanguage ->
+                    appSettings = appSettings.copy(language = newLanguage)
                     AppSettingsManager.saveSettings(appSettings)
                 }
             )
@@ -397,7 +407,7 @@ private fun MainScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp, vertical = 8.dp),
-                            placeholder = { Text("Search countdowns...") },
+                            placeholder = { Text(stringResource(MR.strings.search_countdown_placeholder)) },
                             singleLine = true,
                             shape = MaterialTheme.shapes.extraLarge,
                             colors = OutlinedTextFieldDefaults.colors(
@@ -426,7 +436,7 @@ private fun MainScreen(
                             .padding(padding),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("No Results", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(MR.strings.no_results), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 } else Box(modifier = Modifier.fillMaxSize()) {
                     LazyVerticalGrid(
@@ -513,7 +523,7 @@ private fun MainScreen(
                                             Column {
                                                 Text(highlight(cardData.title), style = MaterialTheme.typography.titleMedium)
                                                 Spacer(Modifier.height(2.dp))
-                                                Text("剩余 ${dynamicRemaining} 天", style = MaterialTheme.typography.bodyMedium)
+                                                Text(stringResource(MR.strings.remaining_days, dynamicRemaining), style = MaterialTheme.typography.bodyMedium)
                                             }
                                         }
 
@@ -607,7 +617,7 @@ private fun MainScreen(
                                             ) {
                                                 Text("🗑", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onErrorContainer)
                                                 Spacer(Modifier.width(8.dp))
-                                                Text("删除", color = MaterialTheme.colorScheme.onErrorContainer)
+                                                Text(stringResource(MR.strings.delete), color = MaterialTheme.colorScheme.onErrorContainer)
                                             }
                                         }
                                     }
@@ -689,11 +699,11 @@ private fun MainScreen(
                                                         Column(Modifier.weight(1f)) {
                                                             Text(highlight(cardData.title), style = MaterialTheme.typography.titleMedium)
                                                             val endText = runCatching { LocalDate.parse(cardData.date) }.getOrNull()?.let { d ->
-                                                                "ends on ${d.monthNumber}/${d.dayOfMonth}/${d.year}"
+                                                                stringResource(MR.strings.ends_on_date, d.monthNumber, d.dayOfMonth, d.year)
                                                             } ?: cardData.date
                                                             Text(endText, style = MaterialTheme.typography.bodyMedium)
                                                         }
-                                                        Text("${dynamicRemaining}d", style = MaterialTheme.typography.titleMedium)
+                                                        Text(stringResource(MR.strings.remaining_days_short, dynamicRemaining), style = MaterialTheme.typography.titleMedium)
                                                         IconButton(
                                                             onClick = {
                                                                 threeDotsButtonPosition?.let { showMenu(cardData, it) }
@@ -737,7 +747,7 @@ private fun MainScreen(
                                         .padding(24.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    Text("No Results", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(stringResource(MR.strings.no_results), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                             }
                         }
@@ -761,14 +771,14 @@ private fun MainScreen(
                 offset = menuPosition,
             ) {
                 DropdownMenuItem(
-                    text = { Text("编辑") },
+                    text = { Text(stringResource(MR.strings.edit)) },
                     onClick = {
                         dismissMenu()
                         onEdit(card)
                     }
                 )
                 DropdownMenuItem(
-                    text = { Text("删除") },
+                    text = { Text(stringResource(MR.strings.delete)) },
                     onClick = {
                         dismissMenu()
                         onDelete(card.id)

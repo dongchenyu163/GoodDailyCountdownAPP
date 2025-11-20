@@ -206,3 +206,7 @@ compose.desktop {
 tasks.named("preBuild") {
 	dependsOn(generateGitVersionCode)
 }
+
+multiplatformResources {
+    resourcesPackage.set("com.dlx.smartalarm.demo")
+}

@@ -1,5 +1,7 @@
 package com.dlx.smartalarm.demo
 
+import com.dlx.smartalarm.demo.MR
+import dev.icerock.moko.resources.compose.stringResource
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -18,11 +20,11 @@ fun WelcomeScreen(onNext: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text("Welcome to Countdown App", style = MaterialTheme.typography.headlineSmall)
+            Text(stringResource(MR.strings.welcome_to_app), style = MaterialTheme.typography.headlineSmall)
             Spacer(Modifier.height(12.dp))
-            Text("管理你的重要日程，专注每一天。")
+            Text(stringResource(MR.strings.app_tagline))
             Spacer(Modifier.height(24.dp))
-            Button(onClick = onNext) { Text("下一步") }
+            Button(onClick = onNext) { Text(stringResource(MR.strings.next_step)) }
         }
     }
 }
@@ -38,9 +40,9 @@ fun PermissionsScreen(onGrant: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text("需要通知权限以按时提醒。", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(MR.strings.permission_request_message), style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(16.dp))
-            Button(onClick = onGrant) { Text("允许") }
+            Button(onClick = onGrant) { Text(stringResource(MR.strings.grant_permission)) }
         }
     }
 }

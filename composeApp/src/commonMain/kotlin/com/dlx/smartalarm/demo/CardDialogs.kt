@@ -1,5 +1,7 @@
 package com.dlx.smartalarm.demo
 
+import com.dlx.smartalarm.demo.MR
+import dev.icerock.moko.resources.compose.stringResource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -62,18 +64,18 @@ fun CardDialog(
             isPickingImage = true
             imagePickerMessage = null
             val picked = runCatching { pickImageFromUser() }.getOrElse {
-                imagePickerMessage = it.message ?: "选择图片时发生错误"
+                imagePickerMessage = it.message ?: stringResource(MR.strings.error_picking_image)
                 isPickingImage = false
                 return@launch
             }
             if (picked == null) {
-                imagePickerMessage = "未选择图片或当前平台暂不支持文件选择"
+                imagePickerMessage = stringResource(MR.strings.no_image_picked_or_unsupported)
                 isPickingImage = false
                 return@launch
             }
             val updated = replaceCardImage(titleImage, picked, TitleImageDefaultQuality)
             if (updated == null) {
-                imagePickerMessage = "无法读取所选图片，请尝试其他文件"
+                imagePickerMessage = stringResource(MR.strings.cannot_read_image)
             } else {
                 titleImage = updated
                 showImageEditor = true
@@ -131,33 +133,33 @@ fun CardDialog(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Text(
-                        text = if (cardData != null) "编辑卡片" else "添加新卡片",
+                        text = if (cardData != null) stringResource(MR.strings.edit_card) else stringResource(MR.strings.add_new_card),
                         style = MaterialTheme.typography.headlineSmall
                     )
 
                     OutlinedTextField(
                         value = title,
                         onValueChange = { title = it },
-                        label = { Text("标题") },
+                        label = { Text(stringResource(MR.strings.title)) },
                         modifier = Modifier.fillMaxWidth()
                     )
 
                     OutlinedTextField(
                         value = description,
                         onValueChange = { description = it },
-                        label = { Text("描述") },
+                        label = { Text(stringResource(MR.strings.description)) },
                         modifier = Modifier.fillMaxWidth()
                     )
 
                     OutlinedTextField(
                         value = selectedDate.toString(),
                         onValueChange = { },
-                        label = { Text("目标日期") },
+                        label = { Text(stringResource(MR.strings.target_date)) },
                         readOnly = true,
                         modifier = Modifier.fillMaxWidth(),
                         trailingIcon = {
                             TextButton(onClick = { showDatePicker = true }) {
-                                Text("选择日期")
+                                Text(stringResource(MR.strings.select_date))
                             }
                         }
                     )
@@ -174,12 +176,12 @@ fun CardDialog(
                                 }
                             }
                         },
-                        label = { Text("剩余天数") },
+                        label = { Text(stringResource(MR.strings.remaining_days_label)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    Text("选择图标", style = MaterialTheme.typography.titleSmall)
+                    Text(stringResource(MR.strings.select_icon), style = MaterialTheme.typography.titleSmall)
                     FlowRow(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -199,7 +201,7 @@ fun CardDialog(
                         }
                     }
 
-                    Text("标题图片", style = MaterialTheme.typography.titleSmall)
+                    Text(stringResource(MR.strings.title_image), style = MaterialTheme.typography.titleSmall)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -209,19 +211,19 @@ fun CardDialog(
                             onClick = { selectTitleImage() },
                             enabled = !isPickingImage
                         ) {
-                            Text(if (isPickingImage) "选择中..." else "选择文件")
+                            Text(if (isPickingImage) stringResource(MR.strings.picking_in_progress) else stringResource(MR.strings.select_file))
                         }
                         OutlinedButton(
                             onClick = { showImageEditor = true },
                             enabled = titleImage != null
                         ) {
-                            Text("编辑图片大小")
+                            Text(stringResource(MR.strings.edit_image_size))
                         }
                         TextButton(
                             onClick = { clearTitleImage() },
                             enabled = titleImage != null
                         ) {
-                            Text("清除图片")
+                            Text(stringResource(MR.strings.clear_image))
                         }
                     }
                     imagePickerMessage?.let {
@@ -233,7 +235,7 @@ fun CardDialog(
                     }
                     titleImage?.let {
                         Text(
-                            text = "当前图片ID: ${it.uuid}",
+                            text = stringResource(MR.strings.current_image_id, it.uuid),
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
@@ -242,7 +244,7 @@ fun CardDialog(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.End
                     ) {
-                        TextButton(onClick = onDismiss) { Text("取消") }
+                        TextButton(onClick = onDismiss) { Text(stringResource(MR.strings.cancel)) }
                         Spacer(modifier = Modifier.width(8.dp))
                         Button(
                             onClick = {
@@ -273,7 +275,7 @@ fun CardDialog(
                                 }
                                 onConfirm(card)
                             }
-                        ) { Text("确认") }
+                        ) { Text(stringResource(MR.strings.confirm)) }
                     }
                 }
                 VerticalScrollbar( // New
@@ -362,7 +364,7 @@ fun DatePickerDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    TextButton(onClick = onDismiss) { Text("取消") }
+                    TextButton(onClick = onDismiss) { Text(stringResource(MR.strings.cancel)) }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
                         onClick = {
@@ -372,7 +374,7 @@ fun DatePickerDialog(
                                 onDateSelected(localDate)
                             }
                         }
-                    ) { Text("确认") }
+                    ) { Text(stringResource(MR.strings.confirm)) }
                 }
             }
         }
