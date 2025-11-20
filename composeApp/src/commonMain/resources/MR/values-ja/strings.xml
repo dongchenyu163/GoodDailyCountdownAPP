@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<resources>
+    <string name="app_name">カウントダウンアプリ</string>
+    <string name="add_new_countdown">新しいカウントダウンを追加</string>
+</resources>

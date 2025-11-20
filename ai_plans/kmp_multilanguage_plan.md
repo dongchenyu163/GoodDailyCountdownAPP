@@ -2,7 +2,9 @@
 
 本文档旨在详细阐述如何将 `moko-resources` 集成到我们的 Kotlin Multiplatform 项目中，以实现高效、统一的多语言国际化（i18n）支持。
 
-## 1. 添加 `moko-resources` Gradle 插件
+# 已实装：添加 `moko-resources` Gradle 插件
+
+## 【已经实装】1. 添加 `moko-resources` Gradle 插件
 
 首先，我们需要在 Gradle 构建配置中添加 `moko-resources` 插件。
 
@@ -38,7 +40,9 @@
   }
   ```
 
-## 2. 在 `sourceSets` 中添加依赖
+# 已实装：在 `sourceSets` 中添加依赖
+
+## 【已经实装】2. 在 `sourceSets` 中添加依赖
 
 在 `composeApp/build.gradle.kts` 文件中，为 `commonMain` 源集添加 `moko-resources` 的依赖项。
 
