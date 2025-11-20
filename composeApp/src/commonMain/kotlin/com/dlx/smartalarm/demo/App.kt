@@ -48,6 +48,9 @@ import com.dlx.smartalarm.demo.AnimatedCountdownCard
 import org.jetbrains.compose.resources.Font
 import demo.composeapp.generated.resources.NotoSansSC
 
+import com.dlx.smartalarm.demo.AppSettings
+import com.dlx.smartalarm.demo.AppSettingsManager
+
 // 滚动条组件
 import com.dlx.smartalarm.demo.VerticalScrollbar
 
@@ -106,7 +109,7 @@ fun App() {
 
         // 设置项
         var useCloudAccount by remember { mutableStateOf(false) }
-        var displayStyle by remember { mutableStateOf(DisplayStyle.List) }
+        var appSettings by remember { mutableStateOf(AppSettingsManager.loadSettings()) }
 
         // 搜索相关
         var searchQuery by remember { mutableStateOf("") }
@@ -195,7 +198,8 @@ fun App() {
                 } catch (e: Exception) {
                     println("Failed to save cards: ${e.message}")
                 }
-            } else {
+            }
+            else {
                 // 如果列表为空且不是初始化，说明用户删除了所有卡片，也需要保存
                 try {
                     CardDataStorage.saveCards(cardList)
@@ -206,16 +210,19 @@ fun App() {
             }
         }
 
-        // 已移除：用于测试的手动保存函数与按钮（自动保存逻辑已覆盖正常使用场景）
+        // 已移除：用于测试的手动保存功能与按钮（自动保存逻辑已覆盖正常使用场景）
 
         // 主界面与设置/引导页的简单切换
         when (currentScreen) {
             Screen.Settings -> SettingsScreen(
                 useCloud = useCloudAccount,
-                displayStyle = displayStyle,
+                displayStyle = appSettings.selectedView,
                 onBack = { currentScreen = Screen.Main },
                 onToggleCloud = { useCloudAccount = it },
-                onChangeDisplay = { displayStyle = it }
+                onChangeDisplay = { newStyle ->
+                    appSettings = appSettings.copy(selectedView = newStyle)
+                    AppSettingsManager.saveSettings(appSettings)
+                }
             )
             Screen.OnboardingWelcome -> WelcomeScreen(onNext = { currentScreen = Screen.OnboardingPermissions })
             Screen.OnboardingPermissions -> PermissionsScreen(onGrant = { currentScreen = Screen.Main })
@@ -224,7 +231,7 @@ fun App() {
                 today = today,
                 searchQuery = searchQuery,
                 showSearch = showSearch,
-                displayStyle = displayStyle,
+                displayStyle = appSettings.selectedView,
                 onSearchChange = { searchQuery = it },
                 onToggleSearch = { showSearch = !showSearch },
                 onOpenSettings = { currentScreen = Screen.Settings },
@@ -265,7 +272,7 @@ fun App() {
         if (showEditDialog && editingCard != null) {
             EditCardDialog(
                 cardData = editingCard!!,
-                onDismiss = {
+                onDismiss = { 
                     showEditDialog = false
                     editingCard = null
                 },
@@ -308,8 +315,7 @@ private fun MainScreen(
     onUpdateDynamic: (CardData) -> Unit,
     reminderHandler: ReminderHandler,
     onReminderDialog: (CardData) -> Unit,
-) {
-    val listState = rememberLazyListState()
+) {    val listState = rememberLazyListState()
     val gridState = rememberLazyGridState()
     // 显示搜索栏的条件：靠近顶部（下滑）显示
     val revealSearch by remember(displayStyle) {
