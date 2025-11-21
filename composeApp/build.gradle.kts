@@ -252,3 +252,11 @@ tasks.named("wasmJsBrowserProductionWebpack") {
 tasks.named("wasmJsBrowserDevelopmentWebpack") {
     dependsOn(copyWasmResourcesToPackages)
 }
+
+tasks.named("wasmJsBrowserDevelopmentRun") {
+    dependsOn(copyWasmResourcesToPackages)
+}
+
+tasks.named("wasmJsBrowserProductionRun") {
+    dependsOn(copyWasmResourcesToPackages)
+}
