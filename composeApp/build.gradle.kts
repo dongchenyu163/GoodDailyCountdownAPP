@@ -210,3 +210,45 @@ tasks.named("preBuild") {
 multiplatformResources {
     resourcesPackage.set("com.dlx.smartalarm.demo")
 }
+
+// --------------------------------------------------------
+// Fix for WasmJs Moko Resources
+// --------------------------------------------------------
+val copyWasmResourcesProd = tasks.register<Copy>("copyWasmResourcesProd") {
+    from(layout.buildDirectory.dir("classes/kotlin/wasmJs/main/default/resources/moko-resources-js"))
+    into(layout.buildDirectory.dir("dist/wasmJs/productionExecutable"))
+}
+
+tasks.named("wasmJsBrowserDistribution") {
+    finalizedBy(copyWasmResourcesProd)
+}
+
+val copyWasmResourcesDev = tasks.register<Copy>("copyWasmResourcesDev") {
+    from(layout.buildDirectory.dir("classes/kotlin/wasmJs/main/default/resources/moko-resources-js"))
+    into(layout.buildDirectory.dir("dist/wasmJs/developmentExecutable"))
+}
+
+tasks.findByName("wasmJsBrowserDevelopmentExecutableDistribution")?.let {
+    it.finalizedBy(copyWasmResourcesDev)
+}
+
+val copyWasmResourcesToPackages = tasks.register<Copy>("copyWasmResourcesToPackages") {
+    from(layout.buildDirectory.dir("classes/kotlin/wasmJs/main/default/resources/moko-resources-js"))
+    into(rootProject.layout.buildDirectory.dir("wasm/packages/demo-composeApp/kotlin"))
+}
+
+tasks.named("wasmJsDevelopmentExecutableCompileSync") {
+    finalizedBy(copyWasmResourcesToPackages)
+}
+
+tasks.named("wasmJsProductionExecutableCompileSync") {
+    finalizedBy(copyWasmResourcesToPackages)
+}
+
+tasks.named("wasmJsBrowserProductionWebpack") {
+    dependsOn(copyWasmResourcesToPackages)
+}
+
+tasks.named("wasmJsBrowserDevelopmentWebpack") {
+    dependsOn(copyWasmResourcesToPackages)
+}
