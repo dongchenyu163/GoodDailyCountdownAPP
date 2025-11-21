@@ -86,7 +86,7 @@ fun validateAndFixCardData(card: CardData): CardData {
 @Preview
 fun App() {
 	val base = Typography()
-	val jpFamily = FontFamily(Font(Res.font.NotoSansSC, weight = FontWeight.Normal))
+	val jpFamily = getAppFontFamily()
 
 	val jpTypography = base.copy(
 		bodyLarge = base.bodyLarge.copy(fontFamily = jpFamily),

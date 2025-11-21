@@ -1,10 +1,16 @@
 package com.dlx.smartalarm.demo
 
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.runtime.Composable
+
 class JsPlatform : Platform {
 	override val name: String = "Web with Kotlin/JS"
 }
 
 actual fun getPlatform(context: Any?): Platform = JsPlatform()
+
+@Composable
+actual fun getAppFontFamily(): FontFamily = FontFamily.SansSerif
 
 actual fun readTextFile(fileName: String): String? {
     // LocalStorage can be used for web persistence

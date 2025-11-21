@@ -2,6 +2,12 @@ package com.dlx.smartalarm.demo
 
 import android.content.Context
 import android.os.Build
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.runtime.Composable
+import org.jetbrains.compose.resources.Font
+import demo.composeapp.generated.resources.Res
+import demo.composeapp.generated.resources.NotoSansSC
 
 class AndroidPlatform : Platform {
     override val name: String = "Android ${Build.VERSION.SDK_INT}"
@@ -15,6 +21,9 @@ actual fun getPlatform(context: Any?): Platform {
     }
     return AndroidPlatform()
 }
+
+@Composable
+actual fun getAppFontFamily(): FontFamily = FontFamily(Font(Res.font.NotoSansSC, weight = FontWeight.Normal))
 
 actual fun readTextFile(fileName: String): String? {
     val context = appContext ?: throw IllegalStateException("Android Context not initialized for file operations.")

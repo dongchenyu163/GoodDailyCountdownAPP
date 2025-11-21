@@ -5,27 +5,14 @@
 
     config.module.rules.push(
         {
-            test: /\.json$/,
-            include: [
-                path.resolve(__dirname, "kotlin/localization")
-            ],
-            type: 'asset/resource',
-            generator: {
-                filename: 'localization/[name][ext]'
-            }
-        }
-    );
-
-    // 针对图片等其他资源
-    config.module.rules.push(
-        {
-             test: /\.(png|jpg|jpeg|gif|svg|txt)$/, 
-             include: [
+            test: /\.(.*)/,
+            resource: [
                 path.resolve(__dirname, "kotlin/assets"),
                 path.resolve(__dirname, "kotlin/files"),
                 path.resolve(__dirname, "kotlin/images"),
-             ],
-             type: 'asset/resource'
+                path.resolve(__dirname, "kotlin/localization"),
+            ],
+            type: 'asset/resource'
         }
     );
     
@@ -47,9 +34,6 @@
                 path.resolve(__dirname, "kotlin/fonts"),
             ],
             type: 'asset/resource',
-            generator: {
-                filename: 'fonts/[name][ext]'
-            }
         }
     )
 })(config);
