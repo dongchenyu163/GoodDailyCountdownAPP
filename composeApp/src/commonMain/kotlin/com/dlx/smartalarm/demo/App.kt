@@ -115,7 +115,7 @@ fun App() {
         var appSettings by remember { mutableStateOf(AppSettingsManager.loadSettings()) }
 
         // Apply language setting
-        LaunchedEffect(appSettings.language) {
+        LaunchedEffect(Unit) {
             LocaleManager.setLocale(appSettings.language)
         }
 
@@ -233,6 +233,7 @@ fun App() {
                     AppSettingsManager.saveSettings(appSettings)
                 },
                 onLanguageChange = { newLanguage ->
+                    LocaleManager.setLocale(newLanguage)
                     appSettings = appSettings.copy(language = newLanguage)
                     AppSettingsManager.saveSettings(appSettings)
                 }
