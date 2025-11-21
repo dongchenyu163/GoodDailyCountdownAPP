@@ -22,9 +22,6 @@ actual fun getPlatform(context: Any?): Platform {
     return AndroidPlatform()
 }
 
-@Composable
-actual fun getAppFontFamily(): FontFamily = FontFamily(Font(Res.font.NotoSansSC, weight = FontWeight.Normal))
-
 actual fun readTextFile(fileName: String): String? {
     val context = appContext ?: throw IllegalStateException("Android Context not initialized for file operations.")
     val file = java.io.File(context.filesDir, fileName)

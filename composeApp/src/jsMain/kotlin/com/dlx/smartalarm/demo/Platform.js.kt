@@ -9,9 +9,6 @@ class JsPlatform : Platform {
 
 actual fun getPlatform(context: Any?): Platform = JsPlatform()
 
-@Composable
-actual fun getAppFontFamily(): FontFamily = FontFamily.SansSerif
-
 actual fun readTextFile(fileName: String): String? {
     // LocalStorage can be used for web persistence
     return kotlinx.browser.localStorage.getItem(fileName)

@@ -10,9 +10,6 @@ class WasmPlatform : Platform {
 
 actual fun getPlatform(context: Any?): Platform = WasmPlatform()
 
-@Composable
-actual fun getAppFontFamily(): FontFamily = FontFamily.SansSerif
-
 actual fun readTextFile(fileName: String): String? {
     return localStorage.getItem(fileName)
 }

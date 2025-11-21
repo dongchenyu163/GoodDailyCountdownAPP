@@ -14,9 +14,6 @@ class JVMPlatform : Platform {
 
 actual fun getPlatform(context: Any?): Platform = JVMPlatform()
 
-@Composable
-actual fun getAppFontFamily(): FontFamily = FontFamily(Font(Res.font.NotoSansSC, weight = FontWeight.Normal))
-
 actual fun readTextFile(fileName: String): String? {
     val file = File(getPlatformDataDirectory(), fileName)
     return if (file.exists()) {

@@ -15,9 +15,6 @@ class IOSPlatform : Platform {
 
 actual fun getPlatform(context: Any?): Platform = IOSPlatform()
 
-@Composable
-actual fun getAppFontFamily(): FontFamily = FontFamily(Font(Res.font.NotoSansSC, weight = FontWeight.Normal))
-
 actual fun readTextFile(fileName: String): String? {
     // A real implementation would use NSFileManager to read from the documents directory
     return null
