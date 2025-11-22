@@ -25,6 +25,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -232,7 +233,7 @@ fun CountdownCard(
                         }
                     }
                 ) {
-                    Text("⋮", color = Color.White.copy(alpha = 0.6f), fontFamily = emojiFamily)
+					Text("≡", color = Color.White.copy(alpha = 0.6f))  // The [⋮] char is not an Emoji.
                 }
             }
         }

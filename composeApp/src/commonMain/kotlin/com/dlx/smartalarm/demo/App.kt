@@ -544,7 +544,7 @@ private fun MainScreen(
                                                         threeDotsButtonPosition = DpOffset(positionInWindow.x.toDp(), positionInWindow.y.toDp())
                                                     }
                                                 }
-                                            ) { Text("⋮", fontFamily = emojiFamily) }
+                                            ) { Text("≡", fontFamily = getAppFontFamily()) }  // The [⋮] char is not an Emoji.
                                         }
                                     }
                                 }
@@ -720,7 +720,7 @@ private fun MainScreen(
                                                                     threeDotsButtonPosition = DpOffset(positionInWindow.x.toDp(), positionInWindow.y.toDp())
                                                                 }
                                                             }
-                                                        ) { Text("⋮", fontFamily = emojiFamily) }
+                                                        ) { Text("≡", fontFamily = getAppFontFamily()) }  // The [⋮] char is not an Emoji.
                                                     }
                                                 }
                                             }
