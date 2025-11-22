@@ -49,6 +49,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import kotlin.math.PI
 import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.sin
 
 private val ListPreviewMaxWidth = 500.dp
 
@@ -217,14 +219,36 @@ private fun OffsetPreview(
         .clip(RoundedCornerShape(18.dp))
         .background(Color.Black.copy(alpha = 0.85f))
         .pointerInput(selectedView, previewSize) {
-            detectTransformGestures { _, pan, zoom, rotation ->
-                val next = currentParameters.copy(
-                    offsetX = currentParameters.offsetX + pan.x,
-                    offsetY = currentParameters.offsetY + pan.y,
-                    scale = (currentParameters.scale * zoom).coerceIn(0.2f, 6f),
+            detectTransformGestures { centroid, pan, zoom, rotation ->
+                val (_, controlAnchor) = when (selectedView) {
+                    TitleImageViewType.List -> ViewAnchors.ListImageAnchor to ViewAnchors.ListControlAnchor
+                    TitleImageViewType.Grid -> ViewAnchors.GridImageAnchor to ViewAnchors.GridControlAnchor
+                    TitleImageViewType.Card -> ViewAnchors.CardImageAnchor to ViewAnchors.CardControlAnchor
+                }
+                val canvasAnchor = Offset(
+                    previewSize.width * controlAnchor.x,
+                    previewSize.height * controlAnchor.y
+                )
 
-                    // Rotation angle is in degrees.
-                    rotation = normalizeAngle(currentParameters.rotation + rotation)
+                val oldParams = currentParameters
+                val currentOffset = Offset(oldParams.offsetX, oldParams.offsetY)
+
+                val newScale = (oldParams.scale * zoom).coerceIn(0.2f, 6f)
+                val actualZoom = if (oldParams.scale > 0) newScale / oldParams.scale else 1f
+
+                val newOffset = calculateNewOffset(
+                    cursorPos = centroid,
+                    canvasAnchor = canvasAnchor,
+                    currentOffset = currentOffset,
+                    zoomChange = actualZoom,
+                    rotationChange = rotation
+                ) + pan
+
+                val next = oldParams.copy(
+                    offsetX = newOffset.x,
+                    offsetY = newOffset.y,
+                    scale = newScale,
+                    rotation = normalizeAngle(oldParams.rotation + rotation)
                 )
                 onParametersChanged(next)
             }
@@ -235,14 +259,56 @@ private fun OffsetPreview(
                     val event = awaitPointerEvent()
                     if (event.type == PointerEventType.Scroll) {
                         val change = event.changes.firstOrNull() ?: continue
-                        val delta = change.scrollDelta.y
-                        val updated = if (event.keyboardModifiers.isShiftPressed) {
-                            currentParameters.copy(rotation = normalizeAngle(currentParameters.rotation + delta * -5f))
-                        } else {
-                            currentParameters.copy(scale = (currentParameters.scale + delta * -0.01f).coerceIn(0.2f, 6f))
-                        }
-                        onParametersChanged(updated)
                         change.consume()
+
+                        val delta = change.scrollDelta.y
+                        val cursorPos = change.position
+                        val (_, controlAnchor) = when (selectedView) {
+                            TitleImageViewType.List -> ViewAnchors.ListImageAnchor to ViewAnchors.ListControlAnchor
+                            TitleImageViewType.Grid -> ViewAnchors.GridImageAnchor to ViewAnchors.GridControlAnchor
+                            TitleImageViewType.Card -> ViewAnchors.CardImageAnchor to ViewAnchors.CardControlAnchor
+                        }
+                        val canvasAnchor = Offset(
+                            previewSize.width * controlAnchor.x,
+                            previewSize.height * controlAnchor.y
+                        )
+
+                        val oldParams = currentParameters
+                        val isCtrl = event.keyboardModifiers.isCtrlPressed
+
+                        val nextParams = if (isCtrl) {
+                            val rotDelta = delta * -5f
+                            val newOffset = calculateNewOffset(
+                                cursorPos = cursorPos,
+                                canvasAnchor = canvasAnchor,
+                                currentOffset = Offset(oldParams.offsetX, oldParams.offsetY),
+                                zoomChange = 1f,
+                                rotationChange = rotDelta
+                            )
+                            oldParams.copy(
+                                rotation = normalizeAngle(oldParams.rotation + rotDelta),
+                                offsetX = newOffset.x,
+                                offsetY = newOffset.y
+                            )
+                        } else {
+                            val zoomFactor = 1f - (delta * 0.1f)
+                            val newScale = (oldParams.scale * zoomFactor).coerceIn(0.2f, 6f)
+                            val actualZoom = if (oldParams.scale > 0) newScale / oldParams.scale else 1f
+
+                            val newOffset = calculateNewOffset(
+                                cursorPos = cursorPos,
+                                canvasAnchor = canvasAnchor,
+                                currentOffset = Offset(oldParams.offsetX, oldParams.offsetY),
+                                zoomChange = actualZoom,
+                                rotationChange = 0f
+                            )
+                            oldParams.copy(
+                                scale = newScale,
+                                offsetX = newOffset.x,
+                                offsetY = newOffset.y
+                            )
+                        }
+                        onParametersChanged(nextParams)
                     }
                 }
             }
@@ -378,4 +444,25 @@ private fun normalizeAngle(value: Float): Float {
     while (angle < 0f) angle += 360f
     while (angle >= 360f) angle -= 360f
     return angle
+}
+
+private fun calculateNewOffset(
+    cursorPos: Offset,
+    canvasAnchor: Offset,
+    currentOffset: Offset,
+    zoomChange: Float,
+    rotationChange: Float
+): Offset {
+    val oldVector = cursorPos - (canvasAnchor + currentOffset)
+    val radians = (rotationChange * PI / 180.0).toFloat()
+    val cos = cos(radians)
+    val sin = sin(radians)
+
+    val scaledX = oldVector.x * zoomChange
+    val scaledY = oldVector.y * zoomChange
+
+    val rotatedX = scaledX * cos - scaledY * sin
+    val rotatedY = scaledX * sin + scaledY * cos
+
+    return cursorPos - canvasAnchor - Offset(rotatedX, rotatedY)
 }

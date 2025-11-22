@@ -11,6 +11,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -125,7 +126,7 @@ fun DrawScope.drawTitleImage(
         // 3. Apply user offset
         translate(left = translationX, top = translationY)
         // 2. Rotate and scale
-        rotate(params.rotation)
+        rotate(params.rotation, pivot = Offset(imagePivotX, imagePivotY))
         scale(resolvedScale, resolvedScale)
         // 1. Move image anchor to origin
         translate(left = -imagePivotX, top = -imagePivotY)
