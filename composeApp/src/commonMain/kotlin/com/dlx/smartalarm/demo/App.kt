@@ -112,11 +112,10 @@ fun App() {
 
         // 设置项
         var useCloudAccount by remember { mutableStateOf(false) }
-        var appSettings by remember { mutableStateOf(AppSettingsManager.loadSettings()) }
-
-        // Apply language setting
-        LaunchedEffect(Unit) {
-            LocaleManager.setLocale(appSettings.language)
+        var appSettings by remember {
+            val settings = AppSettingsManager.loadSettings()
+            LocaleManager.setLocale(settings.language)
+            mutableStateOf(settings)
         }
 
         // 搜索相关
@@ -221,7 +220,8 @@ fun App() {
         // 已移除：用于测试的手动保存功能与按钮（自动保存逻辑已覆盖正常使用场景）
 
         // 主界面与设置/引导页的简单切换
-        when (currentScreen) {
+        key(appSettings.language) {
+            when (currentScreen) {
             Screen.Settings -> SettingsScreen(
                 useCloud = useCloudAccount,
                 displayStyle = appSettings.selectedView,
@@ -308,6 +308,7 @@ fun App() {
                     Text(stringResource(MR.strings.countdown_due_message, title))
                 }
             )
+        }
         }
     }
 }
