@@ -107,6 +107,9 @@ fun CountdownCard(
         var itemPositionInWindow by remember { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
         val density = LocalDensity.current
 
+        val isWeb = remember { getPlatform().name.startsWith("Web") }
+        val emojiFamily = if (isWeb) getAppEmojiFontFamily() else androidx.compose.ui.text.font.FontFamily.Default
+
         Box(
             modifier = Modifier
                 .scale(scale)
@@ -176,7 +179,8 @@ fun CountdownCard(
                     ) {
                         Text(
                             text = icon.ifBlank { "🎯" },
-                            fontSize = 24.sp
+                            fontSize = 24.sp,
+                            fontFamily = emojiFamily
                         )
                     }
 
@@ -228,7 +232,7 @@ fun CountdownCard(
                         }
                     }
                 ) {
-                    Text("⋮", color = Color.White.copy(alpha = 0.6f))
+                    Text("⋮", color = Color.White.copy(alpha = 0.6f), fontFamily = emojiFamily)
                 }
             }
         }

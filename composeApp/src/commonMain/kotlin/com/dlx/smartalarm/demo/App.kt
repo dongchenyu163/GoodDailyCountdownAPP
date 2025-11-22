@@ -335,6 +335,10 @@ private fun MainScreen(
     onReminderDialog: (CardData) -> Unit,
 ) {    val listState = rememberLazyListState()
     val gridState = rememberLazyGridState()
+
+    val isWeb = remember { getPlatform().name.startsWith("Web") }
+    val emojiFamily = if (isWeb) getAppEmojiFontFamily() else FontFamily.Default
+
     // 显示搜索栏的条件：靠近顶部（下滑）显示
     val revealSearch by remember(displayStyle) {
         derivedStateOf {
@@ -399,8 +403,8 @@ private fun MainScreen(
                 Column {
                     TopAppBar(
                         title = { Text(stringResource(MR.strings.app_name)) },
-                        navigationIcon = { TextButton(onClick = onToggleSearch) { Text(if (showSearch) "✖" else "🔍") } },
-                        actions = { TextButton(onClick = onOpenSettings) { Text("⚙") } }
+                        navigationIcon = { TextButton(onClick = onToggleSearch) { Text(if (showSearch) "✖" else "🔍", fontFamily = emojiFamily) } },
+                        actions = { TextButton(onClick = onOpenSettings) { Text("⚙", fontFamily = emojiFamily) } }
                     )
                     AnimatedVisibility(visible = showSearch || revealSearch) {
                         OutlinedTextField(
@@ -425,7 +429,7 @@ private fun MainScreen(
             },
             floatingActionButton = {
                 FloatingActionButton(onClick = onAddClick, containerColor = MaterialTheme.colorScheme.primary) {
-                    Text("+", color = MaterialTheme.colorScheme.onPrimary)
+                    Text("+", color = MaterialTheme.colorScheme.onPrimary, fontFamily = emojiFamily)
                 }
             }
         ) { padding ->
@@ -520,7 +524,7 @@ private fun MainScreen(
                                             verticalArrangement = Arrangement.SpaceBetween
                                         ) {
                                             Box(Modifier.fillMaxWidth()) {
-                                                Text(text = cardData.icon.ifBlank { "🎯" }, style = MaterialTheme.typography.headlineSmall)
+                                                Text(text = cardData.icon.ifBlank { "🎯" }, style = MaterialTheme.typography.headlineSmall, fontFamily = emojiFamily)
                                             }
                                             Column {
                                                 Text(highlight(cardData.title), style = MaterialTheme.typography.titleMedium)
@@ -540,7 +544,7 @@ private fun MainScreen(
                                                         threeDotsButtonPosition = DpOffset(positionInWindow.x.toDp(), positionInWindow.y.toDp())
                                                     }
                                                 }
-                                            ) { Text("⋮") }
+                                            ) { Text("⋮", fontFamily = emojiFamily) }
                                         }
                                     }
                                 }
@@ -617,7 +621,7 @@ private fun MainScreen(
                                                     ),
                                                 verticalAlignment = Alignment.CenterVertically
                                             ) {
-                                                Text("🗑", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onErrorContainer)
+                                                Text("🗑", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onErrorContainer, fontFamily = emojiFamily)
                                                 Spacer(Modifier.width(8.dp))
                                                 Text(stringResource(MR.strings.delete), color = MaterialTheme.colorScheme.onErrorContainer)
                                             }
@@ -694,7 +698,7 @@ private fun MainScreen(
                                                             color = MaterialTheme.colorScheme.primaryContainer
                                                         ) {
                                                             Box(Modifier.size(48.dp), contentAlignment = Alignment.Center) {
-                                                                Text(cardData.icon.ifBlank { "🎯" })
+                                                                Text(cardData.icon.ifBlank { "🎯" }, fontFamily = emojiFamily)
                                                             }
                                                         }
                                                         Spacer(Modifier.width(16.dp))
@@ -716,7 +720,7 @@ private fun MainScreen(
                                                                     threeDotsButtonPosition = DpOffset(positionInWindow.x.toDp(), positionInWindow.y.toDp())
                                                                 }
                                                             }
-                                                        ) { Text("⋮") }
+                                                        ) { Text("⋮", fontFamily = emojiFamily) }
                                                     }
                                                 }
                                             }
