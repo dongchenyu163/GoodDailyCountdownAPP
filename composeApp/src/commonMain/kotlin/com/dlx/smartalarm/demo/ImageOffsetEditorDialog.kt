@@ -58,6 +58,7 @@ fun ImageOffsetEditorDialog(
     onDismiss: () -> Unit,
     onApply: (TitleImageInfo) -> Unit
 ) {
+    // Dialog state controls
     var workingInfo by remember(titleImageInfo) { mutableStateOf(titleImageInfo) }
     var selectedView by remember { mutableStateOf(TitleImageViewType.Card) }
     val imageState = produceState(initialValue = null as androidx.compose.ui.graphics.ImageBitmap?, key1 = titleImageInfo.uuid) {
@@ -65,6 +66,7 @@ fun ImageOffsetEditorDialog(
     }
     val imageBitmap = imageState.value
 
+    // Root dialog container
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -73,30 +75,35 @@ fun ImageOffsetEditorDialog(
             TitleImageViewType.Card -> Modifier.fillMaxWidth(0.7f)
             else -> Modifier.widthIn(max = 600.dp)
         }
+        // Dialog card shell
         Card(
             modifier = cardModifier,
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
         ) {
+            // Main dialog column
             Column(
                 modifier = Modifier.padding(20.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                // Instruction text
                 Text(
                     text = stringResource(MR.strings.drag_image_to_adjust),
                     style = MaterialTheme.typography.titleMedium
                 )
 
+                // Secondary instruction text
                 Text(
                     text = stringResource(MR.strings.adjust_view_selection),
                     style = MaterialTheme.typography.labelLarge
                 )
-                // 使“编辑视图选择”的 Tab 更易区分：提供背景与前景的对比，高亮当前选中项
+                // Tab selector background container
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
                         .background(MaterialTheme.colorScheme.surfaceVariant)
                 ) {
+                    // View type tab row
                     TabRow(
                         selectedTabIndex = selectedView.ordinal,
                         containerColor = Color.Transparent,
@@ -105,6 +112,7 @@ fun ImageOffsetEditorDialog(
                     ) {
                         TitleImageViewType.all.forEach { view ->
                             val selected = selectedView == view
+                            // Individual view-type tab
                             Tab(
                                 selected = selected,
                                 onClick = { selectedView = view },
@@ -123,6 +131,7 @@ fun ImageOffsetEditorDialog(
                                         TitleImageViewType.Grid -> MR.strings.view_grid
                                         TitleImageViewType.Card -> MR.strings.view_card
                                     }
+                                    // Tab label text
                                     Text(
                                         stringResource(textRes),
                                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
@@ -133,14 +142,17 @@ fun ImageOffsetEditorDialog(
                     }
                 }
 
+                // Preview canvas container
                 Box(
                     modifier = Modifier
                         .fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
                     if (imageBitmap == null) {
+                        // Loading indicator
                         CircularProgressIndicator()
                     } else {
+                        // Preview composable
                         OffsetPreview(
                             imageBitmap = imageBitmap,
                             selectedView = selectedView,
@@ -152,14 +164,18 @@ fun ImageOffsetEditorDialog(
                     }
                 }
 
+                // Bottom action row
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
+                    // Cancel button
                     TextButton(onClick = onDismiss) {
                         Text(stringResource(MR.strings.cancel))
                     }
+                    // Reset/apply button group
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        // Reset button
                         TextButton(onClick = {
                             val defaults = defaultDisplayInfo(
                                 imageBitmap?.let { bmp ->
@@ -170,6 +186,7 @@ fun ImageOffsetEditorDialog(
                         }) {
                             Text(stringResource(MR.strings.reset))
                         }
+                        // Apply button
                         Button(onClick = { onApply(workingInfo) }) {
                             Text(stringResource(MR.strings.apply))
                         }
@@ -195,6 +212,7 @@ private fun OffsetPreview(
     val currentParameters by rememberUpdatedState(parameters)
     val onParametersChanged by rememberUpdatedState(onParametersChange)
 
+    // Base preview modifier (handles gestures)
     val baseModifier = Modifier
         .clip(RoundedCornerShape(18.dp))
         .background(Color.Black.copy(alpha = 0.85f))
@@ -205,7 +223,7 @@ private fun OffsetPreview(
                     offsetY = currentParameters.offsetY + pan.y,
                     scale = (currentParameters.scale * zoom).coerceIn(0.2f, 6f),
 
-					// Rotation angle is in degrees.
+                    // Rotation angle is in degrees.
                     rotation = normalizeAngle(currentParameters.rotation + rotation)
                 )
                 onParametersChanged(next)
@@ -232,17 +250,20 @@ private fun OffsetPreview(
 
     val sizedModifier = when (selectedView) {
         TitleImageViewType.List -> {
+            // List preview frame
             baseModifier
                 .fillMaxWidth()
                 .height(96.dp)
                 .widthIn(max = ListPreviewMaxWidth)
         }
         TitleImageViewType.Grid -> {
+            // Grid preview frame
             baseModifier
                 .fillMaxWidth()
                 .aspectRatio(GridPreviewAspectRatio)
         }
         TitleImageViewType.Card -> {
+            // Card preview frame
             val ratio = if (parameters.aspectRatio > 0f) parameters.aspectRatio else defaultCardRatio
             val coercedRatio = ratio.coerceIn(CardPreviewMinAspectRatio, CardPreviewMaxAspectRatio)
             baseModifier
@@ -251,12 +272,14 @@ private fun OffsetPreview(
         }
     }
 
+    // Preview wrapper
     Box(
         modifier = sizedModifier.onGloballyPositioned { layoutCoordinates ->
             previewSize = layoutCoordinates.size
         },
         contentAlignment = Alignment.Center
     ) {
+        // Preview canvas drawing surface
         Canvas(modifier = Modifier.fillMaxSize()) {
             val (imageAnchor, controlAnchor) = when (selectedView) {
                 TitleImageViewType.List -> ViewAnchors.ListImageAnchor to ViewAnchors.ListControlAnchor
@@ -267,6 +290,7 @@ private fun OffsetPreview(
         }
 
         if (selectedView == TitleImageViewType.Card) {
+            // Aspect ratio handles overlay
             AspectRatioHandles(
                 previewSize = previewSize,
                 parameters = parameters,
@@ -290,7 +314,9 @@ private fun AspectRatioHandles(
         .clip(CircleShape)
         .background(MaterialTheme.colorScheme.primary)
 
+    // Container for two ratio handles
     Box(modifier = Modifier.fillMaxSize()) {
+        // Top handle
         RatioHandle(
             modifier = handleModifier.align(Alignment.TopCenter),
             previewSize = previewSize,
@@ -299,6 +325,7 @@ private fun AspectRatioHandles(
                 onParametersChange(parameters.copy(aspectRatio = ratio))
             }
         )
+        // Bottom handle
         RatioHandle(
             modifier = handleModifier.align(Alignment.BottomCenter),
             previewSize = previewSize,
@@ -317,6 +344,7 @@ private fun RatioHandle(
     currentRatio: Float,
     onRatioChange: (Float) -> Unit
 ) {
+    // Handle touch target
     Box(
         modifier = modifier.pointerInput(previewSize, currentRatio) {
             detectDragGestures { change, drag ->
