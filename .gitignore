@@ -27,3 +27,4 @@ GEMINI.md
 /composeApp/release/**
 /composeApp/ai_chat_img/**
 /composeApp/version.properties
+*.txt
