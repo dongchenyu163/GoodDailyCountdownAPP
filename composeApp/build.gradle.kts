@@ -71,7 +71,10 @@ kotlin {
 	).forEach { iosTarget ->
 		iosTarget.binaries.framework {
 			baseName = "ComposeApp"
-			isStatic = true
+			// Use dynamic framework so iOS can load the associated resource bundle (moko-resources)
+			isStatic = false
+			// Unique bundleId for the shared framework (must differ from the app's bundle id)
+			freeCompilerArgs += listOf("-Xbinary=bundleId=com.dlx.smartalarm.demo.framework")
 		}
 	}
 
