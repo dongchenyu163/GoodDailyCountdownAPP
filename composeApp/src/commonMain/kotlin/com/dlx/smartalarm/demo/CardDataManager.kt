@@ -10,7 +10,7 @@ data class CardData(
     val id: Int,
     val title: String,
     val date: String,
-    val remainingDays: Int,
+	val remainingDays: Long,
     val reminderSent: Boolean = false,
     // 新增字段用于满足“添加表单”的描述与图标选择；保留默认值以兼容旧数据
     val description: String = "",

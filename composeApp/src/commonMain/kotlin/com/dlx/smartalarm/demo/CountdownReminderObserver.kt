@@ -3,14 +3,15 @@ package com.dlx.smartalarm.demo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import kotlinx.coroutines.delay
-import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.ZERO
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 @Composable
 fun CountdownReminderObserver(
 	card: CardData,
@@ -21,7 +22,7 @@ fun CountdownReminderObserver(
 	LaunchedEffect(card.id, card.date, card.reminderSent) {
 		val targetDate = runCatching { LocalDate.parse(card.date) }.getOrNull() ?: return@LaunchedEffect
 		val timeZone = TimeZone.currentSystemDefault()
-		val now = Clock.System.now()
+		val now = kotlin.time.Clock.System.now()
 		val today = now.toLocalDateTime(timeZone).date
 		val daysRemaining = (targetDate.toEpochDays() - today.toEpochDays()).coerceAtLeast(0)
 
@@ -32,7 +33,7 @@ fun CountdownReminderObserver(
 
 		if (card.reminderSent) {
 			// 如果卡片已发送提醒但剩余天数不是0，说明用户更新了截止日期，应该重置提醒状态
-			if (card.remainingDays != 0) {
+			if (card.remainingDays != 0L) {
 				onCardUpdate(card.copy(reminderSent = false)) // 重置提醒发送状态
 			}
 			return@LaunchedEffect

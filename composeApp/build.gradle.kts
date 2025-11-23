@@ -112,6 +112,10 @@ kotlin {
 			implementation(libs.kotlinx.serialization.json)
                 api(libs.moko.resources)
                 api(libs.moko.resources.compose)
+                implementation(libs.compottie)
+                implementation(libs.compottie.resources)
+                implementation(libs.compottie.dot)
+                implementation(libs.compottie.network)
 		}
 		commonTest.dependencies {
 			implementation(libs.kotlin.test)

@@ -56,6 +56,8 @@ import dev.icerock.moko.resources.compose.stringResource
 
 // 滚动条组件
 import com.dlx.smartalarm.demo.VerticalScrollbar
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 // 简单导航目的的屏幕定义（顶层，避免局部enum限制）
 private enum class Screen { OnboardingWelcome, OnboardingPermissions, Main, Settings }
@@ -65,10 +67,11 @@ var gIsInitLoad = true  // 全局标志，指示是否为初始化加载
 //   taskkill /im node.exe /f
 
 // 验证并修复卡片数据，确保数据一致性
+@OptIn(ExperimentalTime::class)
 fun validateAndFixCardData(card: CardData): CardData {
     val parsedDate = runCatching { LocalDate.parse(card.date) }.getOrNull()
     val timeZone = TimeZone.currentSystemDefault()
-    val today = Clock.System.todayIn(timeZone)
+	val today = kotlin.time.Clock.System.todayIn(timeZone)
     val newRemainingDays = if (parsedDate != null) {
         (parsedDate.toEpochDays() - today.toEpochDays()).coerceAtLeast(0)
     } else {
@@ -82,6 +85,7 @@ fun validateAndFixCardData(card: CardData): CardData {
     )
 }
 
+@OptIn(ExperimentalTime::class)
 @Composable
 @Preview
 fun App() {
@@ -133,7 +137,7 @@ fun App() {
         val coroutineScope = rememberCoroutineScope()
 
         val timeZone = remember { TimeZone.currentSystemDefault() }
-        val today by produceState(initialValue = Clock.System.todayIn(timeZone)) {
+        val today by produceState(initialValue = kotlin.time.Clock.System.todayIn(timeZone)) {
             while (true) {
                 val now = Clock.System.now()
                 val todayDate = now.toLocalDateTime(timeZone).date

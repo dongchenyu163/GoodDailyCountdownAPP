@@ -18,8 +18,10 @@ import androidx.compose.foundation.rememberScrollState // New import
 import androidx.compose.foundation.verticalScroll // New import
 import androidx.compose.ui.Alignment // New import
 import kotlinx.coroutines.launch
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalTime::class)
 @Composable
 fun CardDialog(
     cardData: CardData?,
@@ -27,7 +29,7 @@ fun CardDialog(
     onDismiss: () -> Unit,
     onConfirm: (CardData) -> Unit
 ) {
-    val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+    val today = kotlin.time.Clock.System.todayIn(TimeZone.currentSystemDefault())
     val defaultDate = if (cardData != null) {
         LocalDate.parse(cardData.date)
     } else {
@@ -37,7 +39,7 @@ fun CardDialog(
     val defaultRemainingDays = cardData?.let {
         runCatching {
             val targetDate = LocalDate.parse(it.date)
-            val currentDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
+            val currentDate = kotlin.time.Clock.System.todayIn(TimeZone.currentSystemDefault())
             (targetDate.toEpochDays() - currentDate.toEpochDays()).coerceAtLeast(0).toString()
         }.getOrDefault(it.remainingDays.toString())
     } ?: "1"
@@ -100,12 +102,12 @@ fun CardDialog(
         }
     }
 
-    fun calculateRemainingDays(targetDate: LocalDate): Int {
-        val currentDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
+    fun calculateRemainingDays(targetDate: LocalDate): Long {
+        val currentDate = kotlin.time.Clock.System.todayIn(TimeZone.currentSystemDefault())
         return targetDate.toEpochDays() - currentDate.toEpochDays()
     }
 
-    fun calculateTargetDate(remainingDays: Int): LocalDate {
+    fun calculateTargetDate(remainingDays: Long): LocalDate {
         val currentDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
         return currentDate.plus(remainingDays, DateTimeUnit.DAY)
     }
@@ -173,7 +175,7 @@ fun CardDialog(
                         onValueChange = { newValue ->
                             if (newValue.all { it.isDigit() } || newValue.isEmpty()) {
                                 remainingDaysText = newValue
-                                newValue.toIntOrNull()?.let { days ->
+                                newValue.toLongOrNull()?.let { days: Long ->
                                     if (days >= 0 && !isUpdatingFromDate) {
                                         selectedDate = calculateTargetDate(days)
                                     }
@@ -252,7 +254,7 @@ fun CardDialog(
                         Spacer(modifier = Modifier.width(8.dp))
                         Button(
                             onClick = {
-                                val remainingDays = maxOf(0, remainingDaysText.toIntOrNull() ?: (cardData?.remainingDays ?: 1))
+                                val remainingDays = maxOf(0, remainingDaysText.toLongOrNull() ?: (cardData?.remainingDays ?: 1))
                                 val reminderSent = if (remainingDays > 0) false else cardData?.reminderSent ?: false
                                 val card = if (cardData != null) {
                                     CardData(
@@ -342,7 +344,7 @@ fun AddCardDialog(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class)
 @Composable
 fun DatePickerDialog(
     selectedDate: LocalDate,
