@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.withTransform
 import kotlin.math.max
@@ -121,14 +122,15 @@ fun DrawScope.drawTitleImage(
 //    println("--- End of DEBUG ---")
 
     withTransform({
-        // 4. Move to the canvas anchor point
+		// 1. Move to the canvas anchor point
         translate(left = canvasPivotX, top = canvasPivotY)
-        // 3. Apply user offset
+		// 2. Apply user offset
         translate(left = translationX, top = translationY)
-        // 2. Rotate and scale
-        rotate(params.rotation, pivot = Offset(imagePivotX, imagePivotY))
-        scale(resolvedScale, resolvedScale)
-        // 1. Move image anchor to origin
+        // 3. Rotate and scale, the calculation is based on the top-left side pivot. But the default pivot is the center.
+        rotate(params.rotation, pivot = Offset(0f, 0f))
+        scale(resolvedScale, resolvedScale, pivot = Offset(0f, 0f))
+
+        // 4. Move image anchor to origin
         translate(left = -imagePivotX, top = -imagePivotY)
     }) {
         drawImage(bitmap)

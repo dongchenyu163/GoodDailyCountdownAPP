@@ -277,6 +277,7 @@ private fun OffsetPreview(
                         val isCtrl = event.keyboardModifiers.isCtrlPressed
 
                         val nextParams = if (isCtrl) {
+							println("cursorPos: $cursorPos, canvasAnchor: $canvasAnchor, oldOffset: ${oldParams.offsetX}, ${oldParams.offsetY}")
                             val rotDelta = delta * -5f
                             val newOffset = calculateNewOffset(
                                 cursorPos = cursorPos,
@@ -288,7 +289,9 @@ private fun OffsetPreview(
                             oldParams.copy(
                                 rotation = normalizeAngle(oldParams.rotation + rotDelta),
                                 offsetX = newOffset.x,
-                                offsetY = newOffset.y
+                                offsetY = newOffset.y,
+								cursorOffsetX = cursorPos.x,
+								cursorOffsetY = cursorPos.y
                             )
                         } else {
                             val zoomFactor = 1f - (delta * 0.1f)
@@ -305,7 +308,9 @@ private fun OffsetPreview(
                             oldParams.copy(
                                 scale = newScale,
                                 offsetX = newOffset.x,
-                                offsetY = newOffset.y
+                                offsetY = newOffset.y,
+								cursorOffsetX = cursorPos.x,
+								cursorOffsetY = cursorPos.y
                             )
                         }
                         onParametersChanged(nextParams)

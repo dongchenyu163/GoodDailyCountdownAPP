@@ -36,7 +36,9 @@ data class TitleImageDisplayParameters(
     val offsetY: Float = 0f,
     val scale: Float = 1f,
     val rotation: Float = 0f,
-    val aspectRatio: Float = 0f
+    val aspectRatio: Float = 0f,
+	val cursorOffsetX: Float = 0f,
+	val cursorOffsetY: Float = 0f
 )
 
 @Serializable
