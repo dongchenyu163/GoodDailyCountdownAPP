@@ -126,7 +126,6 @@ fun App() {
         // 搜索相关
         var searchQuery by remember { mutableStateOf("") }
         var showSearch by remember { mutableStateOf(false) }
-        var filterFavorites by remember { mutableStateOf(false) }
 
         var cardList by remember { mutableStateOf(listOf<CardData>()) }
         var nextId by remember { mutableStateOf(0) }
@@ -271,9 +270,7 @@ fun App() {
                 },
                 onUpdateDynamic = { updated -> updateCard(updated) },
                 reminderHandler = reminderHandler,
-                onReminderDialog = { reminderDialogCard = it },
-                filterFavorites = filterFavorites,
-                onFilterChange = { filterFavorites = it }
+                onReminderDialog = { reminderDialogCard = it }
             )
         }
 
@@ -341,8 +338,6 @@ private fun MainScreen(
     onUpdateDynamic: (CardData) -> Unit,
     reminderHandler: ReminderHandler,
     onReminderDialog: (CardData) -> Unit,
-    filterFavorites: Boolean,
-    onFilterChange: (Boolean) -> Unit
 ) {    val listState = rememberLazyListState()
     val gridState = rememberLazyGridState()
 
@@ -363,17 +358,13 @@ private fun MainScreen(
     val tokens = remember(searchQuery) {
         searchQuery.trim().split(Regex("\\s*,\\s*")).filter { it.isNotBlank() }
     }
-    val filtered = remember(cardList, tokens, filterFavorites) {
-        var list = if (tokens.isEmpty()) cardList
+    val filtered = remember(cardList, tokens) {
+        if (tokens.isEmpty()) cardList
         else cardList.filter { c ->
             tokens.any { t ->
                 c.title.contains(t, ignoreCase = true) || c.description.contains(t, ignoreCase = true)
             }
         }
-        if (filterFavorites) {
-            list = list.filter { it.isFavorite }
-        }
-        list.sortedWith(compareByDescending<CardData> { it.isFavorite }.thenBy { it.remainingDays })
     }
 
     // 统一的菜单状态
@@ -417,41 +408,8 @@ private fun MainScreen(
                 Column {
                     TopAppBar(
                         title = { Text(stringResource(MR.strings.app_name)) },
-                        actions = {
-                            var showFilterMenu by remember { mutableStateOf(false) }
-                            Box {
-                                IconButton(onClick = { showFilterMenu = true }) {
-                                    Icon(
-                                        painter = painterResource(Res.drawable.FilterIcon),
-										modifier = Modifier.size(18.dp),
-                                        contentDescription = "Filter"
-                                    )
-                                }
-                                DropdownMenu(
-                                    expanded = showFilterMenu,
-                                    onDismissRequest = { showFilterMenu = false }
-                                ) {
-                                    DropdownMenuItem(
-                                        text = { Text("已收藏") },
-                                        onClick = {
-                                            onFilterChange(true)
-                                            showFilterMenu = false
-                                        },
-                                        trailingIcon = if (filterFavorites) { { Text("✓") } } else null
-                                    )
-                                    DropdownMenuItem(
-                                        text = { Text("全部") },
-                                        onClick = {
-                                            onFilterChange(false)
-                                            showFilterMenu = false
-                                        },
-                                        trailingIcon = if (!filterFavorites) { { Text("✓") } } else null
-                                    )
-                                }
-                            }
-                            TextButton(onClick = onToggleSearch) { Text(if (showSearch) "✖" else "🔍", fontFamily = emojiFamily) }
-                            TextButton(onClick = onOpenSettings) { Text("⚙", fontFamily = emojiFamily) }
-                        }
+                        navigationIcon = { TextButton(onClick = onToggleSearch) { Text(if (showSearch) "✖" else "🔍", fontFamily = emojiFamily) } },
+                        actions = { TextButton(onClick = onOpenSettings) { Text("⚙", fontFamily = emojiFamily) } }
                     )
                     AnimatedVisibility(visible = showSearch || revealSearch) {
                         OutlinedTextField(
@@ -592,14 +550,6 @@ private fun MainScreen(
                                                     }
                                                 }
                                             ) { Text("≡", fontFamily = getAppFontFamily()) }  // The [⋮] char is not an Emoji.
-                                        }
-                                        
-                                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
-                                            FavoriteButton(
-                                                isFavorite = cardData.isFavorite,
-                                                onToggle = { onUpdateDynamic(cardData.copy(isFavorite = !cardData.isFavorite)) },
-                                                modifier = Modifier.padding(8.dp)
-                                            )
                                         }
                                     }
                                 }
@@ -765,10 +715,6 @@ private fun MainScreen(
                                                             Text(endText, style = MaterialTheme.typography.bodyMedium)
                                                         }
                                                         Text(stringResource(MR.strings.remaining_days_short, dynamicRemaining), style = MaterialTheme.typography.titleMedium)
-                                                        FavoriteButton(
-                                                            isFavorite = cardData.isFavorite,
-                                                            onToggle = { onUpdateDynamic(cardData.copy(isFavorite = !cardData.isFavorite)) }
-                                                        )
                                                         IconButton(
                                                             onClick = {
                                                                 threeDotsButtonPosition?.let { showMenu(cardData, it) }
@@ -796,9 +742,7 @@ private fun MainScreen(
                                                 onClick = { /* 预留 */ },
                                                 onDelete = { onDelete(cardData.id) },
                                                 onEdit = { onEdit(cardData) },
-                                                onShowMenu = { position -> showMenu(cardData, position) },
-                                                isFavorite = cardData.isFavorite,
-                                                onToggleFavorite = { onUpdateDynamic(cardData.copy(isFavorite = !cardData.isFavorite)) }
+                                                onShowMenu = { position -> showMenu(cardData, position) }
                                             )
                                         }
                                     }
@@ -860,34 +804,3 @@ private fun MainScreen(
 // - CardDialogs.kt: CardDialog / AddCardDialog / EditCardDialog / DatePickerDialog
 // - SettingsScreen.kt: SettingsScreen
 // - Onboarding.kt: WelcomeScreen / PermissionsScreen
-
-@OptIn(ExperimentalResourceApi::class)
-@Composable
-fun FavoriteButton(
-    isFavorite: Boolean,
-    onToggle: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val composition by rememberLottieComposition {
-        LottieCompositionSpec.DotLottie(
-            Res.readBytes("files/FavIcon.lottie")
-        )
-    }
-
-    val targetProgress = if (isFavorite) 1f else 0f
-    val progressState by androidx.compose.animation.core.animateFloatAsState(
-        targetValue = targetProgress,
-        animationSpec = tween(durationMillis = 1000)
-    )
-
-    Image(
-        painter = rememberLottiePainter(
-            composition = composition,
-            progress = { progressState }
-        ),
-        contentDescription = "Favorite",
-        modifier = modifier
-            .clickable { onToggle() }
-            .size(48.dp)
-    )
-}
