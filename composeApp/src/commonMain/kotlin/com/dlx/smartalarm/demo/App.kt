@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.material.DismissDirection
 import androidx.compose.material.DismissValue
@@ -26,13 +25,9 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.input.pointer.*
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
@@ -43,19 +38,10 @@ import kotlinx.coroutines.launch
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.ZERO
 import kotlin.time.Duration.Companion.hours
-import demo.composeapp.generated.resources.Res
-import com.dlx.smartalarm.demo.AnimatedCountdownCard
-import org.jetbrains.compose.resources.Font
-import demo.composeapp.generated.resources.NotoSansSC
 
-import com.dlx.smartalarm.demo.AppSettings
-import com.dlx.smartalarm.demo.AppSettingsManager
-
-import com.dlx.smartalarm.demo.MR
 import dev.icerock.moko.resources.compose.stringResource
 
 // 滚动条组件
-import com.dlx.smartalarm.demo.VerticalScrollbar
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
