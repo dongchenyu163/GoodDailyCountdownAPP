@@ -45,6 +45,17 @@ import dev.icerock.moko.resources.compose.stringResource
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
+import io.github.alexzhirkevich.compottie.LottieCompositionSpec
+import io.github.alexzhirkevich.compottie.rememberLottieComposition
+import io.github.alexzhirkevich.compottie.animateLottieCompositionAsState
+import io.github.alexzhirkevich.compottie.Compottie
+import io.github.alexzhirkevich.compottie.rememberLottiePainter
+import androidx.compose.foundation.Image
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import demo.composeapp.generated.resources.Res
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.clickable
+
 // 简单导航目的的屏幕定义（顶层，避免局部enum限制）
 private enum class Screen { OnboardingWelcome, OnboardingPermissions, Main, Settings }
 
@@ -538,6 +549,14 @@ private fun MainScreen(
                                                 }
                                             ) { Text("≡", fontFamily = getAppFontFamily()) }  // The [⋮] char is not an Emoji.
                                         }
+                                        
+                                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
+                                            FavoriteButton(
+                                                isFavorite = cardData.isFavorite,
+                                                onToggle = { onUpdateDynamic(cardData.copy(isFavorite = !cardData.isFavorite)) },
+                                                modifier = Modifier.padding(8.dp)
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -702,6 +721,10 @@ private fun MainScreen(
                                                             Text(endText, style = MaterialTheme.typography.bodyMedium)
                                                         }
                                                         Text(stringResource(MR.strings.remaining_days_short, dynamicRemaining), style = MaterialTheme.typography.titleMedium)
+                                                        FavoriteButton(
+                                                            isFavorite = cardData.isFavorite,
+                                                            onToggle = { onUpdateDynamic(cardData.copy(isFavorite = !cardData.isFavorite)) }
+                                                        )
                                                         IconButton(
                                                             onClick = {
                                                                 threeDotsButtonPosition?.let { showMenu(cardData, it) }
@@ -729,7 +752,9 @@ private fun MainScreen(
                                                 onClick = { /* 预留 */ },
                                                 onDelete = { onDelete(cardData.id) },
                                                 onEdit = { onEdit(cardData) },
-                                                onShowMenu = { position -> showMenu(cardData, position) }
+                                                onShowMenu = { position -> showMenu(cardData, position) },
+                                                isFavorite = cardData.isFavorite,
+                                                onToggleFavorite = { onUpdateDynamic(cardData.copy(isFavorite = !cardData.isFavorite)) }
                                             )
                                         }
                                     }
@@ -791,3 +816,34 @@ private fun MainScreen(
 // - CardDialogs.kt: CardDialog / AddCardDialog / EditCardDialog / DatePickerDialog
 // - SettingsScreen.kt: SettingsScreen
 // - Onboarding.kt: WelcomeScreen / PermissionsScreen
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+fun FavoriteButton(
+    isFavorite: Boolean,
+    onToggle: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val composition by rememberLottieComposition {
+        LottieCompositionSpec.JsonString(
+            Res.readBytes("files/FavIcon.lottie").decodeToString()
+        )
+    }
+
+    val targetProgress = if (isFavorite) 1f else 0f
+    val progressState by androidx.compose.animation.core.animateFloatAsState(
+        targetValue = targetProgress,
+        animationSpec = tween(durationMillis = 1000)
+    )
+
+    Image(
+        painter = rememberLottiePainter(
+            composition = composition,
+            progress = { progressState }
+        ),
+        contentDescription = "Favorite",
+        modifier = modifier
+            .clickable { onToggle() }
+            .size(48.dp)
+    )
+}
