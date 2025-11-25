@@ -15,7 +15,8 @@ data class CardData(
     // 新增字段用于满足“添加表单”的描述与图标选择；保留默认值以兼容旧数据
     val description: String = "",
     val icon: String = "",
-    val titleImage: TitleImageInfo? = null
+    val titleImage: TitleImageInfo? = null,
+    val isFavorite: Boolean = false
 )
 
 expect class CardDataManager {
