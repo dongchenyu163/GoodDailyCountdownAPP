@@ -355,12 +355,13 @@ private fun MainScreen(
         searchQuery.trim().split(Regex("\\s*,\\s*")).filter { it.isNotBlank() }
     }
     val filtered = remember(cardList, tokens) {
-        if (tokens.isEmpty()) cardList
+        val list = if (tokens.isEmpty()) cardList
         else cardList.filter { c ->
             tokens.any { t ->
                 c.title.contains(t, ignoreCase = true) || c.description.contains(t, ignoreCase = true)
             }
         }
+        list.sortedWith(compareByDescending<CardData> { it.isFavorite }.thenBy { it.remainingDays })
     }
 
     // 统一的菜单状态
