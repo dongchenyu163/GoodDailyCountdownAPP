@@ -46,7 +46,9 @@ fun CountdownCard(
     onDelete: () -> Unit = {},
     onEdit: () -> Unit = {},
     onShowMenu: (position: DpOffset) -> Unit,
-    isDeleting: Boolean = false
+    isDeleting: Boolean = false,
+    isFavorite: Boolean = false,
+    onToggleFavorite: () -> Unit = {}
 ) {
     var isVisible by remember { mutableStateOf(false) }
 
@@ -236,6 +238,18 @@ fun CountdownCard(
 					Text("≡", color = Color.White.copy(alpha = 0.6f))  // The [⋮] char is not an Emoji.
                 }
             }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(8.dp),
+                contentAlignment = Alignment.BottomEnd
+            ) {
+                FavoriteButton(
+                    isFavorite = isFavorite,
+                    onToggle = onToggleFavorite
+                )
+            }
         }
     }
 }
@@ -251,7 +265,9 @@ fun AnimatedCountdownCard(
     onClick: () -> Unit = {},
     onDelete: () -> Unit = {},
     onEdit: () -> Unit = {},
-    onShowMenu: (position: DpOffset) -> Unit
+    onShowMenu: (position: DpOffset) -> Unit,
+    isFavorite: Boolean = false,
+    onToggleFavorite: () -> Unit = {}
 ) {
     var isDeleting by remember { mutableStateOf(false) }
 
@@ -274,6 +290,8 @@ fun AnimatedCountdownCard(
         onDelete = { isDeleting = true }, // 触发删除动画
         onEdit = onEdit,
         onShowMenu = onShowMenu,
-        isDeleting = isDeleting
+        isDeleting = isDeleting,
+        isFavorite = isFavorite,
+        onToggleFavorite = onToggleFavorite
     )
 }
