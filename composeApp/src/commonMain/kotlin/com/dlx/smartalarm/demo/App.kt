@@ -55,6 +55,7 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import demo.composeapp.generated.resources.Res
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
+import io.github.alexzhirkevich.compottie.DotLottie
 import org.jetbrains.compose.resources.painterResource
 
 // 简单导航目的的屏幕定义（顶层，避免局部enum限制）
@@ -862,8 +863,8 @@ fun FavoriteButton(
     modifier: Modifier = Modifier
 ) {
     val composition by rememberLottieComposition {
-        LottieCompositionSpec.JsonString(
-            Res.readBytes("files/FavIcon.lottie").decodeToString()
+        LottieCompositionSpec.DotLottie(
+            Res.readBytes("files/FavIcon.lottie")
         )
     }
 
