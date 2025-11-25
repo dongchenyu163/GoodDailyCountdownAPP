@@ -55,6 +55,7 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import demo.composeapp.generated.resources.Res
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
+import org.jetbrains.compose.resources.painterResource
 
 // 简单导航目的的屏幕定义（顶层，避免局部enum限制）
 private enum class Screen { OnboardingWelcome, OnboardingPermissions, Main, Settings }
@@ -122,6 +123,7 @@ fun App() {
         // 搜索相关
         var searchQuery by remember { mutableStateOf("") }
         var showSearch by remember { mutableStateOf(false) }
+        var filterFavorites by remember { mutableStateOf(false) }
 
         var cardList by remember { mutableStateOf(listOf<CardData>()) }
         var nextId by remember { mutableStateOf(0) }
@@ -266,7 +268,9 @@ fun App() {
                 },
                 onUpdateDynamic = { updated -> updateCard(updated) },
                 reminderHandler = reminderHandler,
-                onReminderDialog = { reminderDialogCard = it }
+                onReminderDialog = { reminderDialogCard = it },
+                filterFavorites = filterFavorites,
+                onFilterChange = { filterFavorites = it }
             )
         }
 
@@ -334,6 +338,8 @@ private fun MainScreen(
     onUpdateDynamic: (CardData) -> Unit,
     reminderHandler: ReminderHandler,
     onReminderDialog: (CardData) -> Unit,
+    filterFavorites: Boolean,
+    onFilterChange: (Boolean) -> Unit
 ) {    val listState = rememberLazyListState()
     val gridState = rememberLazyGridState()
 
@@ -354,12 +360,15 @@ private fun MainScreen(
     val tokens = remember(searchQuery) {
         searchQuery.trim().split(Regex("\\s*,\\s*")).filter { it.isNotBlank() }
     }
-    val filtered = remember(cardList, tokens) {
-        val list = if (tokens.isEmpty()) cardList
+    val filtered = remember(cardList, tokens, filterFavorites) {
+        var list = if (tokens.isEmpty()) cardList
         else cardList.filter { c ->
             tokens.any { t ->
                 c.title.contains(t, ignoreCase = true) || c.description.contains(t, ignoreCase = true)
             }
+        }
+        if (filterFavorites) {
+            list = list.filter { it.isFavorite }
         }
         list.sortedWith(compareByDescending<CardData> { it.isFavorite }.thenBy { it.remainingDays })
     }
@@ -406,6 +415,33 @@ private fun MainScreen(
                     TopAppBar(
                         title = { Text(stringResource(MR.strings.app_name)) },
                         actions = {
+                            var showFilterMenu by remember { mutableStateOf(false) }
+                            Box {
+                                IconButton(onClick = { showFilterMenu = true }) {
+                                    Text("🌪️", fontFamily = emojiFamily)
+                                }
+                                DropdownMenu(
+                                    expanded = showFilterMenu,
+                                    onDismissRequest = { showFilterMenu = false }
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text("已收藏") },
+                                        onClick = {
+                                            onFilterChange(true)
+                                            showFilterMenu = false
+                                        },
+                                        trailingIcon = if (filterFavorites) { { Text("✓") } } else null
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text("全部") },
+                                        onClick = {
+                                            onFilterChange(false)
+                                            showFilterMenu = false
+                                        },
+                                        trailingIcon = if (!filterFavorites) { { Text("✓") } } else null
+                                    )
+                                }
+                            }
                             TextButton(onClick = onToggleSearch) { Text(if (showSearch) "✖" else "🔍", fontFamily = emojiFamily) }
                             TextButton(onClick = onOpenSettings) { Text("⚙", fontFamily = emojiFamily) }
                         }
