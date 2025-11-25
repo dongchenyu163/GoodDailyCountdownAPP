@@ -393,8 +393,10 @@ private fun MainScreen(
                 Column {
                     TopAppBar(
                         title = { Text(stringResource(MR.strings.app_name)) },
-                        navigationIcon = { TextButton(onClick = onToggleSearch) { Text(if (showSearch) "✖" else "🔍", fontFamily = emojiFamily) } },
-                        actions = { TextButton(onClick = onOpenSettings) { Text("⚙", fontFamily = emojiFamily) } }
+                        actions = {
+                            TextButton(onClick = onToggleSearch) { Text(if (showSearch) "✖" else "🔍", fontFamily = emojiFamily) }
+                            TextButton(onClick = onOpenSettings) { Text("⚙", fontFamily = emojiFamily) }
+                        }
                     )
                     AnimatedVisibility(visible = showSearch || revealSearch) {
                         OutlinedTextField(
