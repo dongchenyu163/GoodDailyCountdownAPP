@@ -55,6 +55,8 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import demo.composeapp.generated.resources.Res
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.draw.scale
+import demo.composeapp.generated.resources.FilterIcon
 import io.github.alexzhirkevich.compottie.DotLottie
 import org.jetbrains.compose.resources.painterResource
 
@@ -419,7 +421,11 @@ private fun MainScreen(
                             var showFilterMenu by remember { mutableStateOf(false) }
                             Box {
                                 IconButton(onClick = { showFilterMenu = true }) {
-                                    Text("🌪️", fontFamily = emojiFamily)
+                                    Icon(
+                                        painter = painterResource(Res.drawable.FilterIcon),
+										modifier = Modifier.size(18.dp),
+                                        contentDescription = "Filter"
+                                    )
                                 }
                                 DropdownMenu(
                                     expanded = showFilterMenu,
