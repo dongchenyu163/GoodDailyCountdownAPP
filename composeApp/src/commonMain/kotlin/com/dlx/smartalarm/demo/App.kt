@@ -418,34 +418,37 @@ private fun MainScreen(
                     TopAppBar(
                         title = { Text(stringResource(MR.strings.app_name)) },
                         actions = {
-                            var showFilterMenu by remember { mutableStateOf(false) }
+                            var filterMenuState by remember { mutableStateOf(FilterMenuState(expanded = false, filterFavorites = filterFavorites)) }
+                            LaunchedEffect(filterFavorites) { filterMenuState = filterMenuState.copy(filterFavorites = filterFavorites) }
                             Box {
-                                IconButton(onClick = { showFilterMenu = true }) {
+                                IconButton(onClick = { filterMenuState = filterMenuState.copy(expanded = true) }) {
                                     Icon(
                                         painter = painterResource(Res.drawable.FilterIcon),
 										modifier = Modifier.size(18.dp),
-                                        contentDescription = "Filter"
+                                        contentDescription = stringResource(MR.strings.filter)
                                     )
                                 }
                                 DropdownMenu(
-                                    expanded = showFilterMenu,
-                                    onDismissRequest = { showFilterMenu = false }
+                                    expanded = filterMenuState.expanded,
+                                    onDismissRequest = { filterMenuState = filterMenuState.copy(expanded = false) }
                                 ) {
                                     DropdownMenuItem(
-                                        text = { Text("已收藏") },
+                                        text = { Text(stringResource(MR.strings.filter_favorites)) },
                                         onClick = {
-                                            onFilterChange(true)
-                                            showFilterMenu = false
+                                            val ns = applyFilterSelection(filterMenuState, selectFavorites = true)
+                                            filterMenuState = ns
+                                            onFilterChange(ns.filterFavorites)
                                         },
-                                        trailingIcon = if (filterFavorites) { { Text("✓") } } else null
+                                        trailingIcon = if (filterMenuState.filterFavorites) { { Text("✓") } } else null
                                     )
                                     DropdownMenuItem(
-                                        text = { Text("全部") },
+                                        text = { Text(stringResource(MR.strings.filter_all)) },
                                         onClick = {
-                                            onFilterChange(false)
-                                            showFilterMenu = false
+                                            val ns = applyFilterSelection(filterMenuState, selectFavorites = false)
+                                            filterMenuState = ns
+                                            onFilterChange(ns.filterFavorites)
                                         },
-                                        trailingIcon = if (!filterFavorites) { { Text("✓") } } else null
+                                        trailingIcon = if (!filterMenuState.filterFavorites) { { Text("✓") } } else null
                                     )
                                 }
                             }
@@ -885,7 +888,7 @@ fun FavoriteButton(
             composition = composition,
             progress = { progressState }
         ),
-        contentDescription = "Favorite",
+        contentDescription = stringResource(MR.strings.favorite),
         modifier = modifier
             .clickable { onToggle() }
             .size(48.dp)
