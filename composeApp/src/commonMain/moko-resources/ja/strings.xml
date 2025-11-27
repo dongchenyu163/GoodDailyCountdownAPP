@@ -52,4 +52,8 @@
     <string name="next_step">次へ</string>
     <string name="permission_request_message">通知の権限が必要です。</string>
     <string name="grant_permission">許可</string>
+    <string name="filter">フィルター</string>
+    <string name="filter_favorites">お気に入り</string>
+    <string name="filter_all">すべて</string>
+    <string name="favorite">お気に入り</string>
 </resources>

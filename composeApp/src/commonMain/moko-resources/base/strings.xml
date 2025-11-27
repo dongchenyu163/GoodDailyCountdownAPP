@@ -52,4 +52,8 @@
     <string name="next_step">Next</string>
     <string name="permission_request_message">Notification permission is required for timely reminders.</string>
     <string name="grant_permission">Allow</string>
+    <string name="filter">Filter</string>
+    <string name="filter_favorites">Favorites</string>
+    <string name="filter_all">All</string>
+    <string name="favorite">Favorite</string>
 </resources>

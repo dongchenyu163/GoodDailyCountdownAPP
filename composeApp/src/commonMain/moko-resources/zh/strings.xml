@@ -52,4 +52,8 @@
     <string name="next_step">下一步</string>
     <string name="permission_request_message">需要通知权限以按时提醒。</string>
     <string name="grant_permission">允许</string>
+    <string name="filter">筛选</string>
+    <string name="filter_favorites">已收藏</string>
+    <string name="filter_all">全部</string>
+    <string name="favorite">收藏</string>
 </resources>
