@@ -61,6 +61,7 @@ import com.dlx.smartalarm.demo.features.main.components.MainListContent
 import com.dlx.smartalarm.demo.components.menu.AppContextMenu
 import com.dlx.smartalarm.demo.features.cards.dialogs.AddCardDialog
 import com.dlx.smartalarm.demo.features.cards.dialogs.EditCardDialog
+import com.dlx.smartalarm.demo.components.scroll.VerticalScrollbar
 
 // 简单导航目的的屏幕定义（顶层，避免局部enum限制）
  

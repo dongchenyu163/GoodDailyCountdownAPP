@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.dlx.smartalarm.demo.*
 import com.dlx.smartalarm.demo.components.card.AnimatedCountdownCard
 import dev.icerock.moko.resources.compose.stringResource
+import com.dlx.smartalarm.demo.components.scroll.VerticalScrollbar
 import com.dlx.smartalarm.demo.features.main.logic.highlight
 import com.dlx.smartalarm.demo.components.favorite.FavoriteButton
 import kotlinx.datetime.LocalDate

@@ -30,7 +30,7 @@ import com.dlx.smartalarm.demo.TitleImageDefaultQuality
 import com.dlx.smartalarm.demo.replaceCardImage
 import com.dlx.smartalarm.demo.ImageOffsetEditorDialog
 import com.dlx.smartalarm.demo.TagMultiselect
-import com.dlx.smartalarm.demo.VerticalScrollbar
+import com.dlx.smartalarm.demo.components.scroll.VerticalScrollbar
 import com.dlx.smartalarm.demo.pickImageFromUser
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalTime::class)

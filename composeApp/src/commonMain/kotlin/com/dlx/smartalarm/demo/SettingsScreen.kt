@@ -13,7 +13,7 @@ import androidx.compose.foundation.rememberScrollState // New import
 import androidx.compose.foundation.verticalScroll // New import
 
 // Import VerticalScrollbar
-import com.dlx.smartalarm.demo.VerticalScrollbar
+import com.dlx.smartalarm.demo.components.scroll.VerticalScrollbar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
