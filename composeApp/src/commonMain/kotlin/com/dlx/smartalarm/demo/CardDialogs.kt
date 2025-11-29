@@ -16,10 +16,12 @@ import androidx.compose.ui.window.DialogProperties
 import kotlinx.datetime.*
 import androidx.compose.foundation.rememberScrollState // New import
 import androidx.compose.foundation.verticalScroll // New import
+// use project custom VerticalScrollbar overloads
 import androidx.compose.ui.Alignment // New import
-import kotlinx.coroutines.launch
-import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
+import kotlin.time.Clock
+import kotlinx.coroutines.launch
+// Removed incorrect kotlin.time imports
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalTime::class)
 @Composable
@@ -29,7 +31,7 @@ fun CardDialog(
     onDismiss: () -> Unit,
     onConfirm: (CardData) -> Unit
 ) {
-    val today = kotlin.time.Clock.System.todayIn(TimeZone.currentSystemDefault())
+    val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
     val defaultDate = if (cardData != null) {
         LocalDate.parse(cardData.date)
     } else {
@@ -39,7 +41,7 @@ fun CardDialog(
     val defaultRemainingDays = cardData?.let {
         runCatching {
             val targetDate = LocalDate.parse(it.date)
-            val currentDate = kotlin.time.Clock.System.todayIn(TimeZone.currentSystemDefault())
+            val currentDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
             (targetDate.toEpochDays() - currentDate.toEpochDays()).coerceAtLeast(0).toString()
         }.getOrDefault(it.remainingDays.toString())
     } ?: "1"
@@ -103,7 +105,7 @@ fun CardDialog(
     }
 
     fun calculateRemainingDays(targetDate: LocalDate): Long {
-        val currentDate = kotlin.time.Clock.System.todayIn(TimeZone.currentSystemDefault())
+        val currentDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
         return targetDate.toEpochDays() - currentDate.toEpochDays()
     }
 
@@ -119,6 +121,11 @@ fun CardDialog(
             isUpdatingFromDate = false
         }
     }
+
+    var allTags by remember { mutableStateOf<List<Tag>>(emptyList()) }
+    var selectedTagIds by remember { mutableStateOf(cardData?.tags ?: emptyList()) }
+    var editingTagState by remember { mutableStateOf<Tag?>(null) }
+    LaunchedEffect(Unit) { allTags = TagRepository.load() }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -239,12 +246,26 @@ fun CardDialog(
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
-                    titleImage?.let {
-                        Text(
-                            text = stringResource(MR.strings.current_image_id, it.uuid),
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
+    titleImage?.let {
+        Text(
+            text = stringResource(MR.strings.current_image_id, it.uuid),
+            style = MaterialTheme.typography.bodySmall
+        )
+    }
+
+                    TagMultiselect(
+                        allTags = allTags,
+                        selected = selectedTagIds,
+                        onChange = { selectedTagIds = it },
+                        onCreate = { name ->
+                            val newTag = TagRepository.create(name)
+                            val next = allTags + newTag
+                            allTags = next
+                            kotlinx.coroutines.GlobalScope.launch { TagRepository.save(next) }
+                            selectedTagIds = selectedTagIds + newTag.id
+                        },
+                        onEditRequest = { tag -> editingTagState = tag }
+                    )
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -265,7 +286,8 @@ fun CardDialog(
                                         reminderSent = reminderSent,
                                         description = description,
                                         icon = icon,
-                                        titleImage = titleImage
+                                        titleImage = titleImage,
+                                        tags = selectedTagIds
                                     )
                                 } else {
                                     CardData(
@@ -276,7 +298,8 @@ fun CardDialog(
                                         reminderSent = reminderSent,
                                         description = description,
                                         icon = icon,
-                                        titleImage = titleImage
+                                        titleImage = titleImage,
+                                        tags = selectedTagIds
                                     )
                                 }
                                 onConfirm(card)
@@ -284,12 +307,53 @@ fun CardDialog(
                         ) { Text(stringResource(MR.strings.confirm)) }
                     }
                 }
-                VerticalScrollbar( // New
+                VerticalScrollbar(
                     scrollState = scrollState,
                     modifier = Modifier.align(Alignment.CenterEnd)
                 )
             }
         }
+    }
+
+    editingTagState?.let { tag ->
+        AlertDialog(
+            onDismissRequest = { editingTagState = null },
+            confirmButton = {},
+            title = { Text(stringResource(MR.strings.tags_label)) },
+            text = {
+                var name by remember(tag.id) { mutableStateOf(tag.name) }
+                var color by remember(tag.id) { mutableStateOf(tag.color) }
+                Column {
+                    OutlinedTextField(value = name, onValueChange = { name = it })
+                    Spacer(Modifier.height(12.dp))
+                    Text(stringResource(MR.strings.colors))
+                    val options = listOf(
+                        TagColor.Default, TagColor.Gray, TagColor.Brown, TagColor.Orange, TagColor.Yellow,
+                        TagColor.Green, TagColor.Blue, TagColor.Purple, TagColor.Pink, TagColor.Red
+                    )
+                    options.forEach { c ->
+                        TextButton(onClick = { color = c }) { Text(if (c == color) "✓" else " "); Spacer(Modifier.width(8.dp)); Text(c.name) }
+                    }
+                    Spacer(Modifier.height(12.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(onClick = {
+                            val updated = Tag(id = tag.id, name = name.trim(), color = color)
+                            val next = allTags.map { if (it.id == tag.id) updated else it }
+                            allTags = next
+                            kotlinx.coroutines.GlobalScope.launch { TagRepository.save(next) }
+                            editingTagState = null
+                        }) { Text(stringResource(MR.strings.confirm)) }
+                        TextButton(onClick = {
+                            val next = allTags.filter { it.id != tag.id }
+                            allTags = next
+                            selectedTagIds = selectedTagIds.filter { it != tag.id }
+                            kotlinx.coroutines.GlobalScope.launch { TagRepository.save(next) }
+                            editingTagState = null
+                        }) { Text(stringResource(MR.strings.delete)) }
+                    }
+                }
+            }
+        )
     }
 
     if (showImageEditor && titleImage != null) {
