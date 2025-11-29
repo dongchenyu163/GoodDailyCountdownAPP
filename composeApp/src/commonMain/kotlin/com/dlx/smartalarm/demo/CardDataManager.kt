@@ -16,7 +16,8 @@ data class CardData(
     val description: String = "",
     val icon: String = "",
     val titleImage: TitleImageInfo? = null,
-    val isFavorite: Boolean = false
+    val isFavorite: Boolean = false,
+    val tags: List<String> = emptyList()
 )
 
 expect class CardDataManager {
