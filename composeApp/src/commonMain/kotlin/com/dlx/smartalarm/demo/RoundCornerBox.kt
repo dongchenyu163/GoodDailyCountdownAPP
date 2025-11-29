@@ -31,6 +31,9 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
+import com.dlx.smartalarm.demo.components.favorite.FavoriteButton
+import dev.icerock.moko.resources.compose.stringResource
+import com.dlx.smartalarm.demo.MR
 
 // 已移除未使用的演示组件：GradientRoundedBox 与 GradientRoundedBoxCanvas
 
@@ -208,7 +211,7 @@ fun CountdownCard(
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
-                            text = "${remainingDays}d",
+                            text = stringResource(MR.strings.remaining_days_short, remainingDays),
                             color = Color.White,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium,
