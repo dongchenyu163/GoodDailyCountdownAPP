@@ -1,4 +1,4 @@
-package com.dlx.smartalarm.demo
+package com.dlx.smartalarm.demo.features.main.logic
 
 data class FilterMenuState(
     val expanded: Boolean,
@@ -8,4 +8,3 @@ data class FilterMenuState(
 fun applyFilterSelection(state: FilterMenuState, selectFavorites: Boolean): FilterMenuState {
     return state.copy(filterFavorites = selectFavorites)
 }
-
