@@ -27,6 +27,7 @@ fun TagMultiselect(
 ) {
     var expanded by remember { mutableStateOf(false) }
     var query by remember { mutableStateOf(TextFieldValue("")) }
+    val favoriteId = remember { TagRepository.favoriteId() }
 
     Column(Modifier.fillMaxWidth()) {
         Row(
@@ -37,15 +38,18 @@ fun TagMultiselect(
         ) {
             Text(stringResource(MR.strings.tags_label), style = MaterialTheme.typography.titleSmall)
             Spacer(Modifier.width(12.dp))
-            if (selected.isEmpty()) {
+            val visibleSelected = selected.filter { it != favoriteId }
+            if (visibleSelected.isEmpty()) {
                 Text(stringResource(MR.strings.empty), color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    selected.mapNotNull { id -> allTags.find { it.id == id } }.forEach { tag ->
+                    visibleSelected.mapNotNull { id -> allTags.find { it.id == id } }.forEach { tag ->
                         AssistChip(
-                            onClick = { },
+                            onClick = {
+                                val next = selected.filter { it != tag.id }
+                                onChange(next)
+                            },
                             label = { Text(tag.name) },
-                            trailingIcon = { Text("✖") },
                             colors = AssistChipDefaults.assistChipColors(containerColor = tagColor(tag.color))
                         )
                     }
@@ -62,7 +66,8 @@ fun TagMultiselect(
             )
             val filtered = remember(query.text, allTags) {
                 val q = query.text.trim().lowercase()
-                if (q.isBlank()) allTags else allTags.filter { it.name.lowercase().contains(q) }
+                val base = if (q.isBlank()) allTags else allTags.filter { it.name.lowercase().contains(q) }
+                base.filter { it.id != favoriteId }
             }
             Box(Modifier.size(width = 280.dp, height = 300.dp)) {
                 LazyColumn(Modifier.fillMaxSize()) {
