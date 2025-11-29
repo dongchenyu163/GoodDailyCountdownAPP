@@ -56,4 +56,10 @@
     <string name="filter_favorites">已收藏</string>
     <string name="filter_all">全部</string>
     <string name="favorite">收藏</string>
+    <string name="tags_label">标签</string>
+    <string name="empty">空</string>
+    <string name="search_placeholder">搜索或输入以创建...</string>
+    <string name="create_prefix">创建</string>
+    <string name="colors">颜色</string>
+    <string name="delete">删除</string>
 </resources>

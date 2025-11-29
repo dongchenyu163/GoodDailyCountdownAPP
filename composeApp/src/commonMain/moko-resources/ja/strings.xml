@@ -56,4 +56,10 @@
     <string name="filter_favorites">お気に入り</string>
     <string name="filter_all">すべて</string>
     <string name="favorite">お気に入り</string>
+    <string name="tags_label">タグ</string>
+    <string name="empty">空</string>
+    <string name="search_placeholder">検索または入力して作成...</string>
+    <string name="create_prefix">作成</string>
+    <string name="colors">色</string>
+    <string name="delete">削除</string>
 </resources>

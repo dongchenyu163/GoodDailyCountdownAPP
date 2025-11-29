@@ -56,4 +56,10 @@
     <string name="filter_favorites">Favorites</string>
     <string name="filter_all">All</string>
     <string name="favorite">Favorite</string>
+    <string name="tags_label">Tags</string>
+    <string name="empty">Empty</string>
+    <string name="search_placeholder">Search for an option...</string>
+    <string name="create_prefix">Create</string>
+    <string name="colors">Colors</string>
+    <string name="delete">Delete</string>
 </resources>
