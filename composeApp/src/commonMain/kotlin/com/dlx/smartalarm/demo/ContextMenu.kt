@@ -1,4 +1,4 @@
-package com.dlx.smartalarm.demo
+package com.dlx.smartalarm.demo.components.menu
 
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material3.DropdownMenu
