@@ -1,4 +1,4 @@
-package com.dlx.smartalarm.demo
+package com.dlx.smartalarm.demo.features.cards.dialogs
 
 import com.dlx.smartalarm.demo.MR
 import dev.icerock.moko.resources.compose.stringResource
@@ -14,14 +14,24 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import kotlinx.datetime.*
-import androidx.compose.foundation.rememberScrollState // New import
-import androidx.compose.foundation.verticalScroll // New import
-// use project custom VerticalScrollbar overloads
-import androidx.compose.ui.Alignment // New import
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.Alignment
 import kotlin.time.ExperimentalTime
 import kotlin.time.Clock
 import kotlinx.coroutines.launch
-// Removed incorrect kotlin.time imports
+import com.dlx.smartalarm.demo.CardData
+import com.dlx.smartalarm.demo.Tag
+import com.dlx.smartalarm.demo.TagColor
+import com.dlx.smartalarm.demo.TagRepository
+import com.dlx.smartalarm.demo.TitleImageStorage
+import com.dlx.smartalarm.demo.TitleImageBitmapCache
+import com.dlx.smartalarm.demo.TitleImageDefaultQuality
+import com.dlx.smartalarm.demo.replaceCardImage
+import com.dlx.smartalarm.demo.ImageOffsetEditorDialog
+import com.dlx.smartalarm.demo.TagMultiselect
+import com.dlx.smartalarm.demo.VerticalScrollbar
+import com.dlx.smartalarm.demo.pickImageFromUser
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalTime::class)
 @Composable
@@ -37,7 +47,7 @@ fun CardDialog(
     } else {
         today.plus(1, DateTimeUnit.DAY)
     }
-    val defaultTitle = cardData?.title ?: "测试Test #$nextId"
+    val defaultTitle = cardData?.title ?: stringResource(MR.strings.default_test_title_prefix, nextId)
     val defaultRemainingDays = cardData?.let {
         runCatching {
             val targetDate = LocalDate.parse(it.date)
@@ -48,7 +58,6 @@ fun CardDialog(
 
     var title by remember { mutableStateOf(defaultTitle) }
     var description by remember { mutableStateOf(cardData?.description ?: "") }
-    // 图标选择器：预设若干 emoji 图标，默认第一个或已有值
     val presetIcons = listOf("🎉", "✈️", "🎂", "🎓", "💼", "🖥️", "🏖️", "📅", "⭐")
     var icon by remember { mutableStateOf(cardData?.icon?.takeIf { it.isNotBlank() } ?: presetIcons.first()) }
     var selectedDate by remember { mutableStateOf(defaultDate) }
@@ -131,18 +140,18 @@ fun CardDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
-        val scrollState = rememberScrollState() // New
+        val scrollState = rememberScrollState()
         Card(
             modifier = Modifier
                 .widthIn(max = 600.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), // New
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp) // New
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
-            Box(modifier = Modifier.fillMaxSize()) { // New Box to hold scrollable content and scrollbar
+            Box(modifier = Modifier.fillMaxSize()) {
                 Column(
                     modifier = Modifier
                         .padding(24.dp)
-                        .verticalScroll(scrollState), // Added verticalScroll
+                        .verticalScroll(scrollState),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Text(
@@ -246,12 +255,12 @@ fun CardDialog(
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
-    titleImage?.let {
-        Text(
-            text = stringResource(MR.strings.current_image_id, it.uuid),
-            style = MaterialTheme.typography.bodySmall
-        )
-    }
+                    titleImage?.let {
+                        Text(
+                            text = stringResource(MR.strings.current_image_id, it.uuid),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
 
                     TagMultiselect(
                         allTags = allTags,
@@ -261,7 +270,7 @@ fun CardDialog(
                             val newTag = TagRepository.create(name)
                             val next = allTags + newTag
                             allTags = next
-                            kotlinx.coroutines.GlobalScope.launch { TagRepository.save(next) }
+                            coroutineScope.launch { TagRepository.save(next) }
                             selectedTagIds = selectedTagIds + newTag.id
                         },
                         onEditRequest = { tag -> editingTagState = tag }
@@ -340,14 +349,14 @@ fun CardDialog(
                             val updated = Tag(id = tag.id, name = name.trim(), color = color)
                             val next = allTags.map { if (it.id == tag.id) updated else it }
                             allTags = next
-                            kotlinx.coroutines.GlobalScope.launch { TagRepository.save(next) }
+                            coroutineScope.launch { TagRepository.save(next) }
                             editingTagState = null
                         }) { Text(stringResource(MR.strings.confirm)) }
                         TextButton(onClick = {
                             val next = allTags.filter { it.id != tag.id }
                             allTags = next
                             selectedTagIds = selectedTagIds.filter { it != tag.id }
-                            kotlinx.coroutines.GlobalScope.launch { TagRepository.save(next) }
+                            coroutineScope.launch { TagRepository.save(next) }
                             editingTagState = null
                         }) { Text(stringResource(MR.strings.delete)) }
                     }
@@ -422,8 +431,8 @@ fun DatePickerDialog(
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), // New
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp) // New
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 DatePicker(

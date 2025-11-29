@@ -62,4 +62,5 @@
     <string name="create_prefix">Create</string>
     <string name="colors">Colors</string>
     <string name="delete">Delete</string>
+    <string name="default_test_title_prefix">Test #%d</string>
 </resources>

@@ -62,4 +62,5 @@
     <string name="create_prefix">作成</string>
     <string name="colors">色</string>
     <string name="delete">削除</string>
+    <string name="default_test_title_prefix">テスト #%d</string>
 </resources>
