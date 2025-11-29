@@ -45,23 +45,23 @@ import dev.icerock.moko.resources.compose.stringResource
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
-import io.github.alexzhirkevich.compottie.LottieCompositionSpec
-import io.github.alexzhirkevich.compottie.rememberLottieComposition
-import io.github.alexzhirkevich.compottie.animateLottieCompositionAsState
-import io.github.alexzhirkevich.compottie.Compottie
-import io.github.alexzhirkevich.compottie.rememberLottiePainter
-import androidx.compose.foundation.Image
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import demo.composeapp.generated.resources.Res
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.draw.scale
 import demo.composeapp.generated.resources.FilterIcon
-import io.github.alexzhirkevich.compottie.DotLottie
+ 
 import org.jetbrains.compose.resources.painterResource
+import com.dlx.smartalarm.demo.features.app.navigation.Screen
+import com.dlx.smartalarm.demo.components.favorite.FavoriteButton
+import com.dlx.smartalarm.demo.features.main.logic.FilterMenuState
+import com.dlx.smartalarm.demo.features.main.logic.applyFilterSelection
+import com.dlx.smartalarm.demo.features.main.logic.highlight
+import com.dlx.smartalarm.demo.features.main.components.MainGridContent
+import com.dlx.smartalarm.demo.features.main.components.MainListContent
+import com.dlx.smartalarm.demo.components.menu.AppContextMenu
 
 // 简单导航目的的屏幕定义（顶层，避免局部enum限制）
-private enum class Screen { OnboardingWelcome, OnboardingPermissions, Main, Settings }
+ 
 
 var gIsInitLoad = true  // 全局标志，指示是否为初始化加载
 
@@ -72,13 +72,12 @@ var gIsInitLoad = true  // 全局标志，指示是否为初始化加载
 fun validateAndFixCardData(card: CardData): CardData {
     val parsedDate = runCatching { LocalDate.parse(card.date) }.getOrNull()
     val timeZone = TimeZone.currentSystemDefault()
-	val today = kotlin.time.Clock.System.todayIn(timeZone)
+    val today = kotlin.time.Clock.System.todayIn(timeZone)
     val newRemainingDays = if (parsedDate != null) {
         (parsedDate.toEpochDays() - today.toEpochDays()).coerceAtLeast(0)
     } else {
         card.remainingDays
     }
-    // 检查是否应该重置提醒状态：如果截止日期还没到，但提醒已发送，则重置提醒状态
     val shouldResetReminder = parsedDate != null && parsedDate >= today && card.reminderSent
     return card.copy(
         remainingDays = newRemainingDays,
@@ -174,7 +173,7 @@ fun App() {
                 println("Pre-change")
                 // 验证并更新加载的卡片数据
                 loadedCards = loadedCards.map { card ->
-                    val fixed = validateAndFixCardData(card)
+                    val fixed = com.dlx.smartalarm.demo.features.cards.logic.fixCardData(card)
                     val favId = TagRepository.favoriteId()
                     val withTag = if (fixed.isFavorite && !fixed.tags.contains(favId)) fixed.copy(tags = fixed.tags + favId) else fixed
                     withTag.copy(isFavorite = false)
@@ -396,29 +395,7 @@ private fun MainScreen(
 
     val dismissMenu = { contextMenuCard = null }
 
-    @Composable
-    fun highlight(text: String): androidx.compose.ui.text.AnnotatedString {
-        if (tokens.isEmpty()) return androidx.compose.ui.text.AnnotatedString(text)
-        val lower = text.lowercase()
-        return androidx.compose.ui.text.buildAnnotatedString {
-            append(text)
-            // 简单高亮：对每个token迭代查找，叠加着色
-            tokens.forEach { raw ->
-                val key = raw.lowercase()
-                var start = 0
-                while (true) {
-                    val idx = lower.indexOf(key, startIndex = start)
-                    if (idx < 0) break
-                    addStyle(
-                        androidx.compose.ui.text.SpanStyle(color = MaterialTheme.colorScheme.primary),
-                        idx,
-                        idx + key.length
-                    )
-                    start = idx + key.length
-                }
-            }
-        }
-    }
+ 
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
@@ -513,138 +490,18 @@ private fun MainScreen(
         ) { padding ->
             // 三种显示样式
             if (displayStyle == DisplayStyle.Grid) {
-                if (filtered.isEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(padding),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(stringResource(MR.strings.no_results), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                } else Box(modifier = Modifier.fillMaxSize()) {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
-                        state = gridState,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(padding)
-                            .padding(12.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        items(filtered, key = { it.id }) { cardData ->
-                            val dynamicRemaining = remember(today, cardData.date) {
-                                runCatching { LocalDate.parse(cardData.date) }
-                                    .getOrNull()
-                                    ?.let { targetDate ->
-                                        (targetDate.toEpochDays() - today.toEpochDays()).coerceAtLeast(0)
-                                    } ?: cardData.remainingDays
-                            }
-                            
-                            var threeDotsButtonPosition by remember { mutableStateOf<DpOffset?>(null) }
-                            var itemPositionInWindow by remember { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
-                            val density = LocalDensity.current
-
-                            // 网格项（卡片风格）+ 轻微出现动效
-                            Surface(
-                                tonalElevation = 2.dp,
-                                shape = MaterialTheme.shapes.large,
-                                modifier = Modifier
-                                    .onGloballyPositioned {
-                                        itemPositionInWindow = it.positionInWindow()
-                                    }
-                                    .pointerInput(cardData.id) {
-                                        awaitPointerEventScope {
-                                            while (true) {
-                                                val event = awaitPointerEvent()
-                                                if (event.type == PointerEventType.Press && event.buttons.isSecondaryPressed) {
-                                                    val localPosition = event.changes.first().position
-                                                    val globalPosition = itemPositionInWindow + localPosition
-                                                    with(density) {
-                                                        showMenu(cardData, DpOffset(globalPosition.x.toDp(), globalPosition.y.toDp()))
-                                                    }
-                                                    event.changes.forEach { it.consume() }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    .pointerInput(cardData.id) {
-                                        detectTapGestures(
-                                            onLongPress = { localPosition ->
-                                                val globalPosition = itemPositionInWindow + localPosition
-                                                with(density) {
-                                                    showMenu(cardData, DpOffset(globalPosition.x.toDp(), globalPosition.y.toDp()))
-                                                }
-                                            }
-                                        )
-                                    }
-                            ) {
-                                var appeared by remember { mutableStateOf(false) }
-                                val alpha by animateFloatAsState(if (appeared) 1f else 0f, label = "gAlpha")
-                                val ty by animateFloatAsState(if (appeared) 0f else 12f, label = "gTy")
-                                LaunchedEffect(Unit) { appeared = true }
-
-                                TitleImageBackground(
-                                    titleImage = cardData.titleImage,
-                                    viewType = TitleImageViewType.Grid,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(180.dp)
-                                        .graphicsLayer(alpha = alpha, translationY = ty),
-                                    gradientSpec = DefaultGridImageGradient,
-                                    gradientOrientation = GradientOrientation.Vertical,
-                                    overlayColor = Color(0xFF0F2E1F)
-                                ) {
-                                    Box(modifier = Modifier.fillMaxSize().padding(12.dp)) {
-                                        Column(
-                                            modifier = Modifier.fillMaxSize(),
-                                            verticalArrangement = Arrangement.SpaceBetween
-                                        ) {
-                                            Box(Modifier.fillMaxWidth()) {
-                                                Text(text = cardData.icon.ifBlank { "🎯" }, style = MaterialTheme.typography.headlineSmall, fontFamily = emojiFamily)
-                                            }
-                                            Column {
-                                                Text(highlight(cardData.title), style = MaterialTheme.typography.titleMedium)
-                                                Spacer(Modifier.height(2.dp))
-                                                Text(stringResource(MR.strings.remaining_days, dynamicRemaining), style = MaterialTheme.typography.bodyMedium)
-                                            }
-                                        }
-
-                                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopEnd) {
-                                            IconButton(
-                                                onClick = {
-                                                    threeDotsButtonPosition?.let { showMenu(cardData, it) }
-                                                },
-                                                modifier = Modifier.onGloballyPositioned {
-                                                    val positionInWindow = it.positionInWindow()
-                                                    with(density) {
-                                                        threeDotsButtonPosition = DpOffset(positionInWindow.x.toDp(), positionInWindow.y.toDp())
-                                                    }
-                                                }
-                                            ) { Text("≡", fontFamily = getAppFontFamily()) }  // The [⋮] char is not an Emoji.
-                                        }
-
-                                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
-                                            run {
-                                                val favId = TagRepository.favoriteId()
-                                                FavoriteButton(
-                                                    isFavorite = cardData.tags.contains(favId),
-                                                    onToggle = {
-                                                        val nowFav = !cardData.tags.contains(favId)
-                                                        val nextTags = if (nowFav) (cardData.tags + favId).distinct() else cardData.tags.filter { it != favId }
-                                                        onUpdateDynamic(cardData.copy(isFavorite = false, tags = nextTags))
-                                                    },
-                                                    modifier = Modifier.padding(8.dp)
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    // 添加滚动条
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)) {
+                    MainGridContent(
+                        filtered = filtered,
+                        today = today,
+                        gridState = gridState,
+                        emojiFamily = emojiFamily,
+                        tokens = tokens,
+                        showMenu = showMenu,
+                        onUpdateDynamic = onUpdateDynamic
+                    )
                     VerticalScrollbar(
                         gridState = gridState,
                         modifier = Modifier
@@ -653,223 +510,23 @@ private fun MainScreen(
                     )
                 }
             } else {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    LazyColumn(
-                        state = listState,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(padding)
-                            .padding(horizontal = 12.dp, vertical = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        items(filtered, key = { it.id }) { cardData ->
-                            val dynamicRemaining = remember(today, cardData.date) {
-                                runCatching { LocalDate.parse(cardData.date) }
-                                    .getOrNull()
-                                    ?.let { targetDate ->
-                                        (targetDate.toEpochDays() - today.toEpochDays()).coerceAtLeast(0)
-                                    } ?: cardData.remainingDays
-                            }
-
-                            CountdownReminderObserver(
-                                card = cardData,
-                                reminderHandler = reminderHandler,
-                                onCardUpdate = { updated -> onUpdateDynamic(updated) },
-                                onDialogRequest = { onReminderDialog(it) }
-                            )
-
-                            // 左滑删除背景（按进度渐显）
-                            val dismissState = rememberDismissState(confirmStateChange = { value: DismissValue ->
-                                if (value == DismissValue.DismissedToStart) {
-                                    onDelete(cardData.id)
-                                    true
-                                } else false
-                            })
-
-                            SwipeToDismiss(
-                                state = dismissState,
-                                modifier = Modifier.clip(MaterialTheme.shapes.large),
-                                background = {
-                                    // 仅在发生滑动时才显示背景，避免静止时误显
-                                    val isActive = dismissState.dismissDirection != null ||
-                                        dismissState.targetValue != DismissValue.Default ||
-                                        dismissState.currentValue != DismissValue.Default
-                                    val progress = if (isActive) dismissState.progress.fraction.coerceIn(0f, 1f) else 0f
-                                    val bg = MaterialTheme.colorScheme.errorContainer.copy(alpha = progress)
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(if (displayStyle == DisplayStyle.Card) 220.dp else 96.dp)
-                                            .background(bg),
-                                        contentAlignment = Alignment.CenterEnd
-                                    ) {
-                                        if (progress > 0.02f) {
-                                            Row(
-                                                modifier = Modifier
-                                                    .padding(end = 16.dp + (40f * (1f - progress)).dp)
-                                                    .graphicsLayer(
-                                                        alpha = progress,
-                                                        scaleX = 0.85f + 0.15f * progress,
-                                                        scaleY = 0.85f + 0.15f * progress
-                                                    ),
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                Text("🗑", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onErrorContainer, fontFamily = emojiFamily)
-                                                Spacer(Modifier.width(8.dp))
-                                                Text(stringResource(MR.strings.delete), color = MaterialTheme.colorScheme.onErrorContainer)
-                                            }
-                                        }
-                                    }
-                                },
-                                dismissContent = {
-                                    if (displayStyle == DisplayStyle.List) {
-                                        // 紧凑行样式
-                                        var itemPositionInWindow by remember { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
-                                        val density = LocalDensity.current
-                                        Surface(
-                                            shape = MaterialTheme.shapes.large,
-                                            tonalElevation = 1.dp,
-                                            modifier = Modifier
-                                                .onGloballyPositioned {
-                                                    itemPositionInWindow = it.positionInWindow()
-                                                }
-                                                .pointerInput(cardData.id) {
-                                                    awaitPointerEventScope {
-                                                        while (true) {
-                                                            val event = awaitPointerEvent()
-                                                            if (event.type == PointerEventType.Press && event.buttons.isSecondaryPressed) {
-                                                                val localPosition = event.changes.first().position
-                                                                val globalPosition = itemPositionInWindow + localPosition
-                                                                with(density) {
-                                                                    showMenu(cardData, DpOffset(globalPosition.x.toDp(), globalPosition.y.toDp()))
-                                                                }
-                                                                event.changes.forEach { it.consume() }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                                .pointerInput(cardData.id) {
-                                                    detectTapGestures(
-                                                        onLongPress = { localPosition ->
-                                                            val globalPosition = itemPositionInWindow + localPosition
-                                                            with(density) {
-                                                                showMenu(cardData, DpOffset(globalPosition.x.toDp(), globalPosition.y.toDp()))
-                                                            }
-                                                        }
-                                                    )
-                                                }
-                                        ) {
-                                            var appeared by remember { mutableStateOf(false) }
-                                            val alpha by animateFloatAsState(if (appeared) 1f else 0f, label = "lAlpha")
-                                            val ty by animateFloatAsState(if (appeared) 0f else 8f, label = "lTy")
-                                            LaunchedEffect(Unit) { appeared = true }
-
-                                            var threeDotsButtonPosition by remember { mutableStateOf<DpOffset?>(null) }
-                                            val density = LocalDensity.current
-
-                                            Surface(
-                                                shape = MaterialTheme.shapes.large,
-                                                tonalElevation = 1.dp,
-                                                modifier = Modifier.graphicsLayer(alpha = alpha, translationY = ty)
-                                            ) {
-                                                TitleImageBackground(
-                                                    titleImage = cardData.titleImage,
-                                                    viewType = TitleImageViewType.List,
-                                                    modifier = Modifier.fillMaxWidth(),
-                                                    gradientSpec = DefaultListImageGradient,
-                                                    gradientOrientation = GradientOrientation.Horizontal,
-                                                    overlayColor = Color(0xFF0F2E1F)
-                                                ) {
-                                                    Row(
-                                                        modifier = Modifier
-                                                            .fillMaxWidth()
-                                                            .padding(16.dp),
-                                                        verticalAlignment = Alignment.CenterVertically
-                                                    ) {
-                                                        Surface(
-                                                            shape = MaterialTheme.shapes.large,
-                                                            color = MaterialTheme.colorScheme.primaryContainer
-                                                        ) {
-                                                            Box(Modifier.size(48.dp), contentAlignment = Alignment.Center) {
-                                                                Text(cardData.icon.ifBlank { "🎯" }, fontFamily = emojiFamily)
-                                                            }
-                                                        }
-                                                        Spacer(Modifier.width(16.dp))
-                                                        Column(Modifier.weight(1f)) {
-                                                            Text(highlight(cardData.title), style = MaterialTheme.typography.titleMedium)
-                                                            val endText = runCatching { LocalDate.parse(cardData.date) }.getOrNull()?.let { d ->
-                                                                stringResource(MR.strings.ends_on_date, d.monthNumber, d.dayOfMonth, d.year)
-                                                            } ?: cardData.date
-                                                            Text(endText, style = MaterialTheme.typography.bodyMedium)
-                                                        }
-                                                        Text(stringResource(MR.strings.remaining_days_short, dynamicRemaining), style = MaterialTheme.typography.titleMedium)
-                                                        run {
-                                                            val favId = TagRepository.favoriteId()
-                                                            FavoriteButton(
-                                                                isFavorite = cardData.tags.contains(favId),
-                                                                onToggle = {
-                                                                    val nowFav = !cardData.tags.contains(favId)
-                                                                    val nextTags = if (nowFav) (cardData.tags + favId).distinct() else cardData.tags.filter { it != favId }
-                                                                    onUpdateDynamic(cardData.copy(isFavorite = false, tags = nextTags))
-                                                                }
-                                                            )
-                                                        }
-                                                        IconButton(
-                                                            onClick = {
-                                                                threeDotsButtonPosition?.let { showMenu(cardData, it) }
-                                                            },
-                                                            modifier = Modifier.onGloballyPositioned {
-                                                                val positionInWindow = it.positionInWindow()
-                                                                with(density) {
-                                                                    threeDotsButtonPosition = DpOffset(positionInWindow.x.toDp(), positionInWindow.y.toDp())
-                                                                }
-                                                            }
-                                                        ) { Text("≡", fontFamily = getAppFontFamily()) }  // The [⋮] char is not an Emoji.
-                                                    }
-                                                }
-                                            }
-                                        }                                    } else {
-                                        // 大卡样式
-                                        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                                            AnimatedCountdownCard(
-                                                title = cardData.title,
-                                                annotatedTitle = highlight(cardData.title),
-                                                date = cardData.date,
-                                                remainingDays = dynamicRemaining,
-                                                icon = cardData.icon,
-                                                titleImage = cardData.titleImage,
-                                                onClick = { /* 预留 */ },
-                                                onDelete = { onDelete(cardData.id) },
-                                                onEdit = { onEdit(cardData) },
-                                                onShowMenu = { position -> showMenu(cardData, position) },
-                                                isFavorite = cardData.tags.contains(TagRepository.favoriteId()),
-                                                onToggleFavorite = {
-                                                    val fav = TagRepository.favoriteId()
-                                                    val nowFav = !cardData.tags.contains(fav)
-                                                    val nextTags = if (nowFav) (cardData.tags + fav).distinct() else cardData.tags.filter { it != fav }
-                                                    onUpdateDynamic(cardData.copy(isFavorite = false, tags = nextTags))
-                                                }
-                                            )
-                                        }
-                                    }
-                                },
-                                directions = setOf(DismissDirection.EndToStart)
-                            )
-                        }
-                        if (filtered.isEmpty()) {
-                            item {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(24.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(stringResource(MR.strings.no_results), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                }
-                            }
-                        }
-                    }
-                    // 添加滚动条
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)) {
+                    MainListContent(
+                        filtered = filtered,
+                        today = today,
+                        listState = listState,
+                        emojiFamily = emojiFamily,
+                        tokens = tokens,
+                        showMenu = showMenu,
+                        onUpdateDynamic = onUpdateDynamic,
+                        onDelete = onDelete,
+                        onEdit = onEdit,
+                        onReminderDialog = onReminderDialog,
+                        reminderHandler = reminderHandler,
+                        displayStyle = displayStyle
+                    )
                     VerticalScrollbar(
                         listState = listState,
                         modifier = Modifier
@@ -911,33 +568,4 @@ private fun MainScreen(
 // - SettingsScreen.kt: SettingsScreen
 // - Onboarding.kt: WelcomeScreen / PermissionsScreen
 
-@OptIn(ExperimentalResourceApi::class)
-@Composable
-fun FavoriteButton(
-    isFavorite: Boolean,
-    onToggle: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val composition by rememberLottieComposition {
-        LottieCompositionSpec.DotLottie(
-            Res.readBytes("files/FavIcon.lottie")
-        )
-    }
-
-    val targetProgress = if (isFavorite) 1f else 0f
-    val progressState by androidx.compose.animation.core.animateFloatAsState(
-        targetValue = targetProgress,
-        animationSpec = tween(durationMillis = 1000)
-    )
-
-    Image(
-        painter = rememberLottiePainter(
-            composition = composition,
-            progress = { progressState }
-        ),
-        contentDescription = stringResource(MR.strings.favorite),
-        modifier = modifier
-            .clickable { onToggle() }
-            .size(48.dp)
-    )
-}
+ 
