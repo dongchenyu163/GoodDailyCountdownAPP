@@ -58,27 +58,29 @@ fun TagMultiselect(
                 value = query,
                 onValueChange = { query = it },
                 placeholder = { Text(stringResource(MR.strings.search_placeholder)) },
-                modifier = Modifier.padding(12.dp).widthIn(min = 280.dp)
+                modifier = Modifier.padding(12.dp).width(280.dp)
             )
             val filtered = remember(query.text, allTags) {
                 val q = query.text.trim().lowercase()
                 if (q.isBlank()) allTags else allTags.filter { it.name.lowercase().contains(q) }
             }
-            LazyColumn(Modifier.widthIn(min = 280.dp).heightIn(max = 300.dp)) {
-                items(filtered) { tag ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                val next = if (selected.contains(tag.id)) selected else selected + tag.id
-                                onChange(next)
-                            }
-                            .padding(horizontal = 12.dp, vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        AssistChip(onClick = {}, label = { Text(tag.name) }, colors = AssistChipDefaults.assistChipColors(containerColor = tagColor(tag.color)))
-                        Spacer(Modifier.weight(1f))
-                        TextButton(onClick = { onEditRequest(tag) }) { Text("…") }
+            Box(Modifier.size(width = 280.dp, height = 300.dp)) {
+                LazyColumn(Modifier.fillMaxSize()) {
+                    items(filtered) { tag ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    val next = if (selected.contains(tag.id)) selected else selected + tag.id
+                                    onChange(next)
+                                }
+                                .padding(horizontal = 12.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            AssistChip(onClick = {}, label = { Text(tag.name) }, colors = AssistChipDefaults.assistChipColors(containerColor = tagColor(tag.color)))
+                            Spacer(Modifier.weight(1f))
+                            TextButton(onClick = { onEditRequest(tag) }) { Text("…") }
+                        }
                     }
                 }
             }
