@@ -174,7 +174,9 @@ fun App() {
                 println("Pre-change")
                 // 验证并更新加载的卡片数据
                 loadedCards = loadedCards.map { card ->
-                    validateAndFixCardData(card)
+                    val fixed = validateAndFixCardData(card)
+                    val favId = TagRepository.favoriteId()
+                    if (fixed.isFavorite && !fixed.tags.contains(favId)) fixed.copy(tags = fixed.tags + favId) else fixed
                 }
                 cardList = loadedCards
                 println("Post-change")
@@ -363,7 +365,8 @@ private fun MainScreen(
     val tokens = remember(searchQuery) {
         searchQuery.trim().split(Regex("\\s*,\\s*")).filter { it.isNotBlank() }
     }
-    val filtered = remember(cardList, tokens, filterFavorites) {
+    var activeTagId by remember { mutableStateOf<String?>(null) }
+    val filtered = remember(cardList, tokens, filterFavorites, activeTagId) {
         var list = if (tokens.isEmpty()) cardList
         else cardList.filter { c ->
             tokens.any { t ->
@@ -372,6 +375,9 @@ private fun MainScreen(
         }
         if (filterFavorites) {
             list = list.filter { it.isFavorite }
+        }
+        activeTagId?.let { tid ->
+            list = list.filter { it.tags.contains(tid) }
         }
         list.sortedWith(compareByDescending<CardData> { it.isFavorite }.thenBy { it.remainingDays })
     }
@@ -419,6 +425,8 @@ private fun MainScreen(
                         title = { Text(stringResource(MR.strings.app_name)) },
                         actions = {
                             var filterMenuState by remember { mutableStateOf(FilterMenuState(expanded = false, filterFavorites = filterFavorites)) }
+                            var allTags by remember { mutableStateOf<List<Tag>>(emptyList()) }
+                            LaunchedEffect(Unit) { allTags = TagRepository.load() }
                             LaunchedEffect(filterFavorites) { filterMenuState = filterMenuState.copy(filterFavorites = filterFavorites) }
                             Box {
                                 IconButton(onClick = { filterMenuState = filterMenuState.copy(expanded = true) }) {
@@ -438,6 +446,7 @@ private fun MainScreen(
                                             val ns = applyFilterSelection(filterMenuState, selectFavorites = true)
                                             filterMenuState = ns
                                             onFilterChange(ns.filterFavorites)
+                                            activeTagId = null
                                         },
                                         trailingIcon = if (filterMenuState.filterFavorites) { { Text("✓") } } else null
                                     )
@@ -447,9 +456,17 @@ private fun MainScreen(
                                             val ns = applyFilterSelection(filterMenuState, selectFavorites = false)
                                             filterMenuState = ns
                                             onFilterChange(ns.filterFavorites)
+                                            activeTagId = null
                                         },
                                         trailingIcon = if (!filterMenuState.filterFavorites) { { Text("✓") } } else null
                                     )
+                                    allTags.forEach { tag ->
+                                        DropdownMenuItem(
+                                            text = { AssistChip(onClick = {}, label = { Text(tag.name) }) },
+                                            onClick = { activeTagId = tag.id },
+                                            trailingIcon = if (activeTagId == tag.id) { { Text("✓") } } else null
+                                        )
+                                    }
                                 }
                             }
                             TextButton(onClick = onToggleSearch) { Text(if (showSearch) "✖" else "🔍", fontFamily = emojiFamily) }
@@ -801,7 +818,12 @@ private fun MainScreen(
                                                 onEdit = { onEdit(cardData) },
                                                 onShowMenu = { position -> showMenu(cardData, position) },
                                                 isFavorite = cardData.isFavorite,
-                                                onToggleFavorite = { onUpdateDynamic(cardData.copy(isFavorite = !cardData.isFavorite)) }
+                                                onToggleFavorite = {
+                                                    val fav = TagRepository.favoriteId()
+                                                    val nowFav = !cardData.isFavorite
+                                                    val nextTags = if (nowFav) (cardData.tags + fav).distinct() else cardData.tags.filter { it != fav }
+                                                    onUpdateDynamic(cardData.copy(isFavorite = nowFav, tags = nextTags))
+                                                }
                                             )
                                         }
                                     }
