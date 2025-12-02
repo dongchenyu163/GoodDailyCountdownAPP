@@ -65,6 +65,7 @@ import com.dlx.smartalarm.demo.components.scroll.VerticalScrollbar
 import com.dlx.smartalarm.demo.TitleImageStorage
 import com.dlx.smartalarm.demo.TitleImageBitmapCache
 import com.dlx.smartalarm.demo.DisplayStyle
+import com.dlx.smartalarm.demo.core.model.Tag
 import com.dlx.smartalarm.demo.features.settings.SettingsScreen
 import com.dlx.smartalarm.demo.features.settings.logic.AppSettings
 import com.dlx.smartalarm.demo.features.settings.logic.AppSettingsManager

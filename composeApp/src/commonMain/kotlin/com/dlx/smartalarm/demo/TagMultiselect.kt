@@ -1,5 +1,7 @@
 package com.dlx.smartalarm.demo
 
+import com.dlx.smartalarm.demo.core.model.Tag
+import com.dlx.smartalarm.demo.core.model.TagColor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
