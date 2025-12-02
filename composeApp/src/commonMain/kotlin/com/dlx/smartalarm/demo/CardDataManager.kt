@@ -12,10 +12,15 @@ data class CardData(
     val date: String,
     val remainingDays: Int,
     val reminderSent: Boolean = false,
+    val reminderOffsetMinutes: Int? = null,
     // 新增字段用于满足“添加表单”的描述与图标选择；保留默认值以兼容旧数据
     val description: String = "",
     val icon: String = "",
-    val titleImage: TitleImageInfo? = null
+    val titleImage: TitleImageInfo? = null,
+    // 提醒频率：none / once / daily / weekly
+    val reminderFrequency: String = "none",
+    // 提醒时间（每天/每周的时间，或一次性提醒的具体时间），本期先用字符串保存，格式例如 "09:00"
+    val reminderTime: String? = null
 )
 
 expect class CardDataManager {

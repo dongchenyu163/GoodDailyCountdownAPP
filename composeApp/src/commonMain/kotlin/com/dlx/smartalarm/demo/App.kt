@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.text.KeyboardOptions
+import com.dlx.smartalarm.demo.reminder.rememberCardNotificationScheduler
 import androidx.compose.material3.*
 import androidx.compose.material.DismissDirection
 import androidx.compose.material.DismissValue
@@ -128,6 +129,8 @@ fun App() {
         var showEditDialog by remember { mutableStateOf(false) }
         var editingCard by remember { mutableStateOf<CardData?>(null) }
 
+        val notificationScheduler = rememberCardNotificationScheduler()
+
         val reminderHandler = rememberReminderHandler()
         var reminderDialogCard by remember { mutableStateOf<CardData?>(null) }
         val coroutineScope = rememberCoroutineScope()
@@ -171,6 +174,8 @@ fun App() {
                     validateAndFixCardData(card)
                 }
                 cardList = loadedCards
+                // 在启动时为所有卡片安排提醒（仅当平台实现支持时生效）
+                loadedCards.forEach { notificationScheduler.schedule(it) }
                 println("Post-change")
                 // 计算下一个ID，确保唯一性
                 nextId = if (loadedCards.isNotEmpty()) {
@@ -277,6 +282,7 @@ fun App() {
                 onDismiss = { showAddDialog = false },
                 onConfirm = { newCard ->
                     cardList = cardList + newCard
+                    notificationScheduler.schedule(newCard)
                     nextId++
                     showAddDialog = false
                 }
@@ -292,6 +298,7 @@ fun App() {
                 },
                 onConfirm = { updatedCard ->
                     cardList = cardList.map { card -> if (card.id == updatedCard.id) updatedCard else card }
+                    notificationScheduler.schedule(updatedCard)
                     showEditDialog = false
                     editingCard = null
                 }
