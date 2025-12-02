@@ -49,7 +49,7 @@ private class IosCardNotificationScheduler(
     private val foregroundDelegate = ForegroundDelegate()
 
     // 开关：应用启动后安排一条 5 秒后的调试通知，验证通知通道
-    private val DEBUG_BOOT_NOTIFICATION = true
+    private val DEBUG_BOOT_NOTIFICATION = false
 
     init {
         println("iOS scheduler init starting")
