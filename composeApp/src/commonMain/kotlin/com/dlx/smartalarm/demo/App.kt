@@ -177,7 +177,10 @@ fun App() {
                 }
                 cardList = loadedCards
                 // 在启动时为所有卡片安排提醒（仅当平台实现支持时生效）
-                loadedCards.forEach { notificationScheduler.schedule(it) }
+                loadedCards.forEach {
+                    println(">>> App: startup scheduling, cardId=${it.id}, freq=${it.reminderFrequency}, time=${it.reminderTime}")
+                    notificationScheduler.schedule(it)
+                }
                 println("Post-change")
                 // 计算下一个ID，确保唯一性
                 nextId = if (loadedCards.isNotEmpty()) {
@@ -284,6 +287,8 @@ fun App() {
                 onDismiss = { showAddDialog = false },
                 onConfirm = { newCard ->
                     cardList = cardList + newCard
+                    // 新增卡片确认回调（若已有该回调），在保存后安排提醒
+                    println(">>> App: scheduling NEW card id=${newCard.id}, freq=${newCard.reminderFrequency}, time=${newCard.reminderTime}")
                     notificationScheduler.schedule(newCard)
                     nextId++
                     showAddDialog = false
@@ -300,6 +305,8 @@ fun App() {
                 },
                 onConfirm = { updatedCard ->
                     cardList = cardList.map { card -> if (card.id == updatedCard.id) updatedCard else card }
+                    // 编辑卡片确认回调（若已有该回调），在保存后安排提醒
+                    println(">>> App: scheduling UPDATED card id=${updatedCard.id}, freq=${updatedCard.reminderFrequency}, time=${updatedCard.reminderTime}")
                     notificationScheduler.schedule(updatedCard)
                     showEditDialog = false
                     editingCard = null

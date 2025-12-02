@@ -19,8 +19,11 @@ data class CardData(
     val titleImage: TitleImageInfo? = null,
     // 提醒频率：none / once / daily / weekly
     val reminderFrequency: String = "none",
-    // 提醒时间（每天/每周的时间，或一次性提醒的具体时间），本期先用字符串保存，格式例如 "09:00"
-    val reminderTime: String? = null
+    // 提醒时间字符串，格式例如 "HH:mm"；仅用于 UI 展示和简单解析
+    val reminderTime: String? = null,
+    // 由计算器根据频率 + 时间计算出的下一次提醒触发时间（毫秒时间戳）；
+    // 仅在需要调度通知时使用，存储在模型上方便各平台读取。
+    val nextReminderTimeMillis: Long? = null,
 )
 
 expect class CardDataManager {

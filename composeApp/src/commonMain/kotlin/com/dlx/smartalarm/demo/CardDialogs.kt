@@ -14,16 +14,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import kotlinx.datetime.*
-import androidx.compose.foundation.rememberScrollState // New import
-import androidx.compose.foundation.verticalScroll // New import
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.Alignment
 import kotlinx.coroutines.launch
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.ui.Alignment
 
+// 本文件中时间格式统一使用简单的 "HH:mm" 字符串，并且完全不调用任何 format(...) 扩展，避免与 kotlinx-datetime 的 format 重载冲突
 private fun parseTimeString(time: String?): Pair<Int, Int> {
     if (time.isNullOrBlank()) return 9 to 0
     val parts = time.split(":")
@@ -32,8 +33,14 @@ private fun parseTimeString(time: String?): Pair<Int, Int> {
     return h.coerceIn(0, 23) to m.coerceIn(0, 59)
 }
 
-private fun formatTimeString(hour: Int, minute: Int): String =
-    "%02d:%02d".format(hour.coerceIn(0, 23), minute.coerceIn(0, 59))
+// 手动补零，不使用 String.format / "%02d".format
+private fun formatTimeString(hour: Int, minute: Int): String {
+    val h = hour.coerceIn(0, 23)
+    val m = minute.coerceIn(0, 59)
+    val hh = if (h < 10) "0$h" else h.toString()
+    val mm = if (m < 10) "0$m" else m.toString()
+    return "$hh:$mm"
+}
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -544,9 +551,10 @@ private fun TimeWheel(
             items(items.size) { index ->
                 val value = items[index]
                 val isSelected = value == selected
+                val text = if (value in 0..9) "0$value" else value.toString()
                 TextButton(onClick = { onSelectedChange(value) }) {
                     Text(
-                        text = "%02d".format(value),
+                        text = text,
                         style = if (isSelected) MaterialTheme.typography.titleMedium else MaterialTheme.typography.bodyMedium,
                         color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                     )
