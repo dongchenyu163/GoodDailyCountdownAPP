@@ -62,6 +62,7 @@ import com.dlx.smartalarm.demo.components.menu.AppContextMenu
 import com.dlx.smartalarm.demo.features.cards.dialogs.AddCardDialog
 import com.dlx.smartalarm.demo.features.cards.dialogs.EditCardDialog
 import com.dlx.smartalarm.demo.components.scroll.VerticalScrollbar
+import com.dlx.smartalarm.demo.features.cards.logic.validateAndFixCardData
 
 // 简单导航目的的屏幕定义（顶层，避免局部enum限制）
  
@@ -70,23 +71,7 @@ var gIsInitLoad = true  // 全局标志，指示是否为初始化加载
 
 //   taskkill /im node.exe /f
 
-// 验证并修复卡片数据，确保数据一致性
-@OptIn(ExperimentalTime::class)
-fun validateAndFixCardData(card: CardData): CardData {
-    val parsedDate = runCatching { LocalDate.parse(card.date) }.getOrNull()
-    val timeZone = TimeZone.currentSystemDefault()
-    val today = kotlin.time.Clock.System.todayIn(timeZone)
-    val newRemainingDays = if (parsedDate != null) {
-        (parsedDate.toEpochDays() - today.toEpochDays()).coerceAtLeast(0)
-    } else {
-        card.remainingDays
-    }
-    val shouldResetReminder = parsedDate != null && parsedDate >= today && card.reminderSent
-    return card.copy(
-        remainingDays = newRemainingDays,
-        reminderSent = if (shouldResetReminder) false else card.reminderSent
-    )
-}
+
 
 @OptIn(ExperimentalTime::class)
 @Composable
@@ -176,7 +161,7 @@ fun App() {
                 println("Pre-change")
                 // 验证并更新加载的卡片数据
                 loadedCards = loadedCards.map { card ->
-                    val fixed = com.dlx.smartalarm.demo.features.cards.logic.fixCardData(card)
+                    val fixed = validateAndFixCardData(card)
                     val favId = TagRepository.favoriteId()
                     val withTag = if (fixed.isFavorite && !fixed.tags.contains(favId)) fixed.copy(tags = fixed.tags + favId) else fixed
                     withTag.copy(isFavorite = false)
