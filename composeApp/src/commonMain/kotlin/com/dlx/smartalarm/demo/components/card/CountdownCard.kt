@@ -35,7 +35,7 @@ import com.dlx.smartalarm.demo.components.image.TitleImageInfo
 import com.dlx.smartalarm.demo.components.image.DefaultGridImageGradient
 import com.dlx.smartalarm.demo.components.image.GradientOrientation
 import com.dlx.smartalarm.demo.core.platform.getPlatform
-import com.dlx.smartalarm.demo.getAppEmojiFontFamily
+import com.dlx.smartalarm.demo.core.platform.getAppEmojiFontFamily
 import com.dlx.smartalarm.demo.components.image.CardPreviewMinAspectRatio
 import com.dlx.smartalarm.demo.components.image.CardPreviewMaxAspectRatio
 import com.dlx.smartalarm.demo.CardData

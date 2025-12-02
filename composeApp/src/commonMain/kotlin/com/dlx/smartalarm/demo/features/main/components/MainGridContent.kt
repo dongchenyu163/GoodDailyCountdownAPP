@@ -26,6 +26,7 @@ import com.dlx.smartalarm.demo.components.image.TitleImageViewType
 import com.dlx.smartalarm.demo.components.image.TitleImageBackground
 import com.dlx.smartalarm.demo.components.image.DefaultGridImageGradient
 import com.dlx.smartalarm.demo.components.image.GradientOrientation
+import com.dlx.smartalarm.demo.core.platform.getAppFontFamily
 import com.dlx.smartalarm.demo.MR
 import dev.icerock.moko.resources.compose.stringResource
 import androidx.compose.animation.core.animateFloatAsState

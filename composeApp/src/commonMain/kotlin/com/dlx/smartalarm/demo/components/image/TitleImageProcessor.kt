@@ -6,7 +6,7 @@ import com.dlx.smartalarm.demo.PickedImage
 import com.dlx.smartalarm.demo.TitleImageDefaultQuality
 import com.dlx.smartalarm.demo.PlatformImageIO
 import com.dlx.smartalarm.demo.TitleImageStorage
-import com.dlx.smartalarm.demo.TitleImageBitmapCache
+import com.dlx.smartalarm.demo.components.image.TitleImageBitmapCache
 
 fun generateImageUuid(): String {
     val chars = "0123456789abcdef"

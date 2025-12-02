@@ -4,6 +4,8 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import com.dlx.smartalarm.demo.readTextFile
 import com.dlx.smartalarm.demo.writeTextFile
+import com.dlx.smartalarm.demo.readTextFile
+import com.dlx.smartalarm.demo.writeTextFile
 
 object AppSettingsManager {
     private const val SETTINGS_FILE_NAME = "app_settings.json"

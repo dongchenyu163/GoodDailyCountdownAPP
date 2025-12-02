@@ -25,9 +25,9 @@ import com.dlx.smartalarm.demo.core.model.Tag
 import com.dlx.smartalarm.demo.core.model.TagColor
 import com.dlx.smartalarm.demo.features.cards.logic.TagRepository
 import com.dlx.smartalarm.demo.TitleImageStorage
-import com.dlx.smartalarm.demo.TitleImageBitmapCache
-import com.dlx.smartalarm.demo.TitleImageDefaultQuality
-import com.dlx.smartalarm.demo.replaceCardImage
+import com.dlx.smartalarm.demo.components.image.TitleImageBitmapCache
+import com.dlx.smartalarm.demo.components.image.TitleImageDefaultQuality
+import com.dlx.smartalarm.demo.components.image.replaceCardImage
 import com.dlx.smartalarm.demo.ImageOffsetEditorDialog
 import com.dlx.smartalarm.demo.components.menu.TagMultiselect
 import com.dlx.smartalarm.demo.components.image.TitleImageInfo
