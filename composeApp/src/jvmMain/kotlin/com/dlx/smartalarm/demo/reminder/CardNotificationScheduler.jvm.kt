@@ -35,11 +35,11 @@ class JvmCardNotificationScheduler(
 }
 
 @Composable
-actual fun rememberCardNotificationScheduler(): CardNotificationScheduler {
+actual fun rememberCardNotificationScheduler(
+    onFire: (CardData) -> Unit,
+): CardNotificationScheduler {
     val scope = remember { CoroutineScope(Dispatchers.Default + SupervisorJob()) }
     return remember {
-        JvmCardNotificationScheduler(scope) { card ->
-            println("[Reminder] ${'$'}{card.title} at time ${'$'}{card.reminderTime} (frequency=${'$'}{card.reminderFrequency})")
-        }
+        JvmCardNotificationScheduler(scope, onFire)
     }
 }

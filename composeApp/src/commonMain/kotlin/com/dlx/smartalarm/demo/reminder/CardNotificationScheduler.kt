@@ -13,7 +13,9 @@ interface CardNotificationScheduler {
 
 /**
  * 在 Compose 环境下记忆一个平台实现的调度器。
+ * onFire 回调用于在到点时触发 UI 弹框或其他行为。
  */
 @Composable
-expect fun rememberCardNotificationScheduler(): CardNotificationScheduler
-
+expect fun rememberCardNotificationScheduler(
+    onFire: (CardData) -> Unit = {},
+): CardNotificationScheduler

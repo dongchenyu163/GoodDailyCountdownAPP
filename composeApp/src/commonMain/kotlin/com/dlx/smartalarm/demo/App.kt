@@ -129,10 +129,12 @@ fun App() {
         var showEditDialog by remember { mutableStateOf(false) }
         var editingCard by remember { mutableStateOf<CardData?>(null) }
 
-        val notificationScheduler = rememberCardNotificationScheduler()
-
         val reminderHandler = rememberReminderHandler()
         var reminderDialogCard by remember { mutableStateOf<CardData?>(null) }
+        val notificationScheduler = rememberCardNotificationScheduler { card ->
+            // 到点时弹出和倒计时到期相同样式的提醒对话框
+            reminderDialogCard = card
+        }
         val coroutineScope = rememberCoroutineScope()
 
         val timeZone = remember { TimeZone.currentSystemDefault() }
