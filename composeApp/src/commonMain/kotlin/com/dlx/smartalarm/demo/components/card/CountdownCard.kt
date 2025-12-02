@@ -34,10 +34,12 @@ import com.dlx.smartalarm.demo.components.image.TitleImageBackground
 import com.dlx.smartalarm.demo.components.image.TitleImageInfo
 import com.dlx.smartalarm.demo.components.image.DefaultGridImageGradient
 import com.dlx.smartalarm.demo.components.image.GradientOrientation
-import com.dlx.smartalarm.demo.CardPreviewMinAspectRatio
-import com.dlx.smartalarm.demo.CardPreviewMaxAspectRatio
 import com.dlx.smartalarm.demo.getPlatform
 import com.dlx.smartalarm.demo.getAppEmojiFontFamily
+import com.dlx.smartalarm.demo.components.image.CardPreviewMinAspectRatio
+import com.dlx.smartalarm.demo.components.image.CardPreviewMaxAspectRatio
+import com.dlx.smartalarm.demo.CardData
+import com.dlx.smartalarm.demo.features.cards.logic.TagRepository
 import com.dlx.smartalarm.demo.components.favorite.FavoriteButton
 
 @Composable

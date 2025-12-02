@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
 import com.dlx.smartalarm.demo.CardData
 import com.dlx.smartalarm.demo.core.model.Tag
 import com.dlx.smartalarm.demo.core.model.TagColor
-import com.dlx.smartalarm.demo.TagRepository
+import com.dlx.smartalarm.demo.features.cards.logic.TagRepository
 import com.dlx.smartalarm.demo.TitleImageStorage
 import com.dlx.smartalarm.demo.TitleImageBitmapCache
 import com.dlx.smartalarm.demo.TitleImageDefaultQuality

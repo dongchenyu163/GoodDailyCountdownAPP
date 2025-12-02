@@ -19,7 +19,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.dlx.smartalarm.demo.CardData
-import com.dlx.smartalarm.demo.TagRepository
+import com.dlx.smartalarm.demo.features.cards.logic.TagRepository
 import com.dlx.smartalarm.demo.features.main.logic.highlight
 import com.dlx.smartalarm.demo.components.favorite.FavoriteButton
 import com.dlx.smartalarm.demo.components.image.TitleImageViewType

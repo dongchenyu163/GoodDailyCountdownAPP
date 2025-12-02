@@ -70,6 +70,7 @@ import com.dlx.smartalarm.demo.features.settings.SettingsScreen
 import com.dlx.smartalarm.demo.features.settings.logic.AppSettings
 import com.dlx.smartalarm.demo.features.settings.logic.AppSettingsManager
 import com.dlx.smartalarm.demo.features.settings.logic.LocaleManager
+import com.dlx.smartalarm.demo.features.cards.logic.TagRepository
 import com.dlx.smartalarm.demo.features.onboarding.WelcomeScreen
 import com.dlx.smartalarm.demo.features.onboarding.PermissionsScreen
 import com.dlx.smartalarm.demo.features.cards.logic.validateAndFixCardData
