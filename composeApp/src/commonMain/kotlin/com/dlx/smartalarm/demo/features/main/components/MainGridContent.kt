@@ -127,7 +127,7 @@ fun MainGridContent(
                                             threeDotsButtonPosition = DpOffset(positionInWindow.x.toDp(), positionInWindow.y.toDp())
                                         }
                                     }
-                                ) { androidx.compose.material3.Text("≡", fontFamily = com.dlx.smartalarm.demo.getAppFontFamily()) }
+                                ) { androidx.compose.material3.Text("≡", fontFamily = getAppFontFamily()) }
                             }
 
                             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {

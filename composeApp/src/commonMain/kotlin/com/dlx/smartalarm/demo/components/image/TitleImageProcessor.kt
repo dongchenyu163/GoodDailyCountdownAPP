@@ -3,10 +3,11 @@ package com.dlx.smartalarm.demo.components.image
 import androidx.compose.ui.graphics.ImageBitmap
 import kotlin.random.Random
 import com.dlx.smartalarm.demo.PickedImage
-import com.dlx.smartalarm.demo.TitleImageDefaultQuality
 import com.dlx.smartalarm.demo.PlatformImageIO
 import com.dlx.smartalarm.demo.TitleImageStorage
 import com.dlx.smartalarm.demo.components.image.TitleImageBitmapCache
+
+const val TitleImageDefaultQuality = 80
 
 fun generateImageUuid(): String {
     val chars = "0123456789abcdef"
