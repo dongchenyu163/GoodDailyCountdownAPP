@@ -67,6 +67,7 @@ import com.dlx.smartalarm.demo.TitleImageBitmapCache
 import com.dlx.smartalarm.demo.DisplayStyle
 import com.dlx.smartalarm.demo.core.model.Tag
 import com.dlx.smartalarm.demo.core.platform.getPlatform
+import com.dlx.smartalarm.demo.core.designsystem.AppTheme
 import com.dlx.smartalarm.demo.features.settings.SettingsScreen
 import com.dlx.smartalarm.demo.features.settings.logic.AppSettings
 import com.dlx.smartalarm.demo.features.settings.logic.AppSettingsManager
