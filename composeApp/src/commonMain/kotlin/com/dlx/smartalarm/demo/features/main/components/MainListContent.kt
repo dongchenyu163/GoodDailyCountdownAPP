@@ -31,6 +31,10 @@ import dev.icerock.moko.resources.compose.stringResource
 import com.dlx.smartalarm.demo.components.scroll.VerticalScrollbar
 import com.dlx.smartalarm.demo.features.main.logic.highlight
 import com.dlx.smartalarm.demo.components.favorite.FavoriteButton
+import com.dlx.smartalarm.demo.components.image.TitleImageViewType
+import com.dlx.smartalarm.demo.components.image.TitleImageBackground
+import com.dlx.smartalarm.demo.components.image.DefaultListImageGradient
+import com.dlx.smartalarm.demo.components.image.GradientOrientation
 import kotlinx.datetime.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)

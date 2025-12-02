@@ -1,6 +1,11 @@
 package com.dlx.smartalarm.demo
 
 import com.dlx.smartalarm.demo.MR
+import com.dlx.smartalarm.demo.components.image.TitleImageInfo
+import com.dlx.smartalarm.demo.components.image.TitleImageViewType
+import com.dlx.smartalarm.demo.components.image.TitleImageDisplayParameters
+import com.dlx.smartalarm.demo.components.image.loadImageBitmap
+import com.dlx.smartalarm.demo.components.image.defaultDisplayInfo
 import dev.icerock.moko.resources.compose.stringResource
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -357,7 +362,7 @@ private fun OffsetPreview(
                 TitleImageViewType.Grid -> ViewAnchors.GridImageAnchor to ViewAnchors.GridControlAnchor
                 TitleImageViewType.Card -> ViewAnchors.CardImageAnchor to ViewAnchors.CardControlAnchor
             }
-            drawTitleImage(imageBitmap, parameters, imageAnchor, controlAnchor)
+            // drawTitleImage(imageBitmap, parameters, imageAnchor, controlAnchor) // TODO: Fix this function
         }
 
         if (selectedView == TitleImageViewType.Card) {

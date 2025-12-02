@@ -22,10 +22,10 @@ import com.dlx.smartalarm.demo.CardData
 import com.dlx.smartalarm.demo.TagRepository
 import com.dlx.smartalarm.demo.features.main.logic.highlight
 import com.dlx.smartalarm.demo.components.favorite.FavoriteButton
-import com.dlx.smartalarm.demo.TitleImageViewType
-import com.dlx.smartalarm.demo.TitleImageBackground
-import com.dlx.smartalarm.demo.DefaultGridImageGradient
-import com.dlx.smartalarm.demo.GradientOrientation
+import com.dlx.smartalarm.demo.components.image.TitleImageViewType
+import com.dlx.smartalarm.demo.components.image.TitleImageBackground
+import com.dlx.smartalarm.demo.components.image.DefaultGridImageGradient
+import com.dlx.smartalarm.demo.components.image.GradientOrientation
 import com.dlx.smartalarm.demo.MR
 import dev.icerock.moko.resources.compose.stringResource
 import androidx.compose.animation.core.animateFloatAsState

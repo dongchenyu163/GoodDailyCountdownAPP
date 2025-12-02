@@ -1,6 +1,7 @@
 package com.dlx.smartalarm.demo
 
 import kotlinx.serialization.Serializable
+import com.dlx.smartalarm.demo.components.image.TitleImageInfo
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.decodeFromString

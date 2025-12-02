@@ -30,6 +30,9 @@ import com.dlx.smartalarm.demo.TitleImageDefaultQuality
 import com.dlx.smartalarm.demo.replaceCardImage
 import com.dlx.smartalarm.demo.ImageOffsetEditorDialog
 import com.dlx.smartalarm.demo.TagMultiselect
+import com.dlx.smartalarm.demo.components.image.TitleImageInfo
+import com.dlx.smartalarm.demo.components.image.TitleImageViewType
+import com.dlx.smartalarm.demo.components.image.replaceCardImage
 import com.dlx.smartalarm.demo.components.scroll.VerticalScrollbar
 import com.dlx.smartalarm.demo.pickImageFromUser
 
