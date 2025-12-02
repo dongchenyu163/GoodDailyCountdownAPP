@@ -68,6 +68,8 @@ import com.dlx.smartalarm.demo.DisplayStyle
 import com.dlx.smartalarm.demo.features.settings.SettingsScreen
 import com.dlx.smartalarm.demo.features.settings.logic.AppSettings
 import com.dlx.smartalarm.demo.features.settings.logic.AppSettingsManager
+import com.dlx.smartalarm.demo.features.onboarding.WelcomeScreen
+import com.dlx.smartalarm.demo.features.onboarding.PermissionsScreen
 import com.dlx.smartalarm.demo.features.cards.logic.validateAndFixCardData
 
 // 简单导航目的的屏幕定义（顶层，避免局部enum限制）
