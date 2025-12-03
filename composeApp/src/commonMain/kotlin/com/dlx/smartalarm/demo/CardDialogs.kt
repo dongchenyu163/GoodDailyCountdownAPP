@@ -21,7 +21,29 @@ import androidx.compose.ui.Alignment // New import
 import kotlin.time.ExperimentalTime
 import kotlin.time.Clock
 import kotlinx.coroutines.launch
-// Removed incorrect kotlin.time imports
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
+
+// 本文件中时间格式统一使用简单的 "HH:mm" 字符串，并且完全不调用任何 format(...) 扩展，避免与 kotlinx-datetime 的 format 重载冲突
+private fun parseTimeString(time: String?): Pair<Int, Int> {
+    if (time.isNullOrBlank()) return 9 to 0
+    val parts = time.split(":")
+    val h = parts.getOrNull(0)?.toIntOrNull() ?: 9
+    val m = parts.getOrNull(1)?.toIntOrNull() ?: 0
+    return h.coerceIn(0, 23) to m.coerceIn(0, 59)
+}
+
+// 手动补零，不使用 String.format / "%02d".format
+private fun formatTimeString(hour: Int, minute: Int): String {
+    val h = hour.coerceIn(0, 23)
+    val m = minute.coerceIn(0, 59)
+    val hh = if (h < 10) "0$h" else h.toString()
+    val mm = if (m < 10) "0$m" else m.toString()
+    return "$hh:$mm"
+}
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalTime::class)
 @Composable
@@ -62,6 +84,13 @@ fun CardDialog(
     var showImageEditor by remember { mutableStateOf(false) }
     var imagePickerMessage by remember { mutableStateOf<String?>(null) }
     var isPickingImage by remember { mutableStateOf(false) }
+
+    // Reminder settings state
+    var reminderFrequency by remember { mutableStateOf(cardData?.reminderFrequency ?: "none") }
+    var reminderTime by remember { mutableStateOf(cardData?.reminderTime ?: "09:00") }
+    val (initHour, initMinute) = remember { parseTimeString(reminderTime) }
+    var selectedHour by remember { mutableStateOf(initHour) }
+    var selectedMinute by remember { mutableStateOf(initMinute) }
 
     val errorPickingImage = stringResource(MR.strings.error_picking_image)
     val noImagePickedOrUnsupported = stringResource(MR.strings.no_image_picked_or_unsupported)
@@ -267,6 +296,105 @@ fun CardDialog(
                         onEditRequest = { tag -> editingTagState = tag }
                     )
 
+                    // Reminder settings title
+                    Text(stringResource(MR.strings.reminder_settings), style = MaterialTheme.typography.titleSmall)
+
+                    // Reminder frequency dropdown
+                    var frequencyExpanded by remember { mutableStateOf(false) }
+                    val frequencyOptions = listOf(
+                        "none" to stringResource(MR.strings.reminder_frequency_none),
+                        "once" to stringResource(MR.strings.reminder_frequency_once),
+                        "daily" to stringResource(MR.strings.reminder_frequency_daily),
+                        "weekly" to stringResource(MR.strings.reminder_frequency_weekly),
+                    )
+
+                    ExposedDropdownMenuBox(
+                        expanded = frequencyExpanded,
+                        onExpandedChange = { frequencyExpanded = !frequencyExpanded }
+                    ) {
+                        OutlinedTextField(
+                            readOnly = true,
+                            value = frequencyOptions.firstOrNull { it.first == reminderFrequency }?.second
+                                ?: stringResource(MR.strings.reminder_frequency_none),
+                            onValueChange = {},
+                            label = { Text(stringResource(MR.strings.reminder_frequency_label)) },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = frequencyExpanded) },
+                            modifier = Modifier
+                                .menuAnchor()
+                                .fillMaxWidth(),
+                        )
+                        ExposedDropdownMenu(
+                            expanded = frequencyExpanded,
+                            onDismissRequest = { frequencyExpanded = false }
+                        ) {
+                            frequencyOptions.forEach { (value, label) ->
+                                DropdownMenuItem(
+                                    text = { Text(label) },
+                                    onClick = {
+                                        reminderFrequency = value
+                                        frequencyExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+
+                    if (reminderFrequency != "none") {
+                        Text(stringResource(MR.strings.reminder_time_label), style = MaterialTheme.typography.titleSmall)
+
+                        // 只读展示当前时间
+                        OutlinedTextField(
+                            value = formatTimeString(selectedHour, selectedMinute),
+                            onValueChange = {},
+                            readOnly = true,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { /* 占位：未来如需弹出独立对话框，可在此处理 */ },
+                        )
+
+                        Spacer(Modifier.height(8.dp))
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(120.dp),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            TimeWheel(
+                                range = 0..23,
+                                selected = selectedHour,
+                                onSelectedChange = { h ->
+                                    selectedHour = h
+                                    reminderTime = formatTimeString(selectedHour, selectedMinute)
+                                },
+                                modifier = Modifier.weight(1f)
+                            )
+                            TimeWheel(
+                                range = 0..59,
+                                selected = selectedMinute,
+                                onSelectedChange = { m ->
+                                    selectedMinute = m
+                                    reminderTime = formatTimeString(selectedHour, selectedMinute)
+                                },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+
+                    val summaryText = when (reminderFrequency) {
+                        "none" -> stringResource(MR.strings.reminder_summary_none)
+                        "once" -> stringResource(MR.strings.reminder_summary_once, reminderTime)
+                        "daily" -> stringResource(MR.strings.reminder_summary_daily, reminderTime)
+                        "weekly" -> stringResource(MR.strings.reminder_summary_weekly, reminderTime)
+                        else -> stringResource(MR.strings.reminder_summary_none)
+                    }
+
+                    Text(
+                        text = summaryText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.End
@@ -277,16 +405,25 @@ fun CardDialog(
                             onClick = {
                                 val remainingDays = maxOf(0, remainingDaysText.toLongOrNull() ?: (cardData?.remainingDays ?: 1))
                                 val reminderSent = if (remainingDays > 0) false else cardData?.reminderSent ?: false
+                                val reminderOffsetMinutes = when (reminderFrequency) {
+                                    "none" -> 0
+                                    "once" -> 0
+                                    "daily" -> 1440
+                                    "weekly" -> 10080
+                                    else -> 0
+                                }
                                 val card = if (cardData != null) {
-                                    CardData(
-                                        id = cardData.id,
+                                    cardData.copy(
                                         title = title,
                                         date = selectedDate.toString(),
                                         remainingDays = remainingDays,
                                         reminderSent = reminderSent,
+                                        reminderOffsetMinutes = reminderOffsetMinutes,
                                         description = description,
                                         icon = icon,
                                         titleImage = titleImage,
+                                        reminderFrequency = reminderFrequency,
+                                        reminderTime = reminderTime,
                                         tags = selectedTagIds
                                     )
                                 } else {
@@ -296,9 +433,12 @@ fun CardDialog(
                                         date = selectedDate.toString(),
                                         remainingDays = remainingDays,
                                         reminderSent = reminderSent,
+                                        reminderOffsetMinutes = reminderOffsetMinutes,
                                         description = description,
                                         icon = icon,
                                         titleImage = titleImage,
+                                        reminderFrequency = reminderFrequency,
+                                        reminderTime = reminderTime,
                                         tags = selectedTagIds
                                     )
                                 }
@@ -445,6 +585,44 @@ fun DatePickerDialog(
                             }
                         }
                     ) { Text(stringResource(MR.strings.confirm)) }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TimeWheel(
+    range: IntProgression,
+    selected: Int,
+    onSelectedChange: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val items = remember(range) { range.toList() }
+    val listState = rememberLazyListState(
+        initialFirstVisibleItemIndex = items.indexOf(selected).coerceAtLeast(0)
+    )
+
+    LaunchedEffect(selected) {
+        val index = items.indexOf(selected)
+        if (index >= 0) listState.animateScrollToItem(index)
+    }
+
+    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+        LazyColumn(
+            state = listState,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            items(items.size) { index ->
+                val value = items[index]
+                val isSelected = value == selected
+                val text = if (value in 0..9) "0$value" else value.toString()
+                TextButton(onClick = { onSelectedChange(value) }) {
+                    Text(
+                        text = text,
+                        style = if (isSelected) MaterialTheme.typography.titleMedium else MaterialTheme.typography.bodyMedium,
+                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
         }
