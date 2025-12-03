@@ -2,6 +2,8 @@ package com.dlx.smartalarm.demo.reminder
 
 import com.dlx.smartalarm.demo.CardData
 import kotlinx.datetime.*
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 /**
  * 描述一次即将触发的提醒：包括触发时间和可选的重复间隔（毫秒）。
@@ -15,6 +17,7 @@ data class NextReminder(
  * 根据卡片的目标日期、提醒频率与时间，计算下一次提醒时间。
  * 返回 null 表示当前不需要安排系统提醒（未设置或已过期）。
  */
+@OptIn(kotlin.time.ExperimentalTime::class)
 fun computeNextReminder(
     card: CardData,
     now: Instant = Clock.System.now(),

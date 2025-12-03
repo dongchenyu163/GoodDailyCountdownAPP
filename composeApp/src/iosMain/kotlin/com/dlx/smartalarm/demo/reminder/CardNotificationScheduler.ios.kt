@@ -10,6 +10,7 @@ import platform.UserNotifications.*
 import platform.darwin.NSObject
 import platform.darwin.dispatch_async
 import platform.darwin.dispatch_get_main_queue
+import kotlin.time.Clock
 
 /**
  * iOS 端使用系统通知中心 (UNUserNotificationCenter) 的提醒调度器：
@@ -95,7 +96,7 @@ private class IosCardNotificationScheduler(
             }
         }
     }
-
+    @OptIn(kotlin.time.ExperimentalTime::class)
     override fun schedule(card: CardData) {
         println("iOS schedule(): called for card=${card.id}, freq=${card.reminderFrequency}, time=${card.reminderTime}")
 

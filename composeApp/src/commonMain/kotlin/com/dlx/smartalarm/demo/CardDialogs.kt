@@ -45,7 +45,7 @@ private fun formatTimeString(hour: Int, minute: Int): String {
     return "$hh:$mm"
 }
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalTime::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalTime::class, ExperimentalMaterial3Api::class)
 @Composable
 fun CardDialog(
     cardData: CardData?,
