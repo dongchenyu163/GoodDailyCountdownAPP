@@ -1,5 +1,9 @@
-package com.dlx.smartalarm.demo
+package com.dlx.smartalarm.demo.features.cards.logic
 
+import com.dlx.smartalarm.demo.core.model.Tag
+import com.dlx.smartalarm.demo.core.model.TagColor
+import com.dlx.smartalarm.demo.readFile
+import com.dlx.smartalarm.demo.writeFile
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.encodeToString

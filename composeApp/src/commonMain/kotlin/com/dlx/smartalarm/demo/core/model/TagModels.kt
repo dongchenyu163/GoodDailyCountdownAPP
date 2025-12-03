@@ -1,4 +1,4 @@
-package com.dlx.smartalarm.demo
+package com.dlx.smartalarm.demo.core.model
 
 import kotlinx.serialization.Serializable
 

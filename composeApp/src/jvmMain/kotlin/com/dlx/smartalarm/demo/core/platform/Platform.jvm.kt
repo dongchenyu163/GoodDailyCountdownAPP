@@ -1,4 +1,4 @@
-package com.dlx.smartalarm.demo
+package com.dlx.smartalarm.demo.core.platform
 
 import java.io.File
 import androidx.compose.ui.text.font.FontFamily

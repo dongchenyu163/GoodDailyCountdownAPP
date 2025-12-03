@@ -1,4 +1,4 @@
-package com.dlx.smartalarm.demo
+package com.dlx.smartalarm.demo.features.settings.logic
 
 import dev.icerock.moko.resources.desc.StringDesc
 

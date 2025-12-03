@@ -19,13 +19,14 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.dlx.smartalarm.demo.CardData
-import com.dlx.smartalarm.demo.TagRepository
+import com.dlx.smartalarm.demo.features.cards.logic.TagRepository
 import com.dlx.smartalarm.demo.features.main.logic.highlight
 import com.dlx.smartalarm.demo.components.favorite.FavoriteButton
-import com.dlx.smartalarm.demo.TitleImageViewType
-import com.dlx.smartalarm.demo.TitleImageBackground
-import com.dlx.smartalarm.demo.DefaultGridImageGradient
-import com.dlx.smartalarm.demo.GradientOrientation
+import com.dlx.smartalarm.demo.components.image.TitleImageViewType
+import com.dlx.smartalarm.demo.components.image.TitleImageBackground
+import com.dlx.smartalarm.demo.components.image.DefaultGridImageGradient
+import com.dlx.smartalarm.demo.components.image.GradientOrientation
+import com.dlx.smartalarm.demo.core.platform.getAppFontFamily
 import com.dlx.smartalarm.demo.MR
 import dev.icerock.moko.resources.compose.stringResource
 import androidx.compose.animation.core.animateFloatAsState
@@ -126,7 +127,7 @@ fun MainGridContent(
                                             threeDotsButtonPosition = DpOffset(positionInWindow.x.toDp(), positionInWindow.y.toDp())
                                         }
                                     }
-                                ) { androidx.compose.material3.Text("≡", fontFamily = com.dlx.smartalarm.demo.getAppFontFamily()) }
+                                ) { androidx.compose.material3.Text("≡", fontFamily = getAppFontFamily()) }
                             }
 
                             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {

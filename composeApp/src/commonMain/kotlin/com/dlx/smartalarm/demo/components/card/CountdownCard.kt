@@ -29,15 +29,17 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import dev.icerock.moko.resources.compose.stringResource
 import com.dlx.smartalarm.demo.MR
-import com.dlx.smartalarm.demo.TitleImageInfo
-import com.dlx.smartalarm.demo.TitleImageViewType
-import com.dlx.smartalarm.demo.TitleImageBackground
-import com.dlx.smartalarm.demo.DefaultGridImageGradient
-import com.dlx.smartalarm.demo.GradientOrientation
-import com.dlx.smartalarm.demo.CardPreviewMinAspectRatio
-import com.dlx.smartalarm.demo.CardPreviewMaxAspectRatio
-import com.dlx.smartalarm.demo.getPlatform
-import com.dlx.smartalarm.demo.getAppEmojiFontFamily
+import com.dlx.smartalarm.demo.components.image.TitleImageViewType
+import com.dlx.smartalarm.demo.components.image.TitleImageBackground
+import com.dlx.smartalarm.demo.components.image.TitleImageInfo
+import com.dlx.smartalarm.demo.components.image.DefaultGridImageGradient
+import com.dlx.smartalarm.demo.components.image.GradientOrientation
+import com.dlx.smartalarm.demo.core.platform.getPlatform
+import com.dlx.smartalarm.demo.core.platform.getAppEmojiFontFamily
+import com.dlx.smartalarm.demo.components.image.CardPreviewMinAspectRatio
+import com.dlx.smartalarm.demo.components.image.CardPreviewMaxAspectRatio
+import com.dlx.smartalarm.demo.CardData
+import com.dlx.smartalarm.demo.features.cards.logic.TagRepository
 import com.dlx.smartalarm.demo.components.favorite.FavoriteButton
 
 @Composable

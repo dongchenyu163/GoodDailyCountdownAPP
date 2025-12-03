@@ -1,4 +1,4 @@
-package com.dlx.smartalarm.demo
+package com.dlx.smartalarm.demo.features.onboarding
 
 import com.dlx.smartalarm.demo.MR
 import dev.icerock.moko.resources.compose.stringResource

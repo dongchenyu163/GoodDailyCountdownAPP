@@ -1,4 +1,4 @@
-package com.dlx.smartalarm.demo
+package com.dlx.smartalarm.demo.components.image
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background

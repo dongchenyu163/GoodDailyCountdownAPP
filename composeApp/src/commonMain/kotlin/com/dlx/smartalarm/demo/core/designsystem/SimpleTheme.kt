@@ -1,4 +1,4 @@
-package com.dlx.smartalarm.demo
+package com.dlx.smartalarm.demo.core.designsystem
 
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
