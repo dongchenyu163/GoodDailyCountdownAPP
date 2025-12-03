@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import com.dlx.smartalarm.demo.CardData
 import kotlinx.coroutines.*
+import kotlin.time.ExperimentalTime
 
 /**
  * JVM 桌面/浏览器调度实现：使用协程定时，到点打印日志或触发回调。
@@ -15,6 +16,7 @@ class JvmCardNotificationScheduler(
 
     private val jobs = mutableMapOf<Int, Job>()
 
+    @OptIn(ExperimentalTime::class)
     override fun schedule(card: CardData) {
         cancel(card.id)
         val next = computeNextReminder(card) ?: return
