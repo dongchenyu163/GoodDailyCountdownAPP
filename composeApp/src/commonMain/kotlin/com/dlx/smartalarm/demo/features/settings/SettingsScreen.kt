@@ -1,7 +1,7 @@
 package com.dlx.smartalarm.demo.features.settings
 
 import com.dlx.smartalarm.demo.MR
-import com.dlx.smartalarm.demo.DisplayStyle
+import com.dlx.smartalarm.demo.core.model.DisplayStyle
 import dev.icerock.moko.resources.compose.stringResource
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*

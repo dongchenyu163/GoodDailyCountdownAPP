@@ -25,7 +25,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import com.dlx.smartalarm.demo.*
+import com.dlx.smartalarm.demo.core.reminder.ReminderHandler
+import com.dlx.smartalarm.demo.core.reminder.CountdownReminderObserver
 import com.dlx.smartalarm.demo.features.cards.logic.TagRepository
 import com.dlx.smartalarm.demo.components.card.AnimatedCountdownCard
 import com.dlx.smartalarm.demo.components.scroll.VerticalScrollbar

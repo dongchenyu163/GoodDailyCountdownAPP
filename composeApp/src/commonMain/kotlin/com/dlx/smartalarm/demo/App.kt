@@ -65,7 +65,7 @@ import com.dlx.smartalarm.demo.features.cards.dialogs.AddCardDialog
 import com.dlx.smartalarm.demo.features.cards.dialogs.EditCardDialog
 import com.dlx.smartalarm.demo.components.scroll.VerticalScrollbar
 import com.dlx.smartalarm.demo.TitleImageStorage
-import com.dlx.smartalarm.demo.DisplayStyle
+import com.dlx.smartalarm.demo.core.model.DisplayStyle
 import com.dlx.smartalarm.demo.core.model.Tag
 import com.dlx.smartalarm.demo.core.platform.getPlatform
 import com.dlx.smartalarm.demo.core.platform.getAppFontFamily

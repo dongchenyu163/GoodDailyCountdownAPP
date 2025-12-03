@@ -28,7 +28,7 @@ import com.dlx.smartalarm.demo.TitleImageStorage
 import com.dlx.smartalarm.demo.components.image.TitleImageBitmapCache
 import com.dlx.smartalarm.demo.components.image.TitleImageDefaultQuality
 import com.dlx.smartalarm.demo.components.image.replaceCardImage
-import com.dlx.smartalarm.demo.ImageOffsetEditorDialog
+import com.dlx.smartalarm.demo.components.image.ImageOffsetEditorDialog
 import com.dlx.smartalarm.demo.components.menu.TagMultiselect
 import com.dlx.smartalarm.demo.components.image.TitleImageInfo
 import com.dlx.smartalarm.demo.components.image.TitleImageViewType

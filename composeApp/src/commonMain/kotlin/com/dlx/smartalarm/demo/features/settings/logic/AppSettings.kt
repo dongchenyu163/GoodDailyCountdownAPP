@@ -1,6 +1,6 @@
 package com.dlx.smartalarm.demo.features.settings.logic
 
-import com.dlx.smartalarm.demo.DisplayStyle
+import com.dlx.smartalarm.demo.core.model.DisplayStyle
 import kotlinx.serialization.Serializable
 
 @Serializable
