@@ -63,4 +63,15 @@
     <string name="colors">颜色</string>
     <string name="delete">删除</string>
     <string name="default_test_title_prefix">测试 #%d</string>
+    <string name="reminder_settings">提醒设置</string>
+    <string name="reminder_frequency_label">提醒频率</string>
+    <string name="reminder_frequency_none">不提醒</string>
+    <string name="reminder_frequency_once">一次性提醒</string>
+    <string name="reminder_frequency_daily">每天</string>
+    <string name="reminder_frequency_weekly">每周</string>
+    <string name="reminder_time_label">时间</string>
+    <string name="reminder_summary_none">当前卡片不会发送任何提醒。</string>
+    <string name="reminder_summary_once">你将在 %s 收到一次提醒。</string>
+    <string name="reminder_summary_daily">你将在每天 %s 收到提醒。</string>
+    <string name="reminder_summary_weekly">你将在每周的 %s 收到提醒。</string>
 </resources>

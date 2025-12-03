@@ -10,6 +10,8 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.text.KeyboardOptions
+import com.dlx.smartalarm.demo.reminder.rememberCardNotificationScheduler
 import androidx.compose.material3.*
 import androidx.compose.material.DismissDirection
 import androidx.compose.material.DismissValue
@@ -138,6 +140,10 @@ fun App() {
 
         val reminderHandler = rememberReminderHandler()
         var reminderDialogCard by remember { mutableStateOf<CardData?>(null) }
+        val notificationScheduler = rememberCardNotificationScheduler { card ->
+            // 到点时弹出和倒计时到期相同样式的提醒对话框
+            reminderDialogCard = card
+        }
         val coroutineScope = rememberCoroutineScope()
 
         val timeZone = remember { TimeZone.currentSystemDefault() }
@@ -182,6 +188,11 @@ fun App() {
                     withTag.copy(isFavorite = false)
                 }
                 cardList = loadedCards
+                // 在启动时为所有卡片安排提醒（仅当平台实现支持时生效）
+                loadedCards.forEach {
+                    println(">>> App: startup scheduling, cardId=${it.id}, freq=${it.reminderFrequency}, time=${it.reminderTime}")
+                    notificationScheduler.schedule(it)
+                }
                 println("Post-change")
                 // 计算下一个ID，确保唯一性
                 nextId = if (loadedCards.isNotEmpty()) {
@@ -290,6 +301,9 @@ fun App() {
                 onDismiss = { showAddDialog = false },
                 onConfirm = { newCard ->
                     cardList = cardList + newCard
+                    // 新增卡片确认回调（若已有该回调），在保存后安排提醒
+                    println(">>> App: scheduling NEW card id=${newCard.id}, freq=${newCard.reminderFrequency}, time=${newCard.reminderTime}")
+                    notificationScheduler.schedule(newCard)
                     nextId++
                     showAddDialog = false
                 }
@@ -305,6 +319,9 @@ fun App() {
                 },
                 onConfirm = { updatedCard ->
                     cardList = cardList.map { card -> if (card.id == updatedCard.id) updatedCard else card }
+                    // 编辑卡片确认回调（若已有该回调），在保存后安排提醒
+                    println(">>> App: scheduling UPDATED card id=${updatedCard.id}, freq=${updatedCard.reminderFrequency}, time=${updatedCard.reminderTime}")
+                    notificationScheduler.schedule(updatedCard)
                     showEditDialog = false
                     editingCard = null
                 }

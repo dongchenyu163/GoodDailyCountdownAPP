@@ -63,4 +63,15 @@
     <string name="colors">Colors</string>
     <string name="delete">Delete</string>
     <string name="default_test_title_prefix">Test #%d</string>
+    <string name="reminder_settings">Reminder Settings</string>
+    <string name="reminder_frequency_label">Reminder Frequency</string>
+    <string name="reminder_frequency_none">No reminder</string>
+    <string name="reminder_frequency_once">One-time reminder</string>
+    <string name="reminder_frequency_daily">Daily</string>
+    <string name="reminder_frequency_weekly">Weekly</string>
+    <string name="reminder_time_label">Time</string>
+    <string name="reminder_summary_none">No reminder will be sent.</string>
+    <string name="reminder_summary_once">You will be reminded once at %s.</string>
+    <string name="reminder_summary_daily">You will be reminded daily at %s.</string>
+    <string name="reminder_summary_weekly">You will be reminded weekly at %s.</string>
 </resources>

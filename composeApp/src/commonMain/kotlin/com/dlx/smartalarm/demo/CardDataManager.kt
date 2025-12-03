@@ -12,10 +12,18 @@ data class CardData(
     val date: String,
 	val remainingDays: Long,
     val reminderSent: Boolean = false,
+    val reminderOffsetMinutes: Int? = null,
     // 新增字段用于满足“添加表单”的描述与图标选择；保留默认值以兼容旧数据
     val description: String = "",
     val icon: String = "",
     val titleImage: TitleImageInfo? = null,
+    // 提醒频率：none / once / daily / weekly
+    val reminderFrequency: String = "none",
+    // 提醒时间字符串，格式例如 "HH:mm"；仅用于 UI 展示和简单解析
+    val reminderTime: String? = null,
+    // 由计算器根据频率 + 时间计算出的下一次提醒触发时间（毫秒时间戳）；
+    // 仅在需要调度通知时使用，存储在模型上方便各平台读取。
+    val nextReminderTimeMillis: Long? = null,
     val isFavorite: Boolean = false,
     val tags: List<String> = emptyList()
 )
