@@ -63,4 +63,15 @@
     <string name="colors">色</string>
     <string name="delete">削除</string>
     <string name="default_test_title_prefix">テスト #%d</string>
+    <string name="reminder_settings">リマインダー設定</string>
+    <string name="reminder_frequency_label">リマインダー頻度</string>
+    <string name="reminder_frequency_none">リマインダーなし</string>
+    <string name="reminder_frequency_once">一度きり</string>
+    <string name="reminder_frequency_daily">毎日</string>
+    <string name="reminder_frequency_weekly">毎週</string>
+    <string name="reminder_time_label">時刻</string>
+    <string name="reminder_summary_none">リマインダーは送信されません。</string>
+    <string name="reminder_summary_once">%s に一度だけリマインダーされます。</string>
+    <string name="reminder_summary_daily">毎日 %s にリマインダーされます。</string>
+    <string name="reminder_summary_weekly">毎週 %s にリマインダーされます。</string>
 </resources>
