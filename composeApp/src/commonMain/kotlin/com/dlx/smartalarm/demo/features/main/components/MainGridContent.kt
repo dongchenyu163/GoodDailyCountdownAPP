@@ -18,6 +18,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.*
 import com.dlx.smartalarm.demo.CardData
 import com.dlx.smartalarm.demo.features.cards.logic.TagRepository
 import com.dlx.smartalarm.demo.features.main.logic.highlight
@@ -83,6 +85,33 @@ fun MainGridContent(
                     modifier = Modifier
                         .onGloballyPositioned {
                             itemPositionInWindow = it.positionInWindow()
+                        }
+                        .pointerInput(cardData.id) {
+                            awaitPointerEventScope {
+                                while (true) {
+                                    val event = awaitPointerEvent()
+                                    if (event.type == PointerEventType.Press && event.buttons.isSecondaryPressed) {
+                                        // 右键菜单
+                                        val localPosition = event.changes.first().position
+                                        val globalPosition = itemPositionInWindow + localPosition
+                                        with(density) {
+                                            showMenu(cardData, DpOffset(globalPosition.x.toDp(), globalPosition.y.toDp()))
+                                        }
+                                        event.changes.forEach { it.consume() }
+                                    }
+                                }
+                            }
+                        }
+                        .pointerInput(cardData.id) {
+                            detectTapGestures(
+                                onLongPress = { offset ->
+                                    // 长按菜单
+                                    val globalPosition = itemPositionInWindow + offset
+                                    with(density) {
+                                        showMenu(cardData, DpOffset(globalPosition.x.toDp(), globalPosition.y.toDp()))
+                                    }
+                                }
+                            )
                         }
                 ) {
                     var appeared by remember { mutableStateOf(false) }
