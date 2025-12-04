@@ -38,8 +38,6 @@ import com.dlx.smartalarm.demo.core.platform.getPlatform
 import com.dlx.smartalarm.demo.core.platform.getAppEmojiFontFamily
 import com.dlx.smartalarm.demo.components.image.CardPreviewMinAspectRatio
 import com.dlx.smartalarm.demo.components.image.CardPreviewMaxAspectRatio
-import com.dlx.smartalarm.demo.CardData
-import com.dlx.smartalarm.demo.features.cards.logic.TagRepository
 import com.dlx.smartalarm.demo.components.favorite.FavoriteButton
 
 @Composable

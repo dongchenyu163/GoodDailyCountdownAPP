@@ -1,18 +1,16 @@
-package com.dlx.smartalarm.demo
+package com.dlx.smartalarm.demo.core.platform
 
 import platform.UIKit.UIDevice
 import platform.Foundation.NSHomeDirectory
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.runtime.Composable
-import org.jetbrains.compose.resources.Font
-import demo.composeapp.generated.resources.Res
-import demo.composeapp.generated.resources.NotoSansSC
+import com.dlx.smartalarm.demo.core.platform.Platform
+import kotlin.experimental.ExperimentalNativeApi
 
+@OptIn(ExperimentalNativeApi::class)
 class IOSPlatform : Platform {
 	override val name: String = UIDevice.currentDevice.systemName() + " " + UIDevice.currentDevice.systemVersion
 }
 
+@OptIn(ExperimentalNativeApi::class)
 actual fun getPlatform(context: Any?): Platform = IOSPlatform()
 
 actual fun readTextFile(fileName: String): String? {
@@ -27,3 +25,4 @@ actual fun writeTextFile(fileName: String, content: String) {
 actual fun getPlatformDataDirectory(): String {
     return NSHomeDirectory() + "/Documents"
 }
+

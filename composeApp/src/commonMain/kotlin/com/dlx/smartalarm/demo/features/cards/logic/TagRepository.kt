@@ -4,10 +4,8 @@ import com.dlx.smartalarm.demo.core.model.Tag
 import com.dlx.smartalarm.demo.core.model.TagColor
 import com.dlx.smartalarm.demo.core.platform.readTextFile
 import com.dlx.smartalarm.demo.core.platform.writeTextFile
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.decodeFromString
 
 object TagRepository {
     private val json = Json { prettyPrint = true; ignoreUnknownKeys = true }
