@@ -7,10 +7,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.File
+import com.dlx.smartalarm.demo.core.platform.getPlatformDataDirectory
 
 private fun imageDir(): File? {
-    val context = appContext ?: return null
-    return File(context.filesDir, TitleImageDirectoryName).apply {
+    val dataDir = getPlatformDataDirectory()
+    return File(dataDir, TitleImageDirectoryName).apply {
         if (!exists()) mkdirs()
     }
 }

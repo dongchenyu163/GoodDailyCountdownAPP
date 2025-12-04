@@ -5,6 +5,8 @@ import com.dlx.smartalarm.demo.components.image.TitleImageInfo
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.decodeFromString
+import com.dlx.smartalarm.demo.core.platform.readTextFile
+import com.dlx.smartalarm.demo.core.platform.writeTextFile
 
 @Serializable
 data class CardData(
@@ -34,9 +36,7 @@ expect class CardDataManager {
     suspend fun loadCards(): List<CardData>
 }
 
-// 跨平台文件操作的期望声明
-expect suspend fun readFile(fileName: String): String?
-expect suspend fun writeFile(fileName: String, content: String)
+// 跨平台文件操作函数已移动到 core.platform 包中
 
 object CardDataStorage {
     private val json = Json {
@@ -50,7 +50,7 @@ object CardDataStorage {
         try {
             val jsonString = json.encodeToString(cards)
             println("saveCards():: Pre saving cards.")
-            writeFile(FILE_NAME, jsonString)
+            writeTextFile(FILE_NAME, jsonString)
         } catch (e: Exception) {
             println("Error saving cards: ${e.message}")
         }
@@ -58,7 +58,7 @@ object CardDataStorage {
 
     suspend fun loadCards(): List<CardData> {
         return try {
-            val jsonString = readFile(FILE_NAME)
+            val jsonString = readTextFile(FILE_NAME)
             if (jsonString != null) {
                 json.decodeFromString<List<CardData>>(jsonString)
             } else {

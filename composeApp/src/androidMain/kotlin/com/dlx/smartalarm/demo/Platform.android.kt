@@ -1,4 +1,4 @@
-package com.dlx.smartalarm.demo
+package com.dlx.smartalarm.demo.core.platform
 
 import android.content.Context
 import android.os.Build

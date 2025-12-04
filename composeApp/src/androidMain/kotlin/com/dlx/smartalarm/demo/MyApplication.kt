@@ -1,6 +1,7 @@
 package com.dlx.smartalarm.demo
 
 import android.app.Application
+import com.dlx.smartalarm.demo.core.platform.getPlatform
 
 class MyApplication : Application() {
     override fun onCreate() {

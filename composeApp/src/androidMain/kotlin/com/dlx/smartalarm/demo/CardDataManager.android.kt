@@ -4,6 +4,8 @@ import android.content.Context
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import com.dlx.smartalarm.demo.core.platform.readTextFile
+import com.dlx.smartalarm.demo.core.platform.writeTextFile
 
 actual class CardDataManager {
     actual suspend fun saveCards(cards: List<CardData>) {
@@ -15,30 +17,4 @@ actual class CardDataManager {
     }
 }
 
-
-
-actual suspend fun readFile(fileName: String): String? = withContext(Dispatchers.IO) {
-    try {
-        val context = appContext ?: return@withContext null
-        val file = File(context.filesDir, fileName)
-        if (file.exists()) {
-            file.readText()
-        } else {
-            null
-        }
-    } catch (e: Exception) {
-        println("Error reading file: ${e.message}")
-        null
-    }
-}
-
-actual suspend fun writeFile(fileName: String, content: String) = withContext(Dispatchers.IO) {
-    try {
-        val context = appContext ?: return@withContext
-        val file = File(context.filesDir, fileName)
-        file.writeText(content)
-        println("Cards saved to: ${file.absolutePath}")
-    } catch (e: Exception) {
-        println("Error writing file: ${e.message}")
-    }
-}
+// 这些函数已经移动到 core.platform 包中，这里不再需要重复实现
