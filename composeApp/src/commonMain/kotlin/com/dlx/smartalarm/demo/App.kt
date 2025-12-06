@@ -27,11 +27,8 @@ import dev.icerock.moko.resources.compose.stringResource
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
-import demo.composeapp.generated.resources.Res
-import demo.composeapp.generated.resources.FilterIcon
- 
-import org.jetbrains.compose.resources.painterResource
 import com.dlx.smartalarm.demo.features.app.navigation.Screen
+import com.dlx.smartalarm.demo.components.icon.rememberSvgIcon
 import com.dlx.smartalarm.demo.features.main.logic.FilterMenuState
 import com.dlx.smartalarm.demo.features.main.logic.applyFilterSelection
 import com.dlx.smartalarm.demo.features.main.components.MainGridContent
@@ -410,7 +407,7 @@ private fun MainScreen(
                                     }
                                 }) {
                                     Icon(
-                                        painter = painterResource(Res.drawable.FilterIcon),
+                                        painter = rememberSvgIcon("FilterIcon"),
 										modifier = Modifier.size(18.dp),
                                         contentDescription = stringResource(MR.strings.filter)
                                     )
