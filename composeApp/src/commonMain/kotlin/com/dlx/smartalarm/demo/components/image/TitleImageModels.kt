@@ -10,6 +10,7 @@ import kotlin.math.max
 @Serializable
 data class Anchor(val x: Float, val y: Float)
 
+@Serializable
 enum class TitleImageViewType {
     List,
     Grid,
