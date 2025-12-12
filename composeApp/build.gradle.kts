@@ -39,7 +39,28 @@ val buildIdProvider: Provider<Int> = providers.of(GitCommitCountSource::class) {
 }
 val buildId = buildIdProvider.orElse(1).get()
 val versionNameString = "$versionMajor.$versionMinor.$buildId"
+
+abstract class GitShortHashSource : ValueSource<String, GitShortHashSource.Parameters> {
+	interface Parameters : ValueSourceParameters {
+		@get:InputDirectory
+		val gitDir: DirectoryProperty
+	}
+
+	override fun obtain(): String {
+		val process = ProcessBuilder("git", "rev-parse", "--short", "HEAD")
+			.directory(parameters.gitDir.get().asFile)
+			.redirectErrorStream(true)
+			.start()
+		return process.inputStream.bufferedReader().use { it.readText().trim() }.ifBlank { "unknown" }
+	}
+}
+
+val gitShortHashProvider: Provider<String> = providers.of(GitShortHashSource::class) {
+	parameters.gitDir.set(layout.projectDirectory)
+}
+val gitShortHash = gitShortHashProvider.orElse("unknown").get()
 val buildTimestamp = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss").format(LocalDateTime.now())
+val artifactSuffix = "$versionNameString-$gitShortHash-$buildTimestamp"
 
 plugins {
 	alias(libs.plugins.kotlinMultiplatform)
@@ -166,7 +187,7 @@ android.applicationVariants.configureEach {
 	outputs.forEach { output ->
 		val outputImpl = output as BaseVariantOutputImpl
 		val ext = outputImpl.outputFile.extension.ifBlank { "apk" }
-		outputImpl.outputFileName = "demo-${name}-${versionNameString}-$buildTimestamp.$ext"
+		outputImpl.outputFileName = "demo-${name}-${artifactSuffix}.$ext"
 	}
 }
 
@@ -177,9 +198,11 @@ val renameBundleRelease = tasks.register<Copy>("renameBundleRelease") {
 	description = "Copy and rename release AAB with version and timestamp"
 	from(layout.buildDirectory.dir("outputs/bundle/release"))
 	include("*.aab")
-	into(layout.buildDirectory.dir("outputs/bundle/release/renamed"))
+
+	//into(layout.buildDirectory.dir("outputs/bundle/release/renamed"))
+	into(layout.projectDirectory.dir("release"))
 	duplicatesStrategy = DuplicatesStrategy.INCLUDE
-	val targetName = providers.provider { "demo-release-${versionNameString}-$buildTimestamp.aab" }
+	val targetName = providers.provider { "demo-release-${artifactSuffix}.aab" }
 	rename { targetName.get() }
 }
 
@@ -190,6 +213,9 @@ gradle.projectsEvaluated {
 			dependsOn(bundle)
 		}
 		bundle.finalizedBy(renameBundleRelease)
+	}
+	tasks.findByName("produceReleaseBundleIdeListingFile")?.let { ideTask ->
+		ideTask.dependsOn(renameBundleRelease)
 	}
 }
 
