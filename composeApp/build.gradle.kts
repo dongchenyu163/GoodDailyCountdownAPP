@@ -199,8 +199,7 @@ val renameBundleRelease = tasks.register<Copy>("renameBundleRelease") {
 	from(layout.buildDirectory.dir("outputs/bundle/release"))
 	include("*.aab")
 
-	//into(layout.buildDirectory.dir("outputs/bundle/release/renamed"))
-	into(layout.projectDirectory.dir("release"))
+	into(layout.buildDirectory.dir("outputs/bundle/release"))
 	duplicatesStrategy = DuplicatesStrategy.INCLUDE
 	val targetName = providers.provider { "demo-release-${artifactSuffix}.aab" }
 	rename { targetName.get() }
