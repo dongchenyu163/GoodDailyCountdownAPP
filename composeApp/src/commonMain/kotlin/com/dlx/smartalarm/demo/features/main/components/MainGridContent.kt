@@ -28,7 +28,6 @@ import com.dlx.smartalarm.demo.components.image.TitleImageViewType
 import com.dlx.smartalarm.demo.components.image.TitleImageBackground
 import com.dlx.smartalarm.demo.components.image.DefaultGridImageGradient
 import com.dlx.smartalarm.demo.components.image.GradientOrientation
-import com.dlx.smartalarm.demo.core.platform.getAppFontFamily
 import com.dlx.smartalarm.demo.MR
 import dev.icerock.moko.resources.compose.stringResource
 import androidx.compose.animation.core.animateFloatAsState
@@ -75,7 +74,6 @@ fun MainGridContent(
                         } ?: cardData.remainingDays
                 }
 
-                var threeDotsButtonPosition by remember { mutableStateOf<DpOffset?>(null) }
                 var itemPositionInWindow by remember { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
                 val density = LocalDensity.current
 
@@ -146,17 +144,6 @@ fun MainGridContent(
                             }
 
                             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopEnd) {
-                                androidx.compose.material3.IconButton(
-                                    onClick = {
-                                        threeDotsButtonPosition?.let { showMenu(cardData, it) }
-                                    },
-                                    modifier = Modifier.onGloballyPositioned {
-                                        val positionInWindow = it.positionInWindow()
-                                        with(density) {
-                                            threeDotsButtonPosition = DpOffset(positionInWindow.x.toDp(), positionInWindow.y.toDp())
-                                        }
-                                    }
-                                ) { androidx.compose.material3.Text("≡", fontFamily = getAppFontFamily()) }
                             }
 
                             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {

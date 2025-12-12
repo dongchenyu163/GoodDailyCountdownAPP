@@ -90,7 +90,6 @@ fun CountdownCard(
             CardPreviewMaxAspectRatio
         ) ?: 1.8f
 
-        var threeDotsButtonPosition by remember { mutableStateOf<DpOffset?>(null) }
         var itemPositionInWindow by remember { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
         val density = LocalDensity.current
 
@@ -171,16 +170,6 @@ fun CountdownCard(
                         Text(text = stringResource(MR.strings.remaining_days_short, remainingDays), color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Medium, fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace)
                     }
                 }
-            }
-
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopEnd) {
-                IconButton(
-                    onClick = { threeDotsButtonPosition?.let { onShowMenu(it) } },
-                    modifier = Modifier.onGloballyPositioned {
-                        val positionInWindow = it.positionInWindow()
-                        with(density) { threeDotsButtonPosition = DpOffset(positionInWindow.x.toDp(), positionInWindow.y.toDp()) }
-                    }
-                ) { Text("≡", color = Color.White.copy(alpha = 0.6f)) }
             }
 
             Box(modifier = Modifier.fillMaxSize().padding(8.dp), contentAlignment = Alignment.BottomEnd) {

@@ -37,7 +37,6 @@ import com.dlx.smartalarm.demo.components.image.TitleImageViewType
 import com.dlx.smartalarm.demo.components.image.TitleImageBackground
 import com.dlx.smartalarm.demo.components.image.DefaultListImageGradient
 import com.dlx.smartalarm.demo.components.image.GradientOrientation
-import com.dlx.smartalarm.demo.core.platform.getAppFontFamily
 import com.dlx.smartalarm.demo.MR
 import com.dlx.smartalarm.demo.core.model.DisplayStyle
 import dev.icerock.moko.resources.compose.stringResource
@@ -167,8 +166,6 @@ fun MainListContent(
                             val ty by androidx.compose.animation.core.animateFloatAsState(if (appeared) 0f else 8f, label = "lTy")
                             LaunchedEffect(Unit) { appeared = true }
 
-                            var threeDotsButtonPosition by remember { mutableStateOf<DpOffset?>(null) }
-
                             Surface(
                                 shape = MaterialTheme.shapes.large,
                                 tonalElevation = 1.dp,
@@ -214,17 +211,6 @@ fun MainListContent(
                                                 onUpdateDynamic(cardData.copy(isFavorite = false, tags = nextTags))
                                             }
                                         )
-                                        IconButton(
-                                            onClick = {
-                                                threeDotsButtonPosition?.let { showMenu(cardData, it) }
-                                            },
-                                            modifier = Modifier.onGloballyPositioned {
-                                                val positionInWindow = it.positionInWindow()
-                                                with(density) {
-                                                    threeDotsButtonPosition = DpOffset(positionInWindow.x.toDp(), positionInWindow.y.toDp())
-                                                }
-                                            }
-                                        ) { Text("≡", fontFamily = getAppFontFamily()) }
                                     }
                                 }
                             }
