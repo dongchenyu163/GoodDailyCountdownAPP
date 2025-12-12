@@ -170,6 +170,29 @@ android.applicationVariants.configureEach {
 	}
 }
 
+val renameBundleRelease = tasks.register<Copy>("renameBundleRelease") {
+	// Will be enabled only if bundleRelease exists
+	enabled = false
+	group = "build"
+	description = "Copy and rename release AAB with version and timestamp"
+	from(layout.buildDirectory.dir("outputs/bundle/release"))
+	include("*.aab")
+	into(layout.buildDirectory.dir("outputs/bundle/release/renamed"))
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
+	val targetName = providers.provider { "demo-release-${versionNameString}-$buildTimestamp.aab" }
+	rename { targetName.get() }
+}
+
+gradle.projectsEvaluated {
+	tasks.findByName("bundleRelease")?.let { bundle ->
+		renameBundleRelease.configure {
+			enabled = true
+			dependsOn(bundle)
+		}
+		bundle.finalizedBy(renameBundleRelease)
+	}
+}
+
 dependencies {
 	debugImplementation(compose.uiTooling)
 }
