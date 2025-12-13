@@ -169,7 +169,14 @@ android {
 	}
 	buildTypes {
 		getByName("release") {
-			isMinifyEnabled = false
+			isMinifyEnabled = true
+			proguardFiles(
+				getDefaultProguardFile("proguard-android-optimize.txt"),
+				"proguard-rules.pro"
+			)
+			ndk {
+				debugSymbolLevel = "FULL"
+			}
 		}
 	}
 
@@ -196,10 +203,10 @@ val renameBundleRelease = tasks.register<Copy>("renameBundleRelease") {
 	enabled = false
 	group = "build"
 	description = "Copy and rename release AAB with version and timestamp"
-	from(layout.buildDirectory.dir("outputs/bundle/release"))
+	from(layout.projectDirectory.dir("release"))
 	include("*.aab")
 
-	into(layout.buildDirectory.dir("outputs/bundle/release"))
+	into(layout.projectDirectory.dir("release"))
 	duplicatesStrategy = DuplicatesStrategy.INCLUDE
 	val targetName = providers.provider { "demo-release-${artifactSuffix}.aab" }
 	rename { targetName.get() }
