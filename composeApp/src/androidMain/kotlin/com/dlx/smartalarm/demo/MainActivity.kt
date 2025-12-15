@@ -43,14 +43,10 @@ class MainActivity : ComponentActivity() {
         window.statusBarColor = Color.TRANSPARENT
         window.navigationBarColor = Color.TRANSPARENT
 
-        if (Build.VERSION.SDK_INT >= ANDROID_15) {
-            // Avoid deprecated SHORT_EDGES flag on Android 15+ by using the new ALWAYS mode.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            // Use ALWAYS to stay compatible with Android 15+ and avoid deprecated SHORT_EDGES.
             window.attributes = window.attributes.apply {
                 layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
-            }
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            window.attributes = window.attributes.apply {
-                layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_DEFAULT
             }
         }
 
@@ -62,7 +58,6 @@ class MainActivity : ComponentActivity() {
 
     companion object {
         private const val NOTIFICATION_PERMISSION_REQUEST_CODE = 1001
-        private const val ANDROID_15 = 35
     }
 }
 
