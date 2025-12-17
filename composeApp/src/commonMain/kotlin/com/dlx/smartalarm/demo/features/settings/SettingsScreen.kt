@@ -3,7 +3,6 @@ package com.dlx.smartalarm.demo.features.settings
 import com.dlx.smartalarm.demo.MR
 import com.dlx.smartalarm.demo.core.model.DisplayStyle
 import dev.icerock.moko.resources.compose.stringResource
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -42,7 +41,7 @@ fun SettingsScreen(
                     .padding(padding)
                     .padding(12.dp)
                     .verticalScroll(scrollState), 
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(3.dp)
             ) {
 
                 Text(stringResource(MR.strings.countdown_display_style), style = MaterialTheme.typography.titleMedium)
@@ -96,11 +95,10 @@ fun SettingsScreen(
 @Composable
 private fun DisplayStyleItem(title: String, subtitle: String, selected: Boolean, onClick: () -> Unit) {
     Surface(
+        onClick = onClick,
         tonalElevation = if (selected) 4.dp else 0.dp,
         shape = MaterialTheme.shapes.medium,
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick) // Moved onClick here
+        modifier = Modifier.fillMaxWidth()
     ) {
         Row(
             modifier = Modifier
@@ -122,11 +120,10 @@ private fun DisplayStyleItem(title: String, subtitle: String, selected: Boolean,
 @Composable
 private fun LanguageItem(title: String, selected: Boolean, onClick: () -> Unit) {
     Surface(
+        onClick = onClick,
         tonalElevation = if (selected) 4.dp else 0.dp,
         shape = MaterialTheme.shapes.medium,
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
+        modifier = Modifier.fillMaxWidth()
     ) {
         Row(
             modifier = Modifier

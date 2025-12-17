@@ -1,11 +1,14 @@
 package com.dlx.smartalarm.demo.components.favorite
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import dev.icerock.moko.resources.compose.stringResource
@@ -35,14 +38,20 @@ fun FavoriteButton(
         animationSpec = tween(durationMillis = 1000)
     )
 
-    Image(
-        painter = rememberLottiePainter(
-            composition = composition,
-            progress = { progressState }
-        ),
-        contentDescription = stringResource(com.dlx.smartalarm.demo.MR.strings.favorite),
-        modifier = modifier
-            .clickable { onToggle() }
-            .size(48.dp)
-    )
+    Surface(
+        onClick = onToggle,
+        shape = RoundedCornerShape(12.dp),
+        color = Color.Transparent,
+        tonalElevation = 0.dp,
+        modifier = modifier.size(48.dp)
+    ) {
+        Image(
+            painter = rememberLottiePainter(
+                composition = composition,
+                progress = { progressState }
+            ),
+            contentDescription = stringResource(com.dlx.smartalarm.demo.MR.strings.favorite),
+            modifier = Modifier.fillMaxSize()
+        )
+    }
 }
