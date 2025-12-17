@@ -40,9 +40,9 @@ fun SettingsScreen(
             Column(
                 modifier = Modifier
                     .padding(padding)
-                    .padding(16.dp)
+                    .padding(12.dp)
                     .verticalScroll(scrollState), 
-                verticalArrangement = Arrangement.spacedBy(20.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
 
                 Text(stringResource(MR.strings.countdown_display_style), style = MaterialTheme.typography.titleMedium)
@@ -105,7 +105,7 @@ private fun DisplayStyleItem(title: String, subtitle: String, selected: Boolean,
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 10.dp), // Reduced vertical padding
+                .padding(horizontal = 12.dp, vertical = 10.dp), // Reduced padding for tighter layout
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
@@ -131,7 +131,7 @@ private fun LanguageItem(title: String, selected: Boolean, onClick: () -> Unit) 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 10.dp),
+                .padding(horizontal = 12.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(title, modifier = Modifier.weight(1f))

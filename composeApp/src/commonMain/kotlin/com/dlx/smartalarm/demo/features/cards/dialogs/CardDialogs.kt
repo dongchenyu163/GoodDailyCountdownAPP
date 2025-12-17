@@ -40,6 +40,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import com.dlx.smartalarm.demo.components.menu.AppMenuDefaults
 
 // 本文件中时间格式统一使用简单的 "HH:mm" 字符串，并且完全不调用任何 format(...) 扩展，避免与 kotlinx-datetime 的 format 重载冲突
 private fun parseTimeString(time: String?): Pair<Int, Int> {
@@ -338,7 +339,9 @@ fun CardDialog(
                         )
                         ExposedDropdownMenu(
                             expanded = frequencyExpanded,
-                            onDismissRequest = { frequencyExpanded = false }
+                            onDismissRequest = { frequencyExpanded = false },
+                            shape = AppMenuDefaults.shape,
+                            containerColor = AppMenuDefaults.containerColor()
                         ) {
                             frequencyOptions.forEach { (value, label) ->
                                 DropdownMenuItem(

@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import dev.icerock.moko.resources.compose.stringResource
+import com.dlx.smartalarm.demo.components.menu.AppDropdownMenu
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -61,7 +62,7 @@ fun TagMultiselect(
             }
         }
 
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        AppDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             OutlinedTextField(
                 value = query,
                 onValueChange = { query = it },

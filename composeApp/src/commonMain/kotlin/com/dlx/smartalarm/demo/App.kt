@@ -34,6 +34,7 @@ import com.dlx.smartalarm.demo.features.main.logic.applyFilterSelection
 import com.dlx.smartalarm.demo.features.main.components.MainGridContent
 import com.dlx.smartalarm.demo.features.main.components.MainListContent
 import com.dlx.smartalarm.demo.components.menu.AppContextMenu
+import com.dlx.smartalarm.demo.components.menu.AppDropdownMenu
 import com.dlx.smartalarm.demo.features.cards.dialogs.AddCardDialog
 import com.dlx.smartalarm.demo.features.cards.dialogs.EditCardDialog
 import com.dlx.smartalarm.demo.components.scroll.VerticalScrollbar
@@ -412,7 +413,7 @@ private fun MainScreen(
                                         contentDescription = stringResource(MR.strings.filter)
                                     )
                                 }
-                                DropdownMenu(
+                                AppDropdownMenu(
                                     expanded = filterMenuState.expanded,
                                     onDismissRequest = { filterMenuState = filterMenuState.copy(expanded = false) }
                                 ) {
